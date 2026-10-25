@@ -1,0 +1,1919 @@
+{
+  "model": "WeVisOne-VL-4B",
+  "projection": "Max",
+  "date": "2026-10-25",
+  "summary": {
+    "complete": 63,
+    "partial": 0,
+    "failed": 1,
+    "pending": 0
+  },
+  "examples": [
+    {
+      "name": "human_mitosis",
+      "category": "Cellen & organoïden",
+      "kind": "Publiek 2D-voorbeeld",
+      "shape": [
+        1,
+        1,
+        1,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/human_mitosis-input.webp",
+      "labels": [
+        {
+          "name": "nuclei",
+          "text": "each bright fluorescent cell nucleus",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/human_mitosis-nuclei-overlay.webp",
+          "download": "downloads/human_mitosis-nuclei-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 127,
+          "message": "Tijdpunt 0: 127 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 6.3%.",
+          "foreground_fraction": 0.06301498413085938
+        }
+      ],
+      "sources": [
+        "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.human_mitosis"
+      ],
+      "license": "CC0; David Root",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/human_mitosis-measurements.csv",
+      "note": "",
+      "search": "human_mitosis  each bright fluorescent cell nucleus"
+    },
+    {
+      "name": "immunohistochemistry",
+      "category": "Histologie & weefsel",
+      "kind": "Publiek 2D-voorbeeld",
+      "shape": [
+        1,
+        3,
+        1,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/immunohistochemistry-input.webp",
+      "labels": [
+        {
+          "name": "glands",
+          "text": "colonic glands",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/immunohistochemistry-glands-overlay.webp",
+          "download": "downloads/immunohistochemistry-glands-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 4,
+          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 59.7%.",
+          "foreground_fraction": 0.5968399047851562
+        }
+      ],
+      "sources": [
+        "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.immunohistochemistry"
+      ],
+      "license": "No known copyright restrictions; CMMI",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/immunohistochemistry-measurements.csv",
+      "note": "",
+      "search": "immunohistochemistry  colonic glands"
+    },
+    {
+      "name": "cell",
+      "category": "Cellen & organoïden",
+      "kind": "Publiek 2D-voorbeeld",
+      "shape": [
+        1,
+        1,
+        1,
+        660,
+        550
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/cell-input.webp",
+      "labels": [
+        {
+          "name": "cell",
+          "text": "cell",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/cell-cell-overlay.webp",
+          "download": "downloads/cell-cell-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 6.0%.",
+          "foreground_fraction": 0.05985950413223141
+        }
+      ],
+      "sources": [
+        "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.cell"
+      ],
+      "license": "CC0; Paul Mueller et al.",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/cell-measurements.csv",
+      "note": "",
+      "search": "cell  cell"
+    },
+    {
+      "name": "organoids_im9",
+      "category": "Cellen & organoïden",
+      "kind": "Publiek 2D-voorbeeld",
+      "shape": [
+        1,
+        1,
+        1,
+        1040,
+        1408
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/organoids_im9-input.webp",
+      "labels": [
+        {
+          "name": "organoids",
+          "text": "organoids",
+          "channels": [
+            1
+          ],
+          "status": "failed",
+          "overlay": null,
+          "download": null,
+          "timepoints_available": [],
+          "message": "Voorspelling geweigerd: Model generated 210 object tokens but 209 valid boxes. Refusing misaligned mask decoding; try a more specific prompt or an explicit smaller ROI."
+        }
+      ],
+      "sources": [
+        "https://zenodo.org/records/14036957"
+      ],
+      "license": "CC BY 4.0",
+      "attribution": "",
+      "selection": {},
+      "measurements": null,
+      "note": "",
+      "search": "organoids_im9  organoids"
+    },
+    {
+      "name": "organoids_im10",
+      "category": "Cellen & organoïden",
+      "kind": "Publiek 2D-voorbeeld",
+      "shape": [
+        1,
+        1,
+        1,
+        1040,
+        1408
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/organoids_im10-input.webp",
+      "labels": [
+        {
+          "name": "organoids",
+          "text": "organoids",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/organoids_im10-organoids-overlay.webp",
+          "download": "downloads/organoids_im10-organoids-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 83,
+          "message": "Tijdpunt 0: 83 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 2.4%. Foreground Dice: 0.881 tegen consensus (geen instance-score).",
+          "foreground_fraction": 0.02353515625,
+          "foreground_dice": 0.8807507084346304
+        }
+      ],
+      "sources": [
+        "https://zenodo.org/records/14036957"
+      ],
+      "license": "CC BY 4.0",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/organoids_im10-measurements.csv",
+      "note": "",
+      "search": "organoids_im10  organoids"
+    },
+    {
+      "name": "local-dendrite-spines",
+      "category": "Neuronaal & vaten",
+      "kind": "dendrite and spines",
+      "shape": [
+        1,
+        1,
+        41,
+        157,
+        116
+      ],
+      "timepoints": 1,
+      "z_planes": 41,
+      "input": "gallery/local-dendrite-spines-input.webp",
+      "labels": [
+        {
+          "name": "dendrite",
+          "text": "the main dendritic shaft",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-dendrite-spines-dendrite-overlay.webp",
+          "download": "downloads/local-dendrite-spines-dendrite-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 20.4%.",
+          "foreground_fraction": 0.20382165605095542
+        },
+        {
+          "name": "spines",
+          "text": "small dendritic spines attached to the shaft",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-dendrite-spines-spines-overlay.webp",
+          "download": "downloads/local-dendrite-spines-spines-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 3,
+          "message": "Tijdpunt 0: 3 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.9%.",
+          "foreground_fraction": 0.018504282890401933
+        }
+      ],
+      "sources": [
+        "https://raw.githubusercontent.com/morphonets/misc/3ffb1bee97666634faf12c060650a6052a30fc26/dataset-demos/SpotSpine/SpotSpine_ImageStack_Test.tif",
+        "https://imagej.net/plugins/spot-spine"
+      ],
+      "license": "Public SNT/Spot Spine demo; no separate data license declared in the mirror.",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/local-dendrite-spines-measurements.csv",
+      "note": "",
+      "search": "local-dendrite-spines dendrite and spines the main dendritic shaft small dendritic spines attached to the shaft"
+    },
+    {
+      "name": "local-drosophila-olfactory-neuron",
+      "category": "Neuronaal & vaten",
+      "kind": "neuronal arbor",
+      "shape": [
+        1,
+        1,
+        60,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 60,
+      "input": "gallery/local-drosophila-olfactory-neuron-input.webp",
+      "labels": [
+        {
+          "name": "neuron",
+          "text": "the branching neuron and its neurites",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-drosophila-olfactory-neuron-neuron-overlay.webp",
+          "download": "downloads/local-drosophila-olfactory-neuron-neuron-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 2.5%.",
+          "foreground_fraction": 0.025012969970703125
+        }
+      ],
+      "sources": [],
+      "license": "Publicly downloadable sample; no separate file-specific redistribution license identified",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/local-drosophila-olfactory-neuron-measurements.csv",
+      "note": "",
+      "search": "local-drosophila-olfactory-neuron neuronal arbor the branching neuron and its neurites"
+    },
+    {
+      "name": "local-mouse-brain-astrocytes-vessels",
+      "category": "Neuronaal & vaten",
+      "kind": "brain blood vessels and astrocyte processes",
+      "shape": [
+        1,
+        3,
+        36,
+        370,
+        370
+      ],
+      "timepoints": 1,
+      "z_planes": 36,
+      "input": "gallery/local-mouse-brain-astrocytes-vessels-input.webp",
+      "labels": [
+        {
+          "name": "vessels",
+          "text": "blood vessels",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-mouse-brain-astrocytes-vessels-vessels-overlay.webp",
+          "download": "downloads/local-mouse-brain-astrocytes-vessels-vessels-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 93.5%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.9345288531775018
+        },
+        {
+          "name": "processes",
+          "text": "red branching astrocyte processes",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-mouse-brain-astrocytes-vessels-processes-overlay.webp",
+          "download": "downloads/local-mouse-brain-astrocytes-vessels-processes-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 92.0%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.9203579254930606
+        }
+      ],
+      "sources": [
+        "https://imagej.net/ij/images/GFAP-FVII.zip",
+        "https://imagej.net/ij/images/GFAP-FVII.txt"
+      ],
+      "license": "Public ImageJ sample; no separate data license declared.",
+      "attribution": "Tony Collins / ImageJ for Microscopy",
+      "selection": {},
+      "measurements": "downloads/local-mouse-brain-astrocytes-vessels-measurements.csv",
+      "note": "",
+      "search": "local-mouse-brain-astrocytes-vessels brain blood vessels and astrocyte processes blood vessels red branching astrocyte processes"
+    },
+    {
+      "name": "local-neural-organoid-section",
+      "category": "Histologie & weefsel",
+      "kind": "organoid section neurofilament volume",
+      "shape": [
+        1,
+        1,
+        21,
+        2048,
+        2048
+      ],
+      "timepoints": 1,
+      "z_planes": 21,
+      "input": "gallery/local-neural-organoid-section-input.webp",
+      "labels": [
+        {
+          "name": "tissue",
+          "text": "the complete visible tissue section",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-neural-organoid-section-tissue-overlay.webp",
+          "download": "downloads/local-neural-organoid-section-tissue-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 46.7%.",
+          "foreground_fraction": 0.4674992561340332
+        },
+        {
+          "name": "fibers",
+          "text": "branching neurofilament fibers",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-neural-organoid-section-fibers-overlay.webp",
+          "download": "downloads/local-neural-organoid-section-fibers-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.3%.",
+          "foreground_fraction": 0.0033953189849853516
+        }
+      ],
+      "sources": [
+        "https://zenodo.org/records/13899833"
+      ],
+      "license": "CC-BY-4.0",
+      "attribution": "Yuanzheng Ma, Tsinghua University / Tsinghua-Berkeley Shenzhen Institute",
+      "selection": {},
+      "measurements": "downloads/local-neural-organoid-section-measurements.csv",
+      "note": "",
+      "search": "local-neural-organoid-section organoid section neurofilament volume the complete visible tissue section branching neurofilament fibers"
+    },
+    {
+      "name": "local-REAL-LYSOSOME",
+      "category": "Cellen & organoïden",
+      "kind": "lysosome time series",
+      "shape": [
+        19,
+        1,
+        1,
+        512,
+        512
+      ],
+      "timepoints": 19,
+      "z_planes": 1,
+      "input": "gallery/local-REAL-LYSOSOME-input.webp",
+      "labels": [
+        {
+          "name": "lysosomes",
+          "text": "bright fluorescent lysosomes",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-REAL-LYSOSOME-lysosomes-overlay.webp",
+          "download": "downloads/local-REAL-LYSOSOME-lysosomes-labels.npz",
+          "timepoints_available": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "first_frame_objects": 9,
+          "message": "Tijdpunt 0: 9 voorspelde objecten. 19/19 tijdpunten berekend. Maskerdekking: 9.3%.",
+          "foreground_fraction": 0.09253692626953125
+        }
+      ],
+      "sources": [
+        "https://zenodo.org/records/14043236"
+      ],
+      "license": "Publicly downloadable sample; no separate file-specific redistribution license identified",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/local-REAL-LYSOSOME-measurements.csv",
+      "note": "",
+      "search": "local-REAL-LYSOSOME lysosome time series bright fluorescent lysosomes"
+    },
+    {
+      "name": "local-neurite-outgrowth-3t",
+      "category": "Neuronaal & vaten",
+      "kind": "2D neuronal outgrowth time series",
+      "shape": [
+        3,
+        1,
+        1,
+        428,
+        331
+      ],
+      "timepoints": 3,
+      "z_planes": 1,
+      "input": "gallery/local-neurite-outgrowth-3t-input.webp",
+      "labels": [
+        {
+          "name": "neurites",
+          "text": "the thin branching neuronal processes",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-neurite-outgrowth-3t-neurites-overlay.webp",
+          "download": "downloads/local-neurite-outgrowth-3t-neurites-labels.npz",
+          "timepoints_available": [
+            0,
+            1,
+            2
+          ],
+          "first_frame_objects": 4,
+          "message": "Tijdpunt 0: 4 voorspelde objecten. 3/3 tijdpunten berekend. Maskerdekking: 2.2%.",
+          "foreground_fraction": 0.0220444984047209
+        },
+        {
+          "name": "soma",
+          "text": "the neuronal cell body",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-neurite-outgrowth-3t-soma-overlay.webp",
+          "download": "downloads/local-neurite-outgrowth-3t-soma-labels.npz",
+          "timepoints_available": [
+            0,
+            1,
+            2
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 3/3 tijdpunten berekend. Maskerdekking: 4.5%.",
+          "foreground_fraction": 0.04465369737696586
+        }
+      ],
+      "sources": [],
+      "license": "CIL701 Creative Commons Attribution",
+      "attribution": "",
+      "selection": {
+        "source_time_indices": [
+          0,
+          96,
+          192
+        ],
+        "operation": "exact temporal subsampling; no XY resampling"
+      },
+      "measurements": "downloads/local-neurite-outgrowth-3t-measurements.csv",
+      "note": "",
+      "search": "local-neurite-outgrowth-3t 2D neuronal outgrowth time series the thin branching neuronal processes the neuronal cell body"
+    },
+    {
+      "name": "local-neurites-2d",
+      "category": "Neuronaal & vaten",
+      "kind": "2D neuron and neurites",
+      "shape": [
+        1,
+        1,
+        1,
+        428,
+        331
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/local-neurites-2d-input.webp",
+      "labels": [
+        {
+          "name": "neurites",
+          "text": "the thin branching neuronal processes",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-neurites-2d-neurites-overlay.webp",
+          "download": "downloads/local-neurites-2d-neurites-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 4,
+          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 2.9%.",
+          "foreground_fraction": 0.028898551543044302
+        },
+        {
+          "name": "soma",
+          "text": "the neuronal cell body",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-neurites-2d-soma-overlay.webp",
+          "download": "downloads/local-neurites-2d-soma-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 5.5%.",
+          "foreground_fraction": 0.05479713132111698
+        }
+      ],
+      "sources": [],
+      "license": "CIL701 Creative Commons Attribution",
+      "attribution": "",
+      "selection": {
+        "source_time_index": 96
+      },
+      "measurements": "downloads/local-neurites-2d-measurements.csv",
+      "note": "",
+      "search": "local-neurites-2d 2D neuron and neurites the thin branching neuronal processes the neuronal cell body"
+    },
+    {
+      "name": "public-skin",
+      "category": "Histologie & weefsel",
+      "kind": "histology",
+      "shape": [
+        1,
+        3,
+        1,
+        960,
+        1280
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-skin-input.webp",
+      "labels": [
+        {
+          "name": "epidermis",
+          "text": "the continuous epidermal layer",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-skin-epidermis-overlay.webp",
+          "download": "downloads/public-skin-epidermis-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 20.8%.",
+          "foreground_fraction": 0.2083740234375
+        },
+        {
+          "name": "dermis",
+          "text": "the underlying dermis",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-skin-dermis-overlay.webp",
+          "download": "downloads/public-skin-dermis-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 73.2%.",
+          "foreground_fraction": 0.73222900390625
+        },
+        {
+          "name": "tissue",
+          "text": "all tissue in the section",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-skin-tissue-overlay.webp",
+          "download": "downloads/public-skin-tissue-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 81.5%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.8151749674479166
+        }
+      ],
+      "sources": [
+        "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.skin"
+      ],
+      "license": "See scikit-image dataset-specific attribution",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/public-skin-measurements.csv",
+      "note": "",
+      "search": "public-skin histology the continuous epidermal layer the underlying dermis all tissue in the section"
+    },
+    {
+      "name": "public-retina",
+      "category": "Neuronaal & vaten",
+      "kind": "retinal fundus",
+      "shape": [
+        1,
+        3,
+        1,
+        1411,
+        1411
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-retina-input.webp",
+      "labels": [
+        {
+          "name": "vessels",
+          "text": "the branching retinal blood vessels",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-retina-vessels-overlay.webp",
+          "download": "downloads/public-retina-vessels-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 76.1%.",
+          "foreground_fraction": 0.7611216115556569
+        },
+        {
+          "name": "optic_disc",
+          "text": "the bright optic disc",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-retina-optic_disc-overlay.webp",
+          "download": "downloads/public-retina-optic_disc-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.3%.",
+          "foreground_fraction": 0.013254669572524474
+        },
+        {
+          "name": "retina",
+          "text": "the complete retinal field",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-retina-retina-overlay.webp",
+          "download": "downloads/public-retina-retina-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 76.1%.",
+          "foreground_fraction": 0.761185903408523
+        }
+      ],
+      "sources": [
+        "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.retina"
+      ],
+      "license": "See scikit-image dataset-specific attribution",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/public-retina-measurements.csv",
+      "note": "",
+      "search": "public-retina retinal fundus the branching retinal blood vessels the bright optic disc the complete retinal field"
+    },
+    {
+      "name": "public-lily-stem",
+      "category": "Overige structuren",
+      "kind": "plant stem confocal section",
+      "shape": [
+        1,
+        4,
+        1,
+        922,
+        922
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-lily-stem-input.webp",
+      "labels": [
+        {
+          "name": "bundles",
+          "text": "the vascular bundles in the plant stem",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-lily-stem-bundles-overlay.webp",
+          "download": "downloads/public-lily-stem-bundles-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "stem",
+          "text": "the complete plant stem cross-section",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-lily-stem-stem-overlay.webp",
+          "download": "downloads/public-lily-stem-stem-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 15.8%.",
+          "foreground_fraction": 0.15804908691376382
+        }
+      ],
+      "sources": [
+        "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.lily"
+      ],
+      "license": "CC0; Genevieve Buckley, Monash Micro Imaging",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/public-lily-stem-measurements.csv",
+      "note": "",
+      "search": "public-lily-stem plant stem confocal section the vascular bundles in the plant stem the complete plant stem cross-section"
+    },
+    {
+      "name": "public-diatoms",
+      "category": "Overige structuren",
+      "kind": "diatoms",
+      "shape": [
+        1,
+        3,
+        1,
+        486,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-diatoms-input.webp",
+      "labels": [
+        {
+          "name": "diatoms",
+          "text": "the individual diatoms",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-diatoms-diatoms-overlay.webp",
+          "download": "downloads/public-diatoms-diatoms-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 5,
+          "message": "Tijdpunt 0: 5 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 31.9%.",
+          "foreground_fraction": 0.3185442386831276
+        },
+        {
+          "name": "round",
+          "text": "round diatoms",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-diatoms-round-overlay.webp",
+          "download": "downloads/public-diatoms-round-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 2,
+          "message": "Tijdpunt 0: 2 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 14.8%.",
+          "foreground_fraction": 0.14817226080246915
+        },
+        {
+          "name": "elongated",
+          "text": "elongated diatoms",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-diatoms-elongated-overlay.webp",
+          "download": "downloads/public-diatoms-elongated-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 3,
+          "message": "Tijdpunt 0: 3 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 16.9%.",
+          "foreground_fraction": 0.16924672067901234
+        }
+      ],
+      "sources": [
+        "https://imagej.net/ij/images/Diatoms.jpg"
+      ],
+      "license": "Publicly downloadable sample; no separate file-specific redistribution license identified",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/public-diatoms-measurements.csv",
+      "note": "",
+      "search": "public-diatoms diatoms the individual diatoms round diatoms elongated diatoms"
+    },
+    {
+      "name": "public-embryos",
+      "category": "Overige structuren",
+      "kind": "embryos",
+      "shape": [
+        1,
+        3,
+        1,
+        1200,
+        1600
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-embryos-input.webp",
+      "labels": [
+        {
+          "name": "embryos",
+          "text": "the complete embryos",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-embryos-embryos-overlay.webp",
+          "download": "downloads/public-embryos-embryos-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 22,
+          "message": "Tijdpunt 0: 22 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 3.7%.",
+          "foreground_fraction": 0.03704479166666667
+        },
+        {
+          "name": "yolk",
+          "text": "the round yolk sacs",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-embryos-yolk-overlay.webp",
+          "download": "downloads/public-embryos-yolk-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 5,
+          "message": "Tijdpunt 0: 5 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.8%.",
+          "foreground_fraction": 0.00750625
+        }
+      ],
+      "sources": [
+        "https://imagej.net/ij/images/embryos.jpg"
+      ],
+      "license": "Publicly downloadable sample; no separate file-specific redistribution license identified",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/public-embryos-measurements.csv",
+      "note": "",
+      "search": "public-embryos embryos the complete embryos the round yolk sacs"
+    },
+    {
+      "name": "public-adipose",
+      "category": "Histologie & weefsel",
+      "kind": "osmium-fixed human subcutaneous adipose tissue",
+      "shape": [
+        1,
+        3,
+        1,
+        1200,
+        1600
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-adipose-input.webp",
+      "labels": [
+        {
+          "name": "adipocytes",
+          "text": "the large round adipocytes",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-adipose-adipocytes-overlay.webp",
+          "download": "downloads/public-adipose-adipocytes-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 92.6%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.9262609375
+        },
+        {
+          "name": "fat",
+          "text": "the entire adipose tissue region",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-adipose-fat-overlay.webp",
+          "download": "downloads/public-adipose-fat-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 51.9%.",
+          "foreground_fraction": 0.5190411458333334
+        },
+        {
+          "name": "septa",
+          "text": "connective tissue between the fat cells",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-adipose-septa-overlay.webp",
+          "download": "downloads/public-adipose-septa-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 58.0%.",
+          "foreground_fraction": 0.580134375
+        }
+      ],
+      "sources": [
+        "https://imagej.net/ij/images/fat-cells.zip"
+      ],
+      "license": "Publicly downloadable sample; no separate file-specific redistribution license identified",
+      "attribution": "Lakishea Hawkins, Department of Clinical Nutrition, University of Maryland Baltimore",
+      "selection": {},
+      "measurements": "downloads/public-adipose-measurements.csv",
+      "note": "",
+      "search": "public-adipose osmium-fixed human subcutaneous adipose tissue the large round adipocytes the entire adipose tissue region connective tissue between the fat cells"
+    },
+    {
+      "name": "public-em-cos7-3d",
+      "category": "EM",
+      "kind": "3D FIB-SEM organelles",
+      "shape": [
+        1,
+        1,
+        32,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 32,
+      "input": "gallery/public-em-cos7-3d-input.webp",
+      "labels": [
+        {
+          "name": "mitochondria",
+          "text": "mitochondria with visible internal cristae",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-3d-mitochondria-overlay.webp",
+          "download": "downloads/public-em-cos7-3d-mitochondria-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "er",
+          "text": "endoplasmic reticulum membranes",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-3d-er-overlay.webp",
+          "download": "downloads/public-em-cos7-3d-er-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "golgi",
+          "text": "the Golgi apparatus",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-3d-golgi-overlay.webp",
+          "download": "downloads/public-em-cos7-3d-golgi-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 63.5%.",
+          "foreground_fraction": 0.63525390625
+        },
+        {
+          "name": "lipid_droplets",
+          "text": "lipid droplets",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-3d-lipid_droplets-overlay.webp",
+          "download": "downloads/public-em-cos7-3d-lipid_droplets-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 4,
+          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.7%.",
+          "foreground_fraction": 0.016773223876953125
+        }
+      ],
+      "sources": [
+        "https://cellmapchallenge.janelia.org/",
+        "https://janelia-cosem-datasets.s3.amazonaws.com/jrc_cos7-1a/jrc_cos7-1a.zarr/recon-1/em/fibsem-uint8"
+      ],
+      "license": "CC BY 4.0; CellMap Segmentation Challenge collection",
+      "attribution": "",
+      "selection": {
+        "source_level": "s1",
+        "roi_start_zyx": [
+          774,
+          1134,
+          2511
+        ],
+        "roi_stop_zyx_exclusive": [
+          806,
+          1646,
+          3023
+        ],
+        "operation": "Exact contiguous EM subvolume; no XY resampling; organelle labels not downloaded"
+      },
+      "measurements": "downloads/public-em-cos7-3d-measurements.csv",
+      "note": "Projection merges EM sections; use accompanying 2D slice for individual organelles",
+      "search": "public-em-cos7-3d 3D FIB-SEM organelles mitochondria with visible internal cristae endoplasmic reticulum membranes the Golgi apparatus lipid droplets"
+    },
+    {
+      "name": "public-em-cos7-2d",
+      "category": "EM",
+      "kind": "2D FIB-SEM organelles",
+      "shape": [
+        1,
+        1,
+        1,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-em-cos7-2d-input.webp",
+      "labels": [
+        {
+          "name": "mitochondria",
+          "text": "mitochondria with visible internal cristae",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-2d-mitochondria-overlay.webp",
+          "download": "downloads/public-em-cos7-2d-mitochondria-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "er",
+          "text": "endoplasmic reticulum membranes",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-2d-er-overlay.webp",
+          "download": "downloads/public-em-cos7-2d-er-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 63.7%.",
+          "foreground_fraction": 0.6372032165527344
+        },
+        {
+          "name": "golgi",
+          "text": "the Golgi apparatus",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-2d-golgi-overlay.webp",
+          "download": "downloads/public-em-cos7-2d-golgi-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 63.9%.",
+          "foreground_fraction": 0.6390113830566406
+        },
+        {
+          "name": "lipid_droplets",
+          "text": "lipid droplets",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-cos7-2d-lipid_droplets-overlay.webp",
+          "download": "downloads/public-em-cos7-2d-lipid_droplets-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 19,
+          "message": "Tijdpunt 0: 19 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 11.7%.",
+          "foreground_fraction": 0.11731338500976562
+        }
+      ],
+      "sources": [
+        "https://cellmapchallenge.janelia.org/",
+        "https://janelia-cosem-datasets.s3.amazonaws.com/jrc_cos7-1a/jrc_cos7-1a.zarr/recon-1/em/fibsem-uint8"
+      ],
+      "license": "CC BY 4.0; CellMap Segmentation Challenge collection",
+      "attribution": "",
+      "selection": {
+        "source_level": "s1",
+        "roi_start_zyx": [
+          774,
+          1134,
+          2511
+        ],
+        "roi_stop_zyx_exclusive": [
+          806,
+          1646,
+          3023
+        ],
+        "selected_z_index_in_roi": 16,
+        "operation": "Exact contiguous EM subvolume; no XY resampling; organelle labels not downloaded"
+      },
+      "measurements": "downloads/public-em-cos7-2d-measurements.csv",
+      "note": "",
+      "search": "public-em-cos7-2d 2D FIB-SEM organelles mitochondria with visible internal cristae endoplasmic reticulum membranes the Golgi apparatus lipid droplets"
+    },
+    {
+      "name": "public-em-liver-3d",
+      "category": "EM",
+      "kind": "3D FIB-SEM organelles",
+      "shape": [
+        1,
+        1,
+        32,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 32,
+      "input": "gallery/public-em-liver-3d-input.webp",
+      "labels": [
+        {
+          "name": "mitochondria",
+          "text": "mitochondria with visible internal cristae",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-3d-mitochondria-overlay.webp",
+          "download": "downloads/public-em-liver-3d-mitochondria-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 4.1%.",
+          "foreground_fraction": 0.040874481201171875
+        },
+        {
+          "name": "er",
+          "text": "endoplasmic reticulum membranes",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-3d-er-overlay.webp",
+          "download": "downloads/public-em-liver-3d-er-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "golgi",
+          "text": "the Golgi apparatus",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-3d-golgi-overlay.webp",
+          "download": "downloads/public-em-liver-3d-golgi-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 81.9%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.8187179565429688
+        },
+        {
+          "name": "lipid_droplets",
+          "text": "lipid droplets",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-3d-lipid_droplets-overlay.webp",
+          "download": "downloads/public-em-liver-3d-lipid_droplets-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.4%.",
+          "foreground_fraction": 0.014362335205078125
+        }
+      ],
+      "sources": [
+        "https://cellmapchallenge.janelia.org/",
+        "https://janelia-cosem-datasets.s3.amazonaws.com/jrc_mus-liver/jrc_mus-liver.zarr/recon-1/em/fibsem-uint8"
+      ],
+      "license": "CC BY 4.0; CellMap Segmentation Challenge collection",
+      "attribution": "",
+      "selection": {
+        "source_level": "s0",
+        "roi_start_zyx": [
+          5558,
+          4388,
+          9448
+        ],
+        "roi_stop_zyx_exclusive": [
+          5590,
+          4900,
+          9960
+        ],
+        "operation": "Exact contiguous EM subvolume; no XY resampling; organelle labels not downloaded"
+      },
+      "measurements": "downloads/public-em-liver-3d-measurements.csv",
+      "note": "Projection merges EM sections; use accompanying 2D slice for individual organelles",
+      "search": "public-em-liver-3d 3D FIB-SEM organelles mitochondria with visible internal cristae endoplasmic reticulum membranes the Golgi apparatus lipid droplets"
+    },
+    {
+      "name": "public-em-liver-2d",
+      "category": "EM",
+      "kind": "2D FIB-SEM organelles",
+      "shape": [
+        1,
+        1,
+        1,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-em-liver-2d-input.webp",
+      "labels": [
+        {
+          "name": "mitochondria",
+          "text": "mitochondria with visible internal cristae",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-2d-mitochondria-overlay.webp",
+          "download": "downloads/public-em-liver-2d-mitochondria-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 4.2%.",
+          "foreground_fraction": 0.042217254638671875
+        },
+        {
+          "name": "er",
+          "text": "endoplasmic reticulum membranes",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-2d-er-overlay.webp",
+          "download": "downloads/public-em-liver-2d-er-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 4.4%.",
+          "foreground_fraction": 0.0439300537109375
+        },
+        {
+          "name": "golgi",
+          "text": "the Golgi apparatus",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-2d-golgi-overlay.webp",
+          "download": "downloads/public-em-liver-2d-golgi-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 83.9%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.8394432067871094
+        },
+        {
+          "name": "lipid_droplets",
+          "text": "lipid droplets",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-liver-2d-lipid_droplets-overlay.webp",
+          "download": "downloads/public-em-liver-2d-lipid_droplets-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 6,
+          "message": "Tijdpunt 0: 6 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 10.2%.",
+          "foreground_fraction": 0.10182571411132812
+        }
+      ],
+      "sources": [
+        "https://cellmapchallenge.janelia.org/",
+        "https://janelia-cosem-datasets.s3.amazonaws.com/jrc_mus-liver/jrc_mus-liver.zarr/recon-1/em/fibsem-uint8"
+      ],
+      "license": "CC BY 4.0; CellMap Segmentation Challenge collection",
+      "attribution": "",
+      "selection": {
+        "source_level": "s0",
+        "roi_start_zyx": [
+          5558,
+          4388,
+          9448
+        ],
+        "roi_stop_zyx_exclusive": [
+          5590,
+          4900,
+          9960
+        ],
+        "selected_z_index_in_roi": 16,
+        "operation": "Exact contiguous EM subvolume; no XY resampling; organelle labels not downloaded"
+      },
+      "measurements": "downloads/public-em-liver-2d-measurements.csv",
+      "note": "",
+      "search": "public-em-liver-2d 2D FIB-SEM organelles mitochondria with visible internal cristae endoplasmic reticulum membranes the Golgi apparatus lipid droplets"
+    },
+    {
+      "name": "public-em-mitochondria-mib",
+      "category": "EM",
+      "kind": "EM organelles",
+      "shape": [
+        1,
+        1,
+        1,
+        396,
+        756
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-em-mitochondria-mib-input.webp",
+      "labels": [
+        {
+          "name": "mitochondria",
+          "text": "mitochondria with visible cristae",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-mitochondria-mib-mitochondria-overlay.webp",
+          "download": "downloads/public-em-mitochondria-mib-mitochondria-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "membranes",
+          "text": "the membrane-enclosed organelles",
+          "channels": [
+            1
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-mitochondria-mib-membranes-overlay.webp",
+          "download": "downloads/public-em-mitochondria-mib-membranes-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 16,
+          "message": "Tijdpunt 0: 16 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 21.0%.",
+          "foreground_fraction": 0.20953583453583455
+        }
+      ],
+      "sources": [
+        "https://mib.helsinki.fi/help/main2/user-interface/menu/tools/tools-watershed.html"
+      ],
+      "license": "Publicly downloadable sample; no separate file-specific redistribution license identified",
+      "attribution": "",
+      "selection": {},
+      "measurements": "downloads/public-em-mitochondria-mib-measurements.csv",
+      "note": "",
+      "search": "public-em-mitochondria-mib EM organelles mitochondria with visible cristae the membrane-enclosed organelles"
+    },
+    {
+      "name": "local-CMU1-whole-section",
+      "category": "Histologie & weefsel",
+      "kind": "H&E whole-section overview",
+      "shape": [
+        1,
+        3,
+        1,
+        2057,
+        2875
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/local-CMU1-whole-section-input.webp",
+      "labels": [
+        {
+          "name": "tissue",
+          "text": "the entire tissue section, excluding the white background",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-CMU1-whole-section-tissue-overlay.webp",
+          "download": "downloads/local-CMU1-whole-section-tissue-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 18.8%.",
+          "foreground_fraction": 0.187947158166177
+        },
+        {
+          "name": "fat",
+          "text": "adipose tissue",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-CMU1-whole-section-fat-overlay.webp",
+          "download": "downloads/local-CMU1-whole-section-fat-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "stroma",
+          "text": "pink connective tissue",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-CMU1-whole-section-stroma-overlay.webp",
+          "download": "downloads/local-CMU1-whole-section-stroma-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 4,
+          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 18.8%.",
+          "foreground_fraction": 0.18790285557269978
+        },
+        {
+          "name": "vessels",
+          "text": "blood vessels and their lumens",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/local-CMU1-whole-section-vessels-overlay.webp",
+          "download": "downloads/local-CMU1-whole-section-vessels-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        }
+      ],
+      "sources": [
+        "https://openslide.cs.cmu.edu/download/openslide-testdata/Aperio/"
+      ],
+      "license": "CC0; OpenSlide test data",
+      "attribution": "",
+      "selection": {
+        "source_level": 2,
+        "source_level0_size_xy": [
+          46000,
+          32914
+        ],
+        "operation": "Complete acquired image extent at an existing pyramid level; no spatial crop"
+      },
+      "measurements": "downloads/local-CMU1-whole-section-measurements.csv",
+      "note": "",
+      "search": "local-CMU1-whole-section H&E whole-section overview the entire tissue section, excluding the white background adipose tissue pink connective tissue blood vessels and their lumens"
+    },
+    {
+      "name": "public-prostate-section",
+      "category": "Histologie & weefsel",
+      "kind": "histological section",
+      "shape": [
+        1,
+        3,
+        1,
+        2500,
+        2500
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-prostate-section-input.webp",
+      "labels": [
+        {
+          "name": "tissue",
+          "text": "the entire tissue section, excluding the white background",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-prostate-section-tissue-overlay.webp",
+          "download": "downloads/public-prostate-section-tissue-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 45.1%.",
+          "foreground_fraction": 0.45113152
+        },
+        {
+          "name": "glands",
+          "text": "prostatic glands and their lumens",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-prostate-section-glands-overlay.webp",
+          "download": "downloads/public-prostate-section-glands-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 6,
+          "message": "Tijdpunt 0: 6 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.3%.",
+          "foreground_fraction": 0.01329168
+        },
+        {
+          "name": "stroma",
+          "text": "connective tissue stroma",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-prostate-section-stroma-overlay.webp",
+          "download": "downloads/public-prostate-section-stroma-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 45.2%.",
+          "foreground_fraction": 0.45150464
+        }
+      ],
+      "sources": [
+        "https://zenodo.org/records/18302140"
+      ],
+      "license": "CC BY 4.0; Thierry Pecot QuPath workshop",
+      "attribution": "",
+      "selection": {
+        "source_level": 1,
+        "source_level0_size_xy": [
+          10000,
+          10000
+        ],
+        "operation": "Complete acquired image extent at existing OME-TIFF pyramid level; no crop"
+      },
+      "measurements": "downloads/public-prostate-section-measurements.csv",
+      "note": "",
+      "search": "public-prostate-section histological section the entire tissue section, excluding the white background prostatic glands and their lumens connective tissue stroma"
+    },
+    {
+      "name": "public-ki67-lymphoma-section",
+      "category": "Histologie & weefsel",
+      "kind": "histological section",
+      "shape": [
+        1,
+        3,
+        1,
+        2176,
+        1800
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-ki67-lymphoma-section-input.webp",
+      "labels": [
+        {
+          "name": "tissue",
+          "text": "the entire tissue section, excluding the white background",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ki67-lymphoma-section-tissue-overlay.webp",
+          "download": "downloads/public-ki67-lymphoma-section-tissue-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 49.7%.",
+          "foreground_fraction": 0.4974591503267974
+        },
+        {
+          "name": "dab_positive",
+          "text": "brown DAB-positive tissue",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ki67-lymphoma-section-dab_positive-overlay.webp",
+          "download": "downloads/public-ki67-lymphoma-section-dab_positive-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 0,
+          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "foreground_fraction": 0.0
+        },
+        {
+          "name": "stroma",
+          "text": "connective tissue stroma",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ki67-lymphoma-section-stroma-overlay.webp",
+          "download": "downloads/public-ki67-lymphoma-section-stroma-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 50.4%.",
+          "foreground_fraction": 0.5039412275326798
+        }
+      ],
+      "sources": [
+        "https://zenodo.org/records/18302140"
+      ],
+      "license": "CC BY 4.0; Thierry Pecot QuPath workshop",
+      "attribution": "",
+      "selection": {
+        "source_level": 4,
+        "source_level0_size_xy": [
+          28800,
+          34816
+        ],
+        "operation": "Complete acquired image extent at an existing pyramid level; no spatial crop"
+      },
+      "measurements": "downloads/public-ki67-lymphoma-section-measurements.csv",
+      "note": "",
+      "search": "public-ki67-lymphoma-section histological section the entire tissue section, excluding the white background brown DAB-positive tissue connective tissue stroma"
+    },
+    {
+      "name": "public-ki67-lymphoma-dab-roi",
+      "category": "Histologie & weefsel",
+      "kind": "Ki67 IHC DAB detail",
+      "shape": [
+        1,
+        3,
+        1,
+        1024,
+        1024
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-ki67-lymphoma-dab-roi-input.webp",
+      "labels": [
+        {
+          "name": "tissue",
+          "text": "the entire tissue section, excluding the white background",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ki67-lymphoma-dab-roi-tissue-overlay.webp",
+          "download": "downloads/public-ki67-lymphoma-dab-roi-tissue-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 99.0%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.9899320602416992
+        },
+        {
+          "name": "dab_positive",
+          "text": "brown DAB-positive tissue",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ki67-lymphoma-dab-roi-dab_positive-overlay.webp",
+          "download": "downloads/public-ki67-lymphoma-dab-roi-dab_positive-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 98.8%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.9880008697509766
+        },
+        {
+          "name": "stroma",
+          "text": "connective tissue stroma",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ki67-lymphoma-dab-roi-stroma-overlay.webp",
+          "download": "downloads/public-ki67-lymphoma-dab-roi-stroma-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 99.0%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "foreground_fraction": 0.9898128509521484
+        }
+      ],
+      "sources": [
+        "https://zenodo.org/records/18302140"
+      ],
+      "license": "CC BY 4.0; Thierry Pecot QuPath workshop",
+      "attribution": "",
+      "selection": {
+        "source_level": 0,
+        "source_level0_size_xy": [
+          28800,
+          34816
+        ],
+        "roi_xywh": [
+          7280,
+          11760,
+          1024,
+          1024
+        ],
+        "operation": "Native-resolution ROI centered on strongest brown pixel in overview; exploratory selection, not an annotation"
+      },
+      "measurements": "downloads/public-ki67-lymphoma-dab-roi-measurements.csv",
+      "note": "",
+      "search": "public-ki67-lymphoma-dab-roi Ki67 IHC DAB detail the entire tissue section, excluding the white background brown DAB-positive tissue connective tissue stroma"
+    }
+  ]
+}

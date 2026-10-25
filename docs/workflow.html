@@ -1,0 +1,147 @@
+<!doctype html><html lang="nl" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: tekstgestuurde biologische segmentatie van OME-Zarr, automatische 3D-projectie en echte publieke voorbeeldresultaten."><title>Workflow &amp; gebruik · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Naar inhoud</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Hoofdnavigatie"><a href="index.html">Overzicht</a><a href="workflow.html" aria-current="page">Workflow</a><a href="examples.html">Voorbeelden</a><a href="research.html">Validatie</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Thema: Dark. Wissel naar Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentatie · versie 0.1.0</div><h1>Workflow &amp; gebruik</h1></header><article class="prose"><h1 id="de-workflow">De workflow</h1>
+<p>CISegWeVisOneVL segmenteert OME-Zarr-beelden met WeVisOne-VL-4B en maximaal vier
+onafhankelijke tekstprompts. Het gebruikt bestaande modelgewichten. De voorbeelden
+op deze website laten de daadwerkelijke prestaties en fouten zien.</p>
+<h2 id="lokaal-starten">Lokaal starten</h2>
+<p>Installeer Git en <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>.
+Gebruik vervolgens op Windows:</p>
+<pre><code class="language-powershell">git clone https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl.git
+cd ciseg-wevisonevl
+create_env.cmd
+.venv\Scripts\python tools\download_models.py
+launch.cmd
+</code></pre>
+<p>De omgeving gebruikt Python 3.12, PyTorch 2.11/CUDA 12.6 en Transformers 5.12.1.
+De vastgezette 4B-snapshot neemt circa 19,37 GB in beslag en bevat de vereiste
+pixeldecoder. Inferentie gebruikt uitsluitend de lokale cache. CPU-uitvoering
+is beschikbaar; de GPU-runs zijn uitgevoerd op een RTX A5000 met 24 GB VRAM.</p>
+<p>Kies in de launcher een voorbeeld of invoermap. Gebruik <strong>Check input</strong> en daarna
+<strong>Run local Python</strong>. Een leeg promptveld schakelt de betreffende stap uit.
+Bestaande resultaten worden niet overschreven: gebruik voor elke nieuwe run een
+nieuwe uitvoermap.</p>
+<h2 id="beelden-en-kanalen">Beelden en kanalen</h2>
+<ul>
+<li>Invoer: NGFF 0.4 / Zarr v2, met expliciete asmetadata.</li>
+<li>Gewone beelden, tijdreeksen en alle velden van een HCS-screen worden verwerkt.</li>
+<li><code>1</code> geeft één kanaal als grijswaardeweergave aan het model.</li>
+<li><code>1,2,3</code> wijst drie beeldkanalen toe aan rood, groen en blauw.</li>
+<li>Voor uint8-RGB-histologie houdt <strong>Original uint8 RGB</strong> de kleuren intact.</li>
+<li>Percentielcontrast maakt een aparte modelweergave; de intensiteitsmetingen
+  gebruiken de oorspronkelijke pixels of projectie.</li>
+</ul>
+<p>Een veld mag maximaal 16 megapixels per XY-vlak bevatten. De modelweergave wordt
+standaard naar maximaal 1024 pixels aan de langste zijde verkleind, instelbaar
+van 128 tot 2048. Maskers komen terug op de oorspronkelijke XY-coördinaten.
+Automatische tegels met objectfusie zijn niet geïmplementeerd.</p>
+<h2 id="automatische-3d-projectie">Automatische 3D-projectie</h2>
+<p>Bij meer dan één Z-vlak maakt de workflow automatisch een projectie per kanaal
+en <strong>per tijdpunt</strong>. De geavanceerde Bilayers-optie biedt:</p>
+<table>
+<thead>
+<tr>
+<th>Optie</th>
+<th>Gedrag</th>
+<th>Pixeltype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Max</strong> — standaard</td>
+<td>Hoogste pixelwaarde over Z</td>
+<td>Oorspronkelijk pixeltype</td>
+</tr>
+<tr>
+<td><strong>Mean</strong></td>
+<td>Gemiddelde pixelwaarde over Z</td>
+<td>float32</td>
+</tr>
+</tbody>
+</table>
+<p>De tijdas wordt nooit samengevoegd. Reeds 2D-invoer behoudt haar pixelwaarden.
+De uitvoer gebruikt voor OMERO de TCZYX-indeling met één Z-vlak, terwijl de
+bronvolume onaangeraakt blijft. XY- en tijdkalibratie blijven behouden.
+Input-label-ID's uit een 3D-volume worden niet numeriek geprojecteerd.</p>
+<p>Bij EM kunnen projecties verschillende membranen en organellen op elkaar leggen.
+De galerij bevat daarom ook expliciete 2D-doorsneden uit de EM-volumes.</p>
+<h2 id="vier-onafhankelijke-labels">Vier onafhankelijke labels</h2>
+<p>Elke actieve stap heeft een unieke labelnaam, een Engelse beschrijving en een
+kanaalkeuze. Mogelijke voorbeelden zijn <code>tissue</code>, <code>vessels</code>, <code>mitochondria</code> en
+<code>dab_positive</code>. Verschillende promptgroepen kunnen overlappen.</p>
+<p><strong>Instances</strong> bewaart één ID per door het model voorspeld object. Binnen één
+groep wint bij overlap de hoogste pixelwaarschijnlijkheid; de eerste voorspelling
+wint exacte ties. <strong>Semantic</strong> voegt alle objecten binnen één prompt samen tot
+een binair masker. De standaard waarschijnlijkheidsdrempel is 0,5.</p>
+<p>Een afwezige structuur kan een leeg masker opleveren. Dat is een modelvoorspelling,
+geen bewijs van afwezigheid. Een ongeldige objectrespons of afgebroken generatie
+wordt geweigerd en als mislukte run bewaard. De workflow repareert geen coördinaten
+en koppelt geen maskers aan de verkeerde objecttokens.</p>
+<h2 id="commandoregel">Commandoregel</h2>
+<pre><code class="language-powershell">.venv\Scripts\python wrapper.py `
+  --infolder publicdata\ome-zarr\public-ki67-lymphoma-dab-roi.ome.zarr `
+  --outfolder outputfolder\ki67-test `
+  --prompt-1 &quot;brown DAB-positive tissue&quot; --name-1 dab_positive --channels-1 1,2,3 `
+  --prompt-2 &quot;the entire tissue section&quot; --name-2 tissue --channels-2 1,2,3 `
+  --normalization dtype --projection Max --device cuda:0
+</code></pre>
+<p>Gebruik <code>--preflight-only</code> om alle veldmetadata te controleren zonder modelladen
+of uitvoer te schrijven. De parameters staan in <code>config.yaml</code>, de Bilayers-descriptor.</p>
+<h2 id="uitvoer-en-csv-metingen">Uitvoer en CSV-metingen</h2>
+<p>Per invoer ontstaat <code>&lt;bron&gt;__wevisonevl.ome.zarr</code>, met per beeld of screenveld
+<code>labels/wevisone_&lt;labelnaam&gt;/</code>. Labelpiramides gebruiken nearest-neighbour;
+projectiepiramides gebruiken area-gemiddelden. De runrapportage bewaart prompts,
+contrastgrenzen, modelrevisie, coördinaten, tellingen en looptijden.</p>
+<p>Eén <strong>measurements.csv</strong> in de uitvoermap bevat alle beelden, velden, tijdpunten
+en promptgroepen van de volledige run. Elke rij beschrijft één label-ID.</p>
+<table>
+<thead>
+<tr>
+<th>Groep</th>
+<th>Kolommen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identificatie</td>
+<td>Bron, uitvoer, veld, well, tijdpunt, prompt en label-ID</td>
+</tr>
+<tr>
+<td>Oppervlakte en positie</td>
+<td>Pixeloppervlakte, centroid, bounding box met exclusief maximum</td>
+</tr>
+<tr>
+<td>Vorm</td>
+<td>Omtrek, equivalente diameter, hoofd-/nevenas, eccentriciteit, soliditeit, extent en oriëntatie</td>
+</tr>
+<tr>
+<td>Fysieke oppervlakte</td>
+<td>µm², alleen bij bekende positieve NGFF-XY-kalibratie</td>
+</tr>
+<tr>
+<td>Ieder beeldkanaal</td>
+<td>Geldige pixels, minimum, maximum, gemiddelde en totale intensiteit</td>
+</tr>
+</tbody>
+</table>
+<p>Ook kanalen buiten de modelinvoer worden gemeten. Bij 3D-invoer meten we op de
+projectie, vóór RGB-normalisatie. NaN/Inf-pixels tellen niet mee; het geldige
+pixelaantal maakt dit zichtbaar. Een volledig lege run schrijft alleen de
+CSV-kolomkoppen. Een mislukte run bewaart <code>measurements.partial-*</code> en publiceert
+geen voltooide CSV.</p>
+<h2 id="bilayers-en-biomero">Bilayers en BIOMERO</h2>
+<p>De zichtbare naam is <strong>CISegWeVisOneVL</strong>; de configuratiesleutel kan
+<code>cisegwevisonevl</code> zijn. De descriptor declareert de CSV als measurement-uitvoer
+met formaat CSV en één bestand. De geïnstalleerde BIOMERO-parser is hierop getest.</p>
+<p>De Docker-recepten voor de headless workflow en aparte interne modelcache zijn
+voorbereid. Er is nog geen nieuwe image gebouwd of in Slurm/BIOMERO geïnstalleerd.
+Een daadwerkelijke attachment-import hoort bij die volgende validatiefase.</p>
+<h2 id="voorbeelden-reproduceren">Voorbeelden reproduceren</h2>
+<pre><code class="language-powershell">.venv\Scripts\python tools\prepare_publicdata.py --organoids
+.venv\Scripts\python tools\run_gallery_inference.py
+.venv\Scripts\python -m pytest -q
+</code></pre>
+<p>De aanvullende voorbeelden gebruiken de optionele <code>requirements_publicdata.txt</code>
+en de curatiescripts. Een deel komt uit de oorspronkelijke lokale PublicData-
+collectie. De publieke galerij vermeldt oorspronkelijke URLs waar die bekend
+zijn, selectiegrenzen, resoluties en licentie-informatie. De modelgewichten en
+volledige brondata zijn niet in Git opgeslagen. Downloadbare galerijlabels zijn
+afgeleide modelresultaten, geen handmatige referentiemaskers.</p></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Versie 0.1.0 · Resultaten van 25 oktober 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Bronnen & licenties</a></div></footer></body></html>

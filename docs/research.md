@@ -196,6 +196,28 @@ BIOMERO gebruikt hiervoor de eerste citation-entry; die staat nu op de eigen
 workflownaam. De daadwerkelijke OMERO-attachment-import is nog niet uitgevoerd;
 die wordt samen met de latere Docker/Slurm-test gevalideerd.
 
+## Gepubliceerde maskers voor alle 27 voorbeelden
+
+Voor de GitHub Pages-galerij zijn alle 27 voorbeelden opnieuw met 4B verwerkt,
+met hun vastgelegde prompts en alle tijdpunten. Dat zijn **64 labelruns**:
+**63 technisch voltooid** en **1 geweigerd**. Het orgaoïdbeeld `organoids_im9`
+genereerde 210 objecttokens maar 209 geldige boxen; daarvoor is geen masker
+als voltooid gepubliceerd. Negen voltooide labelruns hebben op het eerste
+tijdpunt een leeg masker. Dat betekent dat het model niets aanwees; het is
+geen bewijs dat de gezochte structuur ontbreekt.
+
+De galerij toont per label de echte roze overlay, de gebruikte prompt,
+kanaalkeuze, maskerdekking en de bronvermelding. Downloads bevatten uint32-
+maskers met tijdindexen (NPZ) en meettabellen (CSV). De kaarten tonen tijdpunt 0;
+bij een volledige tijdreeks bevat het labelbestand alle berekende tijdpunten.
+De beschrijvingen "berekend" en "voltooid" beoordelen de uitvoering, geen
+biologische juistheid. De algemene VLM blijft duidelijk wisselend presteren
+op ultrastructuur, dicht opeengepakte objecten en kleuringen.
+
+De website bevat kleine afgeleide previews en labelresultaten. Volledige
+bronstores, modelgewichten, lokale werkplekpaden en ruwe runtime-logs blijven
+buiten de publieke repository.
+
 ### Aanvullende primaire databronnen
 
 - [CellMap/Janelia FIB-SEM-data](https://cellmapchallenge.janelia.org/)

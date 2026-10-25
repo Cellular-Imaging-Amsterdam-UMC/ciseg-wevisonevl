@@ -1,5 +1,9 @@
 # CISegWeVisOneVL
 
+[Website en workflowuitleg](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/) ·
+[Publieke beelden met echte segmentaties](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/examples.html) ·
+[Voorbeeldgalerij als Markdown](docs/examples.md)
+
 Lokale microscopiesegmentatie met maximaal **vier onafhankelijke tekstprompts**,
 op basis van Tencent WeVisOne-VL-4B. **3D-beelden worden automatisch per kanaal en
 tijdpunt naar 2D geprojecteerd: Max is standaard; Mean is een geavanceerde

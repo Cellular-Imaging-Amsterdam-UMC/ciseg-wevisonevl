@@ -16,7 +16,7 @@ from ciseg_wevisonevl.io import inspect_store,write_json
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,default=ROOT/'test-results/published-gallery')
-    args=parser.parse_args();args.output.mkdir(parents=True,exist_ok=True)
+    args=parser.parse_args();args.output=args.output.resolve();args.output.mkdir(parents=True,exist_ok=True)
     records=json.loads((ROOT/'publicdata/catalog.json').read_text(encoding='utf-8-sig'))
     manifest_path=args.output/'manifest.json'
     manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {'model':'4B','projection':'Max','examples':{}}
