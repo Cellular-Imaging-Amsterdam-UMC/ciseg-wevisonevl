@@ -16,8 +16,10 @@ from ciseg_wevisonevl.io import inspect_store,write_json
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,default=ROOT/'test-results/published-gallery')
+    parser.add_argument('--include-unselected',action='store_true',help='Also run archived and exploratory catalog entries')
     args=parser.parse_args();args.output=args.output.resolve();args.output.mkdir(parents=True,exist_ok=True)
     records=json.loads((ROOT/'publicdata/catalog.json').read_text(encoding='utf-8-sig'))
+    if not args.include_unselected:records=[r for r in records if r.get('show_in_examples') is not False]
     manifest_path=args.output/'manifest.json'
     manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {'model':'4B','projection':'Max','examples':{}}
     settings=Settings(device='cuda:0')

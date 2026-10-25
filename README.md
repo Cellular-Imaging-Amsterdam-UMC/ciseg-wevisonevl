@@ -133,19 +133,26 @@ The final CSV is published only after the whole run succeeds. Failed runs retain
 with CSV format under `/data/out`; this was checked with the installed BIOMERO
 parser. A live attachment-import test remains for the later Docker/BIOMERO phase.
 
-## Public examples and gallery
+## Curated public examples and gallery
 
-The local collection has 27 examples, approximately 206 MB of OME-Zarr inputs:
+The original local collection had 27 examples, approximately 206 MB of OME-Zarr inputs:
 EM organelles, histology, Ki67/DAB, adipocytes, skin, plant vascular bundles,
 diatoms, embryos, dendritic spines, neurites and vessels. Original WSI files,
 archives and downloaded EM chunks are retained separately. EM includes volumes
 and explicit 2D sections because projections can superimpose ultrastructures.
 
-The published gallery contains new 4B predictions for every example/prompt:
-**63 label runs completed and 1 was rejected**. Nine completed label runs have
-empty first-frame masks. Execution success is not biological validation. The
-site provides real overlays, prompts, coverage, source attribution, NPZ labels
-with time indices and CSV measurements.
+The main gallery now retains **15 reviewed examples with 18 selected labels**,
+after 52 prompt comparisons and visual inspection. It excludes weak/empty
+predictions and every EM Z projection. Original runs remain local, with an
+image-free audit in [the prompt study](docs/prompt-study.md). This positively
+selected demonstration set is not a representative accuracy benchmark.
+
+New native 2D CEM-MitoLab examples have paired references and selected foreground
+Dice scores near 0.965 and 0.936. A recorded native Ki67 ROI distinguishes brown
+positive nuclei from blue tissue. More concrete fluorescence descriptions retain
+the vessel profile, green plant bundles and a white filament network. The site
+provides real overlays, prompts, source attribution, NPZ labels, reference
+overlays when available and calibrated CSV measurements.
 
 ```powershell
 .venv\Scripts\python.exe tools\prepare_publicdata.py --organoids
@@ -158,6 +165,26 @@ Additional curation uses `requirements_publicdata.txt`,
 examples originate in the original local PublicData collection. Exact copies,
 checksums, selections, resolutions and licenses are recorded. Basic preparation
 preserves additional catalog entries.
+
+The reviewed selection is tracked in `gallery_selection.json`; the launcher uses
+it to keep exploratory/archived inputs out of its example selector. The study
+and curation tools preserve all original images and unselected experiments.
+Regenerating curated results requires the retained inputs/comparison records;
+the committed site can be viewed without downloading any models or source stores.
+
+## Large-image research
+
+[The tile study](docs/tiling.md) compares 512/128, 768/192 and 1024/256 windows
+and nominal overlaps against 87 consensus organoid instances. The 768/192
+prototype scored foreground Dice 0.917 and instance F1 0.939, versus 0.881 and
+0.906 for the earlier whole-image run. This is one controlled example, not a
+universal tile-size optimum. Edge alignment increases actual overlap.
+
+The prototype fuses unambiguous instance IDs across overlaps and flags ambiguous
+matches. Production gigapixel support is **not enabled**: input/projection,
+label storage, pyramids and measurements still need bounded streaming. The
+16-megapixel production guard remains. Proposed advanced user controls are
+documented; no unsupported production tiling option has been added to the launcher.
 
 ## Documentation and publication
 

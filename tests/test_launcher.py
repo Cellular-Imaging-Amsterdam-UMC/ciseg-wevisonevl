@@ -38,11 +38,13 @@ def test_dataset_presets_fill_prompt_channels_and_clear_unused_slots(tmp_path,mo
             'normalization':'percentile','shape':[1,4,1,12,16],
             'prompt_presets':[{'name':'bundles','text':'vascular bundles','channels':'1,2,3'},
                               {'name':'outer','text':'outer layer','channels':'4'}]}
-    (tmp_path/'publicdata/catalog.json').write_text(json.dumps([record]))
+    hidden={**record,'name':'hidden-em-projection','show_in_examples':False}
+    (tmp_path/'publicdata/catalog.json').write_text(json.dumps([record,hidden]))
     monkeypatch.setattr(launcher,'ROOT',tmp_path)
     monkeypatch.setattr(launcher,'STATE',tmp_path/'launcher-state.json')
     app=QApplication.instance() or QApplication([])
     window=Window()
+    assert window.example.count()==2  # Placeholder plus the reviewed visible example.
     window.widgets['prompt_4'].setText('old prompt')
     window.example.setCurrentIndex(1)
     assert window.widgets['prompt_1'].text()=='vascular bundles'

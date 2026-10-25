@@ -106,7 +106,13 @@ class Window(QMainWindow):
         self.example = QComboBox()
         self.example.addItem("Choose a retained public 2D / 3D example…", None)
         try:
+            selection_path=ROOT/'gallery_selection.json'
+            selected_names={e['name'] for e in json.loads(selection_path.read_text())['examples']} if selection_path.exists() else None
             for item in json.loads((ROOT/"publicdata/catalog.json").read_text()):
+                if item.get('show_in_examples') is False:
+                    continue
+                if selected_names is not None and item['name'] not in selected_names:
+                    continue
                 self.example.addItem(item["name"], item)
         except (OSError, ValueError):
             pass

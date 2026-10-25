@@ -1,0 +1,123 @@
+{
+  "curated": true,
+  "date": "2026-10-25",
+  "inference_directory": "test-results/curated-gallery-v2",
+  "selection_policy": "Selected after explicit prompt comparisons and visual review. Not a representative accuracy benchmark.",
+  "em_2d_only": true,
+  "examples": [
+    {
+      "name": "organoids_im10",
+      "labels": [
+        "organoids"
+      ],
+      "review": "Foreground agreement with the independent microSAM consensus mask; Dice 0.881."
+    },
+    {
+      "name": "local-dendrite-spines",
+      "labels": [
+        "dendrite"
+      ],
+      "review": "Main shaft only. Spine-head candidates had low recall and are not shown."
+    },
+    {
+      "name": "local-drosophila-olfactory-neuron",
+      "labels": [
+        "neuron"
+      ],
+      "review": "Visually reviewed arbor foreground; no manual segmentation reference."
+    },
+    {
+      "name": "public-skin",
+      "labels": [
+        "epidermis",
+        "dermis"
+      ],
+      "review": "Visually reviewed large histological layers; not a cell-level annotation."
+    },
+    {
+      "name": "public-retina",
+      "labels": [
+        "optic_disc"
+      ],
+      "review": "Optic disc only. The previous vessel prompt selected the retinal field and was rejected from the curated gallery."
+    },
+    {
+      "name": "public-diatoms",
+      "labels": [
+        "diatoms",
+        "round",
+        "elongated"
+      ],
+      "review": "Distinct visible diatom shapes; overlapping label classes are intentional."
+    },
+    {
+      "name": "public-embryos",
+      "labels": [
+        "embryos"
+      ],
+      "review": "Complete visible embryo objects; the less convincing yolk label is omitted."
+    },
+    {
+      "name": "local-CMU1-whole-section",
+      "labels": [
+        "tissue"
+      ],
+      "review": "Overview of the entire acquired tissue scan; not a claim of DAB or cell-level segmentation."
+    },
+    {
+      "name": "public-ki67-lymphoma-section",
+      "labels": [
+        "tissue"
+      ],
+      "review": "Section outline only. DAB-positive nuclei are demonstrated separately at native resolution."
+    },
+    {
+      "name": "local-mouse-brain-astrocytes-vessels",
+      "labels": [
+        "vessel_profile"
+      ],
+      "review": "A local green vessel profile replaces the previous near-whole-field prediction.",
+      "selected_prompt_study": "study-fluo-vessel-1"
+    },
+    {
+      "name": "public-lily-stem",
+      "labels": [
+        "vascular_bundles"
+      ],
+      "review": "Visible green bundles are selected while the outer stem ring is excluded.",
+      "selected_prompt_study": "study-lily-bundles-4"
+    },
+    {
+      "name": "public-neurofilament-network-roi",
+      "labels": [
+        "fiber_network"
+      ],
+      "review": "Network-level foreground in a recorded Max-projection ROI; not individual axon tracing.",
+      "selected_prompt_study": "study-fluo-fibers-2"
+    },
+    {
+      "name": "public-ki67-brown-nuclei-detail",
+      "labels": [
+        "dab_positive"
+      ],
+      "review": "A recorded native 192-pixel ROI distinguishes brown positive nuclei from blue negative tissue.",
+      "selected_prompt_study": "study-dab-nuclei-1"
+    },
+    {
+      "name": "public-em-mitolab-folded-mitochondria",
+      "labels": [
+        "mitochondria"
+      ],
+      "review": "A native 2D EMPIAR patch with paired manual mitochondrial instance labels; selected after exploratory comparisons.",
+      "selected_prompt_study": "study-cem-mito-26-2"
+    },
+    {
+      "name": "public-em-mitolab-mitochondrial-cluster",
+      "labels": [
+        "mitochondria"
+      ],
+      "review": "A second native 2D EMPIAR patch from the same acquisition; not an independent generalization benchmark.",
+      "selected_prompt_study": "study-cem-mito-27-1"
+    }
+  ]
+}

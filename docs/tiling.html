@@ -1,0 +1,195 @@
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Large images &amp; object fusion · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html" aria-current="page">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>Large images &amp; object fusion</h1></header><article class="prose"><h2 id="research-result-and-current-implementation-status">Research result and current implementation status</h2>
+<p><strong>Yes: tile-by-tile VLM inference is possible, and the prototype fuses instance
+IDs across tile overlaps. It is not yet production support for arbitrarily large
+tilescans.</strong> The production workflow still enforces the 16-megapixel XY limit.
+The research stitcher also enforces this limit rather than allocating an
+unbounded whole-image array.</p>
+<p>A tile loop alone is insufficient: the current source/projection reader,
+instance canvas and region-property measurements can still materialize complete
+planes. Those stages must become bounded before enabling gigapixel processing.
+The prototype and its tests are in <code>tools/experimental_tiling.py</code>; the controlled
+GPU experiment is in <code>tools/benchmark_tiling.py</code>.</p>
+<p>For scale, the retained native CMU-1 scan is approximately 46000 × 32914 pixels.
+A 768/192 grid would require about <strong>4560 model calls</strong> before tissue gating.
+Even a hypothetical 2 seconds per tile would exceed 2.5 hours; 20 seconds would
+exceed 25 hours, excluding IO and measurements. Cost depends strongly on generated
+object tokens. This illustrates the need for an overview/ROI stage and explicit
+user choice; it is not a runtime prediction for that slide.</p>
+<h2 id="measured-tile-size-comparison">Measured tile-size comparison</h2>
+<p>The native 1408 × 1040 organoid example was compared against its independent
+microSAM consensus instance annotations: <strong>87 reference instances</strong>. Model
+weights, query (<code>organoids</code>), threshold (0.5) and the same full-field contrast
+transform were held fixed. Tile runs used deterministic decoding with a 4096
+token budget and sequential inference on the local RTX A5000.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Full tile size</th>
+<th>Nominal overlap</th>
+<th>Tiles</th>
+<th>Foreground Dice</th>
+<th>Instance F1 at IoU ≥ 0.5</th>
+<th>Matched / predicted instances</th>
+<th>Inference + fusion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Existing whole-image run</td>
+<td>View reduced to maximum side 1024</td>
+<td>—</td>
+<td>1</td>
+<td>0.881</td>
+<td>0.906</td>
+<td>77 / 83</td>
+<td>Approximately 45 s in the earlier run</td>
+</tr>
+<tr>
+<td>Tiled prototype</td>
+<td>512</td>
+<td>128</td>
+<td>12</td>
+<td>0.876</td>
+<td>0.888</td>
+<td>79 / 91</td>
+<td>108.9 s</td>
+</tr>
+<tr>
+<td>Tiled prototype</td>
+<td><strong>768</strong></td>
+<td><strong>192</strong></td>
+<td>6</td>
+<td><strong>0.917</strong></td>
+<td><strong>0.939</strong></td>
+<td><strong>84 / 92</strong></td>
+<td><strong>130.3 s</strong></td>
+</tr>
+<tr>
+<td>Tiled prototype</td>
+<td>1024</td>
+<td>256</td>
+<td>4</td>
+<td>0.911</td>
+<td>0.926</td>
+<td>81 / 88</td>
+<td>155.0 s</td>
+</tr>
+</tbody>
+</table>
+<p>The 768/192 configuration was the best of these three settings on this image,
+both for foreground and instance F1. This is a <strong>starting point, not a universal
+optimum</strong>. The whole-image timing comes from an earlier run and is not a
+controlled runtime comparison. Object size, image scale, density and prompt
+context can change the best setting.</p>
+<p>The final windows are aligned to the image boundary, so <strong>actual edge overlaps
+can exceed the nominal value</strong>. Ranges were 128–384, 192–704 and 640–1008 pixels
+respectively. The example is only slightly taller than 1024, producing substantial
+duplicate context in that configuration. This experiment does not identify an
+independently optimal overlap percentage for a very wide tilescan.</p>
+<h2 id="recommended-controls">Recommended controls</h2>
+<p>A user option is necessary: local tiles change context, especially for prompts
+such as “the entire section”, “leftmost object” or “the largest structure”.
+Those referring expressions are not invariant when each tile becomes a new image.</p>
+<p>The proposed advanced interface is:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Proposed starting value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Processing mode</td>
+<td>Whole image initially; explicit experimental Tiled</td>
+<td>Preserve existing behavior until all streaming stages are validated</td>
+</tr>
+<tr>
+<td>Tile size</td>
+<td>768 px</td>
+<td><strong>Full inference window</strong>, including context</td>
+</tr>
+<tr>
+<td>Tile overlap</td>
+<td>192 px</td>
+<td>Shared width between adjacent windows; nominal stride 576 px</td>
+</tr>
+<tr>
+<td>Instance match threshold</td>
+<td>0.5</td>
+<td>IoU measured only within valid shared pixels</td>
+</tr>
+<tr>
+<td>Minimum shared foreground</td>
+<td>8 px in this experiment</td>
+<td>Avoid matching instances on accidental tiny contacts; tune for small objects</td>
+</tr>
+</tbody>
+</table>
+<p>1024 px is a reasonable alternative when objects need more context. Overlap
+must contain enough of an expected object for matching; very large structures
+may require an overview-guided semantic workflow instead of instance fusion.
+A future Auto mode should use tested memory/context rules, not merely bypass
+the existing size guard. These are <strong>design recommendations</strong>; the advanced
+production controls have not been added to the launcher or descriptor yet.</p>
+<p>The tile-size convention differs from cisegmentation, whose documented default
+is a 1024-pixel <strong>core</strong> plus 96 pixels of halo per side. That creates a larger
+inference window; copying the number without its convention would be misleading.
+WeVisOne-VL also has its own visual-token budget and 1024-pixel decoder canvas.</p>
+<h2 id="instance-matching-and-seam-ownership">Instance matching and seam ownership</h2>
+<p>The experimental implementation:</p>
+<ol>
+<li>Assigns fresh IDs to each tile's predicted instances.</li>
+<li>Compares only their actual shared image pixels, not full-object IoU outside
+   the overlap and not bounding-box contact alone.</li>
+<li>Accepts an unambiguous one-to-one match above the overlap threshold, with
+   a minimum shared area. Ambiguous one-to-many/many-to-one candidates are flagged.</li>
+<li>Uses a union-find map so an instance can retain one final ID across several
+   neighbors and four-tile junctions.</li>
+<li>Assigns overlap pixels to the prediction with more distance from its tile edge.
+   This is deterministic center ownership, not probability averaging.</li>
+</ol>
+<p>Tests cover odd image edges, one object crossing four tiles, adjacent touching
+objects that must stay separate, ambiguous splits and the memory-allocation guard.
+The real experiment matched 103, 150 and 201 overlap pairs without an ambiguity
+flag for those particular outputs. Zero flags is not proof that every match is correct;
+the independent instance comparison is the stronger check.</p>
+<p>For a semantic class such as all tissue, weighted probability blending followed
+by one global threshold is a useful separate design. It does not provide instance
+identities and should not be presented as instance fusion. A seam cannot repair
+an object that neither tile recognized or distinguish unrelated objects when
+the underlying predictions are wrong.</p>
+<h2 id="requirements-before-production-tilescan-support">Requirements before production tilescan support</h2>
+<ul>
+<li><strong>Bounded input and projection:</strong> read OME-Zarr chunks/regions and perform
+  Z reduction per tile and timepoint. Do not load a complete giant plane first.</li>
+<li><strong>Stable contrast:</strong> reuse recorded per-channel full-field limits, computed
+  with bounded integer histograms or documented deterministic float sampling.
+  Independent tile normalization can create biological/contrast seams.</li>
+<li><strong>Disk-backed labels:</strong> store provisional IDs in Zarr, maintain small overlap
+  state and a union table, then remap final IDs in a bounded pass.</li>
+<li><strong>Bounded measurements:</strong> aggregate area, centroids, moments and intensities
+  per chunk. Perimeter needs neighbor halos; convex-hull features need a bounded
+  algorithm. One image-sized <code>regionprops</code> call would defeat tiled inference.</li>
+<li><strong>Bounded pyramids and provenance:</strong> build pyramids in chunks, preserve
+  calibration/translations and record grid, overlap, matching and unresolved seams.</li>
+<li><strong>Validation at scale:</strong> test genuine large tissue scans, edge-touching objects,
+  different object sizes and calibration, missing chunks and failed-tile recovery.</li>
+</ul>
+<p>For a whole histological section, a useful future pattern is to identify tissue
+at an existing low-resolution overview and process relevant native-resolution
+regions next. The overview selection and its uncertainty must remain explicit.</p>
+<h2 id="sources-and-reproduction">Sources and reproduction</h2>
+<pre><code class="language-powershell">.venv\Scripts\python tools\benchmark_tiling.py
+.venv\Scripts\python tools\evaluate_tile_instances.py
+.venv\Scripts\python -m pytest tests\test_experimental_tiling.py -q
+</code></pre>
+<ul>
+<li><a href="https://github.com/Tencent/WeVisOne-VL/blob/main/tutorials/03_segmentation_matting_pipeline.ipynb">Official WeVisOne-VL pixel-level cookbook</a></li>
+<li><a href="https://github.com/Tencent/WeVisOne-VL">Official model implementation and decoder</a></li>
+<li><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/cisegmentation/blob/main/docs/large-inputs.md">cisegmentation large-input conventions</a></li>
+<li><a href="https://cellpose.readthedocs.io/en/latest/api.html">Cellpose API and its separate tile conventions</a></li>
+<li><a href="https://zenodo.org/records/14036957">Independent microSAM organoid data</a></li>
+</ul></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.1.0 · Results from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>

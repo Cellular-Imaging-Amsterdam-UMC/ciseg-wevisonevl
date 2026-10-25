@@ -1,0 +1,497 @@
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Prompt comparison &amp; selection · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>Prompt comparison &amp; selection</h1></header><article class="prose"><p>The main gallery is a positively selected demonstration set, <strong>not a representative accuracy benchmark</strong>. Unconvincing candidates and EM Z projections are excluded. Raw comparisons remain local; this page preserves their audit without rejected overlays.</p>
+<h2 id="protocol">Protocol</h2>
+<ul>
+<li>Official segmentation API and trained target-description template; no rewritten freeform system instruction.</li>
+<li>Pinned 4B weights, temperature 0, threshold 0.5, decoder batch 1 and a 4096-token budget.</li>
+<li>Four descriptions per fixed fluorescence/DAB view; three per native 2D EM patch.</li>
+<li>Fixed recorded normalization per view. No color threshold or manual annotation was substituted for a VLM mask.</li>
+<li>28 fluorescence/DAB and 24 EM candidates: <strong>52 tested prompts</strong>. EM exploration retrieved 33 paired patches; 8 native fields were tested.</li>
+<li>Selected combinations were rerun through the workflow with native labels and calibrated CSVs.</li>
+<li>The two retained EM patches share an acquisition and were selected after comparison; their scores are not held-out generalization estimates.</li>
+</ul>
+<h2 id="selected-changes">Selected changes</h2>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th>Retained description / result</th>
+<th>Selection rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>local-mouse-brain-astrocytes-vessels</code></td>
+<td>the bright green vessel cross section — 1 predicted objects</td>
+<td>A local green vessel profile replaces the previous near-whole-field prediction.</td>
+</tr>
+<tr>
+<td><code>public-lily-stem</code></td>
+<td>the bright green bundles, excluding the outer ring — 7 predicted objects</td>
+<td>Visible green bundles are selected while the outer stem ring is excluded.</td>
+</tr>
+<tr>
+<td><code>public-neurofilament-network-roi</code></td>
+<td>the white filament network — 1 predicted objects</td>
+<td>Network-level foreground in a recorded Max-projection ROI; not individual axon tracing.</td>
+</tr>
+<tr>
+<td><code>public-ki67-brown-nuclei-detail</code></td>
+<td>dark brown stained nuclei — 18 predicted objects</td>
+<td>A recorded native 192-pixel ROI distinguishes brown positive nuclei from blue negative tissue.</td>
+</tr>
+<tr>
+<td><code>public-em-mitolab-folded-mitochondria</code></td>
+<td>the oval organelles with internal folds — 3 predicted objects, foreground Dice 0.965</td>
+<td>A native 2D EMPIAR patch with paired manual mitochondrial instance labels; selected after exploratory comparisons.</td>
+</tr>
+<tr>
+<td><code>public-em-mitolab-mitochondrial-cluster</code></td>
+<td>mitochondria — 7 predicted objects, foreground Dice 0.936</td>
+<td>A second native 2D EMPIAR patch from the same acquisition; not an independent generalization benchmark.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="interpretation">Interpretation</h2>
+<p>Concrete visible appearance helped. The green vessel profile changed from a near-whole-field mask to a local structure. The plant query names green bundles and excludes the outer ring. A native 192 × 192 Ki67 ROI makes brown nuclei distinguishable from blue negatives. The fiber example is explicitly network-level, not complete individual axon tracing.</p>
+<p>Full-field DAB and most red-process/spine candidates were not convincing enough to retain. Technical completion or a nonempty mask was never sufficient. No manual references were supplied for fluorescence/DAB, so these improvements are qualitative.</p>
+<p>EM used native single-frame micrographs without projection. Paired CEM-MitoLab references support foreground Dice near 0.965 and 0.936. These scores do not establish perfect instance identity or broad EM accuracy.</p>
+<p>Repeatability check: all six selected study inputs matched the workflow RGB inputs exactly. Five rerun binary masks were identical; the neurofilament mask differed at 30 of 1,048,576 pixels (0.0029%). Temperature 0 did not guarantee bit-identical masks in every rerun. The gallery contains the final workflow outputs.</p>
+<h2 id="all-tested-candidates">All tested candidates</h2>
+<table>
+<thead>
+<tr>
+<th>Study view</th>
+<th>Target description</th>
+<th style="text-align: right;">Objects</th>
+<th style="text-align: right;">Foreground fraction</th>
+<th style="text-align: right;">Foreground Dice, if annotated</th>
+<th>Selected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>study-fluo-vessel</code></td>
+<td>the bright green vessel cross section</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.128</td>
+<td style="text-align: right;">—</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>study-fluo-vessel</code></td>
+<td>the compact bright green fluorescent structure in the center</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.125</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-vessel</code></td>
+<td>green blood vessel wall</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-vessel</code></td>
+<td>the green oval structure, excluding the red branching fibers</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.126</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-processes</code></td>
+<td>the red branching fibers</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-processes</code></td>
+<td>the thin red tree-like processes</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.017</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-processes</code></td>
+<td>red fluorescent astrocyte processes</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.971</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-processes</code></td>
+<td>all red filaments, excluding the green structure</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.917</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-spines</code></td>
+<td>the small bright rounded protrusions attached to the main branch</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-spines</code></td>
+<td>dendritic spine heads</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.018</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-spines</code></td>
+<td>small white bulb-shaped protrusions on the dendrite</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-spines</code></td>
+<td>the bright rounded spine at the upper left</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.009</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-lily-bundles</code></td>
+<td>the bright green oval vascular bundles</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.026</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-lily-bundles</code></td>
+<td>bright green circular clusters</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-lily-bundles</code></td>
+<td>the green ring-shaped structures inside the plant stem</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-lily-bundles</code></td>
+<td>the bright green bundles, excluding the outer ring</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">—</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>study-fluo-fibers</code></td>
+<td>the bright white branching fibers</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.335</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-fibers</code></td>
+<td>the white filament network</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.239</td>
+<td style="text-align: right;">—</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>study-fluo-fibers</code></td>
+<td>the individual bright elongated nerve fibers</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-fluo-fibers</code></td>
+<td>neurofilament-positive branching processes</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.789</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-dab-glands</code></td>
+<td>the brown stained glandular epithelium</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.416</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-dab-glands</code></td>
+<td>the brown DAB-positive gland walls</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.594</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-dab-glands</code></td>
+<td>all brown tissue, excluding white lumens and blue stroma</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.418</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-dab-glands</code></td>
+<td>the brown curved glandular structures</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.592</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-dab-nuclei</code></td>
+<td>dark brown stained nuclei</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.112</td>
+<td style="text-align: right;">—</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>study-dab-nuclei</code></td>
+<td>brown positive nuclei, excluding blue nuclei</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0.110</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-dab-nuclei</code></td>
+<td>the small dark brown oval structures</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.032</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-dab-nuclei</code></td>
+<td>Ki67-positive brown nuclei</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.097</td>
+<td style="text-align: right;">—</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-26</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.133</td>
+<td style="text-align: right;">0.867</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-26</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.149</td>
+<td style="text-align: right;">0.965</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-26</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.082</td>
+<td style="text-align: right;">0.691</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-02</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.026</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-02</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.281</td>
+<td style="text-align: right;">0.594</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-02</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-06</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.165</td>
+<td style="text-align: right;">0.764</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-06</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.077</td>
+<td style="text-align: right;">0.791</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-06</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">0.471</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-07</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-07</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.052</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-07</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-18</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.010</td>
+<td style="text-align: right;">0.002</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-18</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">0.272</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-18</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-25</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">0.330</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-25</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">0.416</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-25</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">0.329</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-27</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.210</td>
+<td style="text-align: right;">0.936</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-27</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.116</td>
+<td style="text-align: right;">0.668</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-27</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.116</td>
+<td style="text-align: right;">0.669</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-33</code></td>
+<td>mitochondria</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-33</code></td>
+<td>the oval organelles with internal folds</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.058</td>
+<td style="text-align: right;">0.514</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>study-cem-mito-33</code></td>
+<td>the dark outlined oval mitochondria with internal cristae</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://github.com/Tencent/WeVisOne-VL/blob/main/tutorials/03_segmentation_matting_pipeline.ipynb">Official pixel-level cookbook</a></li>
+<li><a href="https://github.com/Tencent/WeVisOne-VL/blob/main/wevisone_vl/prompts.py">Official task prompt builder</a></li>
+<li><a href="https://www.ebi.ac.uk/empiar/EMPIAR-11037/">CEM-MitoLab, EMPIAR-11037</a></li>
+<li><a href="https://doi.org/10.1016/j.cels.2022.12.006">CEM/MitoNet data publication</a></li>
+<li><a href="https://zenodo.org/records/18302140">QuPath Ki67 source images</a></li>
+</ul></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.1.0 · Results from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>

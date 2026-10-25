@@ -151,6 +151,39 @@ models, local workstation paths and raw logs are excluded. Docker recipes are
 prepared but no new image has been built or deployed; reader checks are not a
 live OMERO database import.
 
+## Follow-up prompt curation and tiling study
+
+The current main gallery replaces the initial all-results presentation with
+**15 positively selected examples and 18 reviewed labels**. It excludes all
+EM Z projections, empty outputs and unconvincing predictions. Source stores and
+all original experiments remain local. This curation must not be interpreted as
+a representative accuracy estimate.
+
+The [prompt comparison report](prompt-study.html) documents **52 candidates**:
+28 descriptions on fixed fluorescence/DAB views and 24 on 8 native 2D EM patches.
+33 paired CEM-MitoLab images/annotations were retrieved via ZIP byte ranges and
+CRC verification, without downloading the full 2.95 GB archive. Two retained
+EM patches score foreground Dice about 0.965 and 0.936. They share an acquisition
+and were selected after comparison, so they are not an independent test set.
+
+Concrete appearance descriptions improve the green vessel profile and plant
+vascular bundles. A recorded native 192 × 192 Ki67 ROI with “dark brown stained
+nuclei” distinguishes positive brown nuclei from blue negatives. The white
+filament query demonstrates network foreground rather than complete axon tracing.
+Fluorescence/DAB improvements are qualitative because no manual masks were supplied.
+
+The [tile study](tiling.html) reports real 512/768/1024-pixel GPU runs against
+87 consensus organoid instances. Nominal 768/192 gave Dice 0.917 and instance
+F1 0.939 at IoU ≥ 0.5, compared with 0.881/0.906 for the earlier whole-image run.
+Actual edge overlap exceeds nominal overlap. These results do not establish
+general large-tilescan support or universal optimal settings.
+
+There are now **39 passing tests: 34 workflow tests and 5 experimental stitching
+tests**. They cover crossing objects, four-tile junctions, touching neighbors,
+ambiguous matches, odd edges and the prototype memory guard. The production
+16-megapixel limit remains until the full IO/projection/storage/measurement
+pipeline becomes bounded. No new Docker image or BIOMERO deployment was built.
+
 ## Primary sources
 
 - [Official WeVisOne-VL code and API](https://github.com/Tencent/WeVisOne-VL)
@@ -162,3 +195,6 @@ live OMERO database import.
 - [ImageJ samples](https://imagej.net/ij/images/)
 - [scikit-image datasets and licensing](https://scikit-image.org/docs/stable/api/skimage.data.html)
 - [MIB mitochondrial example](https://mib.helsinki.fi/help/main2/user-interface/menu/tools/tools-watershed.html)
+- [CEM-MitoLab, EMPIAR-11037](https://www.ebi.ac.uk/empiar/EMPIAR-11037/)
+- [CEM/MitoNet publication](https://doi.org/10.1016/j.cels.2022.12.006)
+- [Official model pixel-level cookbook](https://github.com/Tencent/WeVisOne-VL/blob/main/tutorials/03_segmentation_matting_pipeline.ipynb)

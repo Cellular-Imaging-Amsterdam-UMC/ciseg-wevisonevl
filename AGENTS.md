@@ -10,6 +10,8 @@
 - Preserve source stores and source pixels; write results to a new store. Do not overwrite completed outputs.
 - Keep a maximum of four independently optional prompt slots. Do not merge different prompt classes into one exclusive label image.
 - Separate successful execution and file compatibility from biological segmentation accuracy. Retain failed predictions and report poor reference agreement.
+- The main example gallery is curated using `gallery_selection.json`: show reviewed results only, exclude EM Z projections, and describe positive selection explicitly. Preserve all unselected prompt experiments locally and summarize them honestly; curated demonstrations are not a representative accuracy benchmark.
+- `tools/experimental_tiling.py` is a bounded in-memory research prototype. Do not remove the production 16-megapixel guard or advertise gigapixel support until input/projection, label storage, pyramids and measurements all use bounded streaming.
 - When XY calibration is known, export lengths and coordinates in micrometers and areas in square micrometers alongside pixel references. Respect anisotropic spacing, ordered transforms and image origins. Do not convert intensity values or dimensionless ratios to length units, and never invent missing calibration.
 - Run tests with `.venv/Scripts/python.exe -m pytest -q`; real GPU validation is `tools/validate_local.py`.
 - Docker recipes are preparation only. Do not build, publish, deploy or change the running BIOMERO stack unless requested for that phase.

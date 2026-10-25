@@ -140,3 +140,16 @@ known URLs, selections, resolutions and licenses. Full source stores and models
 are excluded from Git. Downloaded gallery labels are model-derived results,
 not manual ground truth. NPZ files contain uint32 `labels`, `time_indices` and
 the axis string `tczyx`; previews show the first timepoint.
+
+## Curated demonstrations and large images
+
+The current main gallery contains 15 examples and 18 reviewed labels, selected
+after 52 prompt comparisons. Empty or unconvincing outputs are excluded from the
+main examples; their audit remains in [the comparison report](prompt-study.html).
+EM examples are native 2D sections without Z projections. This is positive
+demonstration selection, not a representative accuracy benchmark.
+
+The [large-image study](tiling.html) benchmarks tile sizes and object fusion and
+proposes advanced user controls. A bounded research prototype works on controlled
+fields, but production gigapixel streaming is not enabled. The 16-megapixel guard
+continues to apply to input/projection and measurement processing.

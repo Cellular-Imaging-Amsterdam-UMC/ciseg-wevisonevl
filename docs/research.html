@@ -1,4 +1,4 @@
-<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Validation &amp; limitations · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="research.html" aria-current="page">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>Validation &amp; limitations</h1></header><article class="prose"><p>Investigated on 25 October 2026. Current inference uses <strong>WeVisOne-VL-4B only</strong>.
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Validation &amp; limitations · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html">Large images</a><a href="research.html" aria-current="page">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>Validation &amp; limitations</h1></header><article class="prose"><p>Investigated on 25 October 2026. Current inference uses <strong>WeVisOne-VL-4B only</strong>.
 The evaluated 2B model and selection option were removed at the user's request;
 historical measurements remain in ignored local results.</p>
 <h2 id="implementation-choices">Implementation choices</h2>
@@ -191,6 +191,33 @@ in the browser. Public assets are small derived previews and masks. Full stores,
 models, local workstation paths and raw logs are excluded. Docker recipes are
 prepared but no new image has been built or deployed; reader checks are not a
 live OMERO database import.</p>
+<h2 id="follow-up-prompt-curation-and-tiling-study">Follow-up prompt curation and tiling study</h2>
+<p>The current main gallery replaces the initial all-results presentation with
+<strong>15 positively selected examples and 18 reviewed labels</strong>. It excludes all
+EM Z projections, empty outputs and unconvincing predictions. Source stores and
+all original experiments remain local. This curation must not be interpreted as
+a representative accuracy estimate.</p>
+<p>The <a href="prompt-study.html">prompt comparison report</a> documents <strong>52 candidates</strong>:
+28 descriptions on fixed fluorescence/DAB views and 24 on 8 native 2D EM patches.
+33 paired CEM-MitoLab images/annotations were retrieved via ZIP byte ranges and
+CRC verification, without downloading the full 2.95 GB archive. Two retained
+EM patches score foreground Dice about 0.965 and 0.936. They share an acquisition
+and were selected after comparison, so they are not an independent test set.</p>
+<p>Concrete appearance descriptions improve the green vessel profile and plant
+vascular bundles. A recorded native 192 × 192 Ki67 ROI with “dark brown stained
+nuclei” distinguishes positive brown nuclei from blue negatives. The white
+filament query demonstrates network foreground rather than complete axon tracing.
+Fluorescence/DAB improvements are qualitative because no manual masks were supplied.</p>
+<p>The <a href="tiling.html">tile study</a> reports real 512/768/1024-pixel GPU runs against
+87 consensus organoid instances. Nominal 768/192 gave Dice 0.917 and instance
+F1 0.939 at IoU ≥ 0.5, compared with 0.881/0.906 for the earlier whole-image run.
+Actual edge overlap exceeds nominal overlap. These results do not establish
+general large-tilescan support or universal optimal settings.</p>
+<p>There are now <strong>39 passing tests: 34 workflow tests and 5 experimental stitching
+tests</strong>. They cover crossing objects, four-tile junctions, touching neighbors,
+ambiguous matches, odd edges and the prototype memory guard. The production
+16-megapixel limit remains until the full IO/projection/storage/measurement
+pipeline becomes bounded. No new Docker image or BIOMERO deployment was built.</p>
 <h2 id="primary-sources">Primary sources</h2>
 <ul>
 <li><a href="https://github.com/Tencent/WeVisOne-VL">Official WeVisOne-VL code and API</a></li>
@@ -202,4 +229,7 @@ live OMERO database import.</p>
 <li><a href="https://imagej.net/ij/images/">ImageJ samples</a></li>
 <li><a href="https://scikit-image.org/docs/stable/api/skimage.data.html">scikit-image datasets and licensing</a></li>
 <li><a href="https://mib.helsinki.fi/help/main2/user-interface/menu/tools/tools-watershed.html">MIB mitochondrial example</a></li>
+<li><a href="https://www.ebi.ac.uk/empiar/EMPIAR-11037/">CEM-MitoLab, EMPIAR-11037</a></li>
+<li><a href="https://doi.org/10.1016/j.cels.2022.12.006">CEM/MitoNet publication</a></li>
+<li><a href="https://github.com/Tencent/WeVisOne-VL/blob/main/tutorials/03_segmentation_matting_pipeline.ipynb">Official model pixel-level cookbook</a></li>
 </ul></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.1.0 · Results from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>

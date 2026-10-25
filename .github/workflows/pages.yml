@@ -2,7 +2,7 @@ name: Publish documentation
 on:
   push:
     branches: [main]
-    paths: ['docs/**', 'tools/check_site.py', '.github/workflows/pages.yml']
+    paths: ['docs/**', 'gallery_selection.json', 'tools/build_docs_site.py', 'tools/check_site.py', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions:
   contents: read

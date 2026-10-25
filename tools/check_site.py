@@ -35,10 +35,22 @@ def check(root):
             elif not target.exists():errors.append(f'Missing file: {file.name}: {link}')
             elif url.fragment and target in documents and unquote(url.fragment) not in documents[target].ids:errors.append(f'Missing anchor: {file.name}: {link}')
     data=json.loads((root/'assets/examples.json').read_text(encoding='utf-8'))
-    if len(data['examples'])!=27:errors.append('Expected all 27 catalog examples')
+    selection_path=root.parent/'gallery_selection.json'
+    if selection_path.exists():
+        selected=json.loads(selection_path.read_text(encoding='utf-8'))
+        expected={e['name'] for e in selected['examples']}
+        if {e['name'] for e in data['examples']}!=expected:errors.append('Gallery does not match reviewed selection')
+        expected_labels={e['name']:set(e['labels']) for e in selected['examples']}
+        for example in data['examples']:
+            if {label['name'] for label in example['labels']}!=expected_labels.get(example['name']):errors.append('Unreviewed label set: '+example['name'])
     for sample in data['examples']:
+        if sample.get('reference'):
+            for path in sample['reference'].values():
+                if not (root/path).is_file():errors.append('Missing dataset reference asset: '+path)
+        if data.get('curated') and sample['category']=='EM' and sample['z_planes']>1:errors.append('EM Z projection in curated examples')
         if not (root/sample['input']).is_file():errors.append('Missing source preview: '+sample['name'])
         for label in sample['labels']:
+            if data.get('curated') and (label['status']!='complete' or label.get('first_frame_objects',0)==0):errors.append('Unselected/empty result in curated examples: '+sample['name'])
             for key in ['overlay','download']:
                 if label.get(key) and not (root/label[key]).is_file():errors.append('Missing result asset: '+str(label[key]))
             if label['status'] in ['complete','partial'] and (not label['overlay'] or not label['download']):errors.append('Successful result without real assets: '+sample['name'])
