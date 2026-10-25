@@ -84,23 +84,23 @@ parameters:
   optional: true
   section_id: advanced
   mode: advanced
-- {name: prompt_1, type: string, label: '1 — Prompt', description: English target description. Blank disables this slot., default: cell nuclei, cli_tag: --prompt-1, cli_order: 11, optional: true, section_id: essential, mode: beginner}
-- {name: name_1, type: string, label: '1 — Label name', description: Unique safe label name., default: nuclei, cli_tag: --name-1, cli_order: 12, optional: true, section_id: essential, mode: beginner}
-- {name: channels_1, type: string, label: '1 — Channels', description: 'One-based grayscale channel (1) or R,G,B mapping (1,2,3).', default: '1', cli_tag: --channels-1, cli_order: 13, optional: true, section_id: essential, mode: beginner}
+- {name: prompt_1, type: string, label: '1 — Prompt', description: English target description. Blank disables this slot., default: '', cli_tag: --prompt-1, cli_order: 11, optional: true, section_id: essential, mode: beginner}
+- {name: name_1, type: string, label: '1 — Label name', description: Unique safe label name., default: target1, cli_tag: --name-1, cli_order: 12, optional: true, section_id: advanced, mode: advanced}
+- {name: channels_1, type: string, label: '1 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-1, cli_order: 13, optional: true, section_id: essential, mode: beginner}
 - {name: prompt_2, type: string, label: '2 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-2, cli_order: 14, optional: true, section_id: essential, mode: beginner}
-- {name: name_2, type: string, label: '2 — Label name', default: target2, cli_tag: --name-2, cli_order: 15, optional: true, section_id: essential, mode: beginner}
-- {name: channels_2, type: string, label: '2 — Channels', description: 'One-based grayscale or R,G,B channels.', default: '1', cli_tag: --channels-2, cli_order: 16, optional: true, section_id: essential, mode: beginner}
+- {name: name_2, type: string, label: '2 — Label name', default: target2, cli_tag: --name-2, cli_order: 15, optional: true, section_id: advanced, mode: advanced}
+- {name: channels_2, type: string, label: '2 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-2, cli_order: 16, optional: true, section_id: essential, mode: beginner}
 - {name: prompt_3, type: string, label: '3 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-3, cli_order: 17, optional: true, section_id: essential, mode: beginner}
-- {name: name_3, type: string, label: '3 — Label name', default: target3, cli_tag: --name-3, cli_order: 18, optional: true, section_id: essential, mode: beginner}
-- {name: channels_3, type: string, label: '3 — Channels', description: 'One-based grayscale or R,G,B channels.', default: '1', cli_tag: --channels-3, cli_order: 19, optional: true, section_id: essential, mode: beginner}
+- {name: name_3, type: string, label: '3 — Label name', default: target3, cli_tag: --name-3, cli_order: 18, optional: true, section_id: advanced, mode: advanced}
+- {name: channels_3, type: string, label: '3 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-3, cli_order: 19, optional: true, section_id: essential, mode: beginner}
 - {name: prompt_4, type: string, label: '4 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-4, cli_order: 20, optional: true, section_id: essential, mode: beginner}
-- {name: name_4, type: string, label: '4 — Label name', default: target4, cli_tag: --name-4, cli_order: 21, optional: true, section_id: essential, mode: beginner}
-- {name: channels_4, type: string, label: '4 — Channels', description: 'One-based grayscale or R,G,B channels.', default: '1', cli_tag: --channels-4, cli_order: 22, optional: true, section_id: essential, mode: beginner}
+- {name: name_4, type: string, label: '4 — Label name', default: target4, cli_tag: --name-4, cli_order: 21, optional: true, section_id: advanced, mode: advanced}
+- {name: channels_4, type: string, label: '4 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-4, cli_order: 22, optional: true, section_id: essential, mode: beginner}
 - name: normalization
   type: dropdown
-  label: Model view contrast
-  description: Percentile clips each selected channel at 1-99.8 percent. Original RGB preserves uint8 intensities. Source pixels are copied unchanged.
-  options: [{label: Percentile (fluorescence / grayscale), value: percentile}, {label: Original uint8 RGB / grayscale, value: dtype}]
+  label: Model RGB view - intensity scaling
+  description: Each target is inferred once on one RGB view. The channel input selects one grayscale channel or three channels mapped to R,G,B. This option only scales intensities in that view. Percentile stretches each selected channel independently from its 1st to 99.8th percentile before RGB composition; Preserve keeps uint8 values 0-255. It does not choose combined versus separate-channel inference. Source pixels and measurement intensities are unchanged.
+  options: [{label: Stretch each selected channel (1-99.8 percentile), value: percentile}, {label: Preserve selected uint8 values (0-255), value: dtype}]
   default: percentile
   cli_tag: --normalization
   cli_order: 30
@@ -116,8 +116,8 @@ parameters:
   cli_tag: --label-mode
   cli_order: 31
   optional: true
-  section_id: essential
-  mode: beginner
+  section_id: advanced
+  mode: advanced
 - {name: threshold, type: float, label: Mask probability threshold, default: 0.5, minimum: 0.01, maximum: 0.99, cli_tag: --threshold, cli_order: 32, optional: true, section_id: advanced, mode: advanced}
 - {name: max_side, type: integer, label: Maximum model input side (pixels), description: Large inputs are explicitly downsampled for inference and masks mapped to original coordinates. No automatic tiling., default: 1024, minimum: 128, maximum: 2048, cli_tag: --max-side, cli_order: 33, optional: true, section_id: advanced, mode: advanced}
 - {name: max_new_tokens, type: integer, label: Maximum generated tokens, description: Truncated output fails the run instead of silently saving partial masks., default: 2048, minimum: 32, maximum: 8192, cli_tag: --max-new-tokens, cli_order: 34, optional: true, section_id: advanced, mode: advanced}

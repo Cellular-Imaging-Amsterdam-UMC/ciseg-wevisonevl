@@ -155,8 +155,10 @@ def test_preserves_translation_and_pyramid_transforms(tmp_path):
 def test_bilayers_defaults_and_disabled_first_prompt():
     config=load_config(Path(__file__).parents[1]/"config.yaml")
     assert not validate_config(config)
-    for spec in config["parameters"]:
-        values={spec["name"]:spec.get("default")}
+    defaults={spec['name']:spec.get('default') for spec in config['parameters']}
+    assert defaults['prompt_1']=='' and defaults['name_1']=='target1'
+    generic=build_parser().parse_args(['--infolder','in','--outfolder','out','--prompt-1','the complete structure'])
+    assert settings_from_args(generic)[1][0].name=='target1'
     command=generate_cli_command(config,{"infolder":"in","outfolder":"out","prompt_1":"","prompt_2":"cells"})
     args=build_parser().parse_args(shlex.split(command)[2:])
     settings,prompts=settings_from_args(args)

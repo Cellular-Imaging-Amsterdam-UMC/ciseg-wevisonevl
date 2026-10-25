@@ -1,0 +1,356 @@
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Whole structures and their parts · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>Whole structures and their parts</h1></header><article class="prose"><p>This follow-up tested <strong>37 target descriptions across nine prepared 2D views</strong>, covering phase contrast, EM, fluorescence and chromogenic immunohistochemistry. Seven new views with eleven reviewed labels were retained. Together with the previous 52 comparisons, 89 candidate queries have been evaluated. Repeated final workflow runs are not counted as new candidates.</p>
+<p>The gallery is positively selected after visual review. No manual reference masks are supplied for these new examples, so object counts and nonempty masks are not accuracy measurements. These examples do not establish reliability across a modality. Unselected outputs and original images remain local.</p>
+<h2 id="how-the-model-sees-the-images">How the model sees the images</h2>
+<p>Every target uses one RGB view: a selected single source channel copied to R/G/B, or three source channels assigned to R/G/B in the specified order. Other source channels remain available for measurements. Intensity scaling affects only this view; it is not a choice between composite and separate-channel inference. The same channel map and scaling were used within each comparison.</p>
+<p>The kidney overview maps source channels 1,2,3 to RGB as recorded pseudocolor. The extra glomerulus ROI maps 3,2,1 to RGB, matching the original 605/515/450 nm emission order. They are distinct, documented study views.</p>
+<h2 id="retained-examples">Retained examples</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>View</th>
+<th>Labels and exact target descriptions</th>
+<th>Visual review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase contrast</td>
+<td><a href="examples.html#public-phase-paramecium-vacuoles">public-phase-paramecium-vacuoles</a></td>
+<td><code>organism</code>: the complete oval paramecium<br><code>round_vacuoles</code>: the bright circular vacuoles inside the organism</td>
+<td>Visible organism body and six bright circular interior structures. The two-contractile-vacuoles query selected the wrong structures and is excluded; circular masks are not validated contractile-vacuole identities.</td>
+</tr>
+<tr>
+<td>Phase contrast</td>
+<td><a href="examples.html#public-phase-paramecium-food">public-phase-paramecium-food</a></td>
+<td><code>organism</code>: the complete oval paramecium<br><code>red_food_vacuoles</code>: the red circular food vacuoles</td>
+<td>Organism body and red carmine-containing food vacuoles. The black-vacuole query selected red structures and is excluded. No completeness claim for every small vacuole.</td>
+</tr>
+<tr>
+<td>EM</td>
+<td><a href="examples.html#public-em-chloroplast">public-em-chloroplast</a></td>
+<td><code>chloroplast</code>: the large oval chloroplast in the center<br><code>dark_granules</code>: the dark round granules inside the central chloroplast</td>
+<td>Central chloroplast outline and three visible dark round granules. The membrane-stack query returned no masks; the generic all-chloroplasts query selected granules instead. Neither is shown. Source-described false-colour TEM, without projection.</td>
+</tr>
+<tr>
+<td>Fluorescence</td>
+<td><a href="examples.html#public-fluorescence-endothelial">public-fluorescence-endothelial</a></td>
+<td><code>cell_body</code>: the large elongated cell in the lower half<br><code>nucleus</code>: the blue nucleus inside the large cell in the lower half</td>
+<td>Visible body of the large lower cell and its blue nucleus in the same view. The cell extends beyond the acquired left edge; the mask covers its visible portion. Fine red actin-network prompting was unsuccessful.</td>
+</tr>
+<tr>
+<td>Fluorescence</td>
+<td><a href="examples.html#public-fluorescence-kidney">public-fluorescence-kidney</a></td>
+<td><code>glomeruli</code>: the bright round glomeruli</td>
+<td>Two conspicuous right-side glomerular profiles in native optical section 8. Other profiles are missed; this is a selected qualitative demonstration, not complete glomerulus counting. Tubule/lumen queries and the smaller glomerulus ROI were not convincing.</td>
+</tr>
+<tr>
+<td>Immunohistochemistry</td>
+<td><a href="examples.html#public-ihc-pancreatic-islet">public-ihc-pancreatic-islet</a></td>
+<td><code>islet</code>: the entire pancreatic islet in the center</td>
+<td>Whole central insulin-stained islet profile. Brown-cell prompting on this overview filled the entire islet instead of separating positive cells; that query is excluded. Publication JPEG, qualitative only.</td>
+</tr>
+<tr>
+<td>Immunohistochemistry</td>
+<td><a href="examples.html#public-ihc-hyperplastic-islet">public-ihc-hyperplastic-islet</a></td>
+<td><code>brown_tissue</code>: the brown insulin-positive tissue</td>
+<td>Selected brown insulin-positive tissue regions within the published enlarged islet panel. Not individual positive-cell counts or validated stain quantification. The original arrow remains visible; whole-islet and lumen queries are excluded.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sources-calibration-and-image-limitations">Sources, calibration and image limitations</h2>
+<ul>
+<li><strong>Phase contrast:</strong> <a href="https://www6.pbrc.hawaii.edu/allen/ch01/00-pm.html">Klaus Hausmann / Richard Allen collection, Figure 0</a>. Two native panel crops, with source color preserved. The collection encourages educational/research use; <a href="https://www6.pbrc.hawaii.edu/allen/foreword.html">commercial reproduction may need permission</a>. No invented calibration.</li>
+<li><strong>EM:</strong> <a href="https://wellcomecollection.org/works/bx3dctp2">Kevin Mackenzie, University of Aberdeen, Wellcome Collection</a>, CC BY 4.0. The source describes the image as false-colour TEM; no extra recoloring or Z projection was applied. Its stated 4.5-micrometer field width gives approximately 0.001875 micrometers per pixel for the 2400-pixel image, using square pixels. Measurements retain this calibration derivation.</li>
+<li><strong>Fluorescence, endothelial cells:</strong> <a href="https://imagej.net/ij/images/FluorescentCells.txt">Molecular Probes / ImageJ source</a>. Separate red F-actin, green tubulin and blue DNA channels are retained. The native acquisition contains visible information text and cells touching the field boundary. No separate file-specific redistribution license was identified.</li>
+<li><strong>Fluorescence, kidney:</strong> <a href="https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.kidney">Genevieve Buckley, Monash Micro Imaging, scikit-image data.kidney</a>, CC0. One native optical section (Z index 8 of 16), not a projection. XY spacing is 1.24 micrometers; the exploratory ROI preserves its physical translation. The TIFF is ZCYX; it is explicitly transposed for ZYXC access before writing TCZYX.</li>
+<li><strong>IHC:</strong> Joseph de Nanassy and Dina El Demellawy (2017), <a href="https://doi.org/10.1177/1177390117690140">DOI 10.1177/1177390117690140</a>, Figures 31-33, CC BY-NC 4.0. Published insulin-stained pancreatic islet JPEGs are qualitative educational/research examples. The original annotation arrow remains visible. There is no numerical pixel calibration; magnification alone was not converted to micrometers.</li>
+</ul>
+<h2 id="what-failed">What failed</h2>
+<p>The model confused black and red food vacuoles, failed to identify chloroplast membrane stacks, and returned a near-whole-field mask for generic kidney tubules. The glomerulus crop often selected neighboring tubules instead. Several IHC cell/space prompts selected a whole islet or incomplete subregions. Those results are omitted from the gallery, not silently treated as successful biological segmentation. The retained IHC overview shows an islet outline, while the enlarged example shows brown tissue regions; neither demonstrates validated positive-cell separation.</p>
+<h2 id="all-additional-candidates">All additional candidates</h2>
+<table>
+<thead>
+<tr>
+<th>Study view</th>
+<th>Description</th>
+<th style="text-align: right;">Predicted objects</th>
+<th style="text-align: right;">Foreground fraction</th>
+<th>Retained</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>public-phase-paramecium-vacuoles</code></td>
+<td>the complete oval paramecium</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.457</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-phase-paramecium-vacuoles</code></td>
+<td>the entire ciliated organism, excluding the blue background</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.457</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-phase-paramecium-vacuoles</code></td>
+<td>the bright circular vacuoles inside the organism</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.024</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-phase-paramecium-vacuoles</code></td>
+<td>the two star-shaped contractile vacuoles</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.008</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-phase-paramecium-food</code></td>
+<td>the complete oval paramecium</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.425</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-phase-paramecium-food</code></td>
+<td>the entire ciliated organism, excluding the blue background</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.425</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-phase-paramecium-food</code></td>
+<td>the red circular food vacuoles</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">0.042</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-phase-paramecium-food</code></td>
+<td>the black circular food vacuoles</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.022</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-em-chloroplast</code></td>
+<td>the large oval chloroplast in the center</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.241</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-em-chloroplast</code></td>
+<td>all chloroplasts</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.003</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-em-chloroplast</code></td>
+<td>the dark parallel membrane stacks inside the central chloroplast</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-em-chloroplast</code></td>
+<td>the dark round granules inside the central chloroplast</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.003</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-endothelial</code></td>
+<td>the complete fluorescent cells</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.581</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-endothelial</code></td>
+<td>the large elongated cell in the lower half</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.408</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-endothelial</code></td>
+<td>the blue nuclei</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.019</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-endothelial</code></td>
+<td>the red filament network</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.000</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney</code></td>
+<td>the kidney tubules</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.958</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney</code></td>
+<td>the green elongated tubules</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.010</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney</code></td>
+<td>the dark oval lumens inside the tubules</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.019</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney</code></td>
+<td>the bright round glomeruli</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.025</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-ihc-pancreatic-islet</code></td>
+<td>the entire pancreatic islet in the center</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.018</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-ihc-pancreatic-islet</code></td>
+<td>the central oval cluster containing brown cells</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.019</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-pancreatic-islet</code></td>
+<td>the brown insulin-positive cells</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.018</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-pancreatic-islet</code></td>
+<td>the white lumen of the round duct in the upper left</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.028</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-hyperplastic-islet</code></td>
+<td>the entire large pancreatic islet</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.289</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-hyperplastic-islet</code></td>
+<td>the large oval structure containing brown stained cells</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.388</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-hyperplastic-islet</code></td>
+<td>the brown insulin-positive tissue</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.280</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>public-ihc-hyperplastic-islet</code></td>
+<td>the white spaces inside the large islet</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.011</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney-glomerulus</code></td>
+<td>the complete round glomerulus</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.073</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney-glomerulus</code></td>
+<td>the bright oval cluster in the center</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.196</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney-glomerulus</code></td>
+<td>the blue nuclei inside the glomerulus</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.122</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-kidney-glomerulus</code></td>
+<td>the green mesh inside the glomerulus</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.185</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-islet-detail</code></td>
+<td>the entire pancreatic islet</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.079</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-islet-detail</code></td>
+<td>the brown stained cells</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.078</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-islet-detail</code></td>
+<td>the dark brown stained areas, excluding blue cells</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.029</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-ihc-islet-detail</code></td>
+<td>the pale interior of the pancreatic islet</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.125</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>public-fluorescence-endothelial</code></td>
+<td>the blue nucleus inside the large cell in the lower half</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.008</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reproduction">Reproduction</h2>
+<p>In the eleven retained final reruns, nine binary masks matched their previous workflow masks exactly. The organism and chloroplast masks each differed at one pixel. Deterministic decoding does not guarantee bit-identical output on every rerun.</p>
+<p>All scripts run from the repository root with the local Python environment. Full sources, stores and research results remain ignored by Git. The public site contains only compact previews, labels, CSVs and source metadata.</p>
+<pre><code class="language-powershell">.venv\Scripts\python tools\prepare_mode_examples.py
+.venv\Scripts\python tools\test_prompt_candidates.py --cases work\imaging-mode-cases.json --output test-results\imaging-modes-v3
+.venv\Scripts\python tools\run_mode_workflows.py --cases work\imaging-mode-cases.json
+.venv\Scripts\python tools\promote_mode_examples.py
+.venv\Scripts\python tools\run_mode_workflows.py --cases work\reviewed-mode-cases.json --output test-results\reviewed-mode-workflows
+.venv\Scripts\python tools\promote_mode_examples.py --publish
+.venv\Scripts\python tools\write_mode_report.py
+.venv\Scripts\python tools\build_docs_site.py
+</code></pre>
+<p>Final gallery masks were produced through the actual workflow, with descriptive label names and one CSV per example download. The CLI still supports at most four active targets in any single workflow run.</p></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.1.0 · Results from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>

@@ -45,6 +45,22 @@ def test_dataset_presets_fill_prompt_channels_and_clear_unused_slots(tmp_path,mo
     app=QApplication.instance() or QApplication([])
     window=Window()
     assert window.example.count()==2  # Placeholder plus the reviewed visible example.
+    assert window.widgets['prompt_1'].text()==''
+    assert window.widgets['name_1'].text()=='target1'
+    window.show()
+    app.processEvents()
+    assert not window.advanced_panel.toggle.isChecked()
+    assert not window.widgets['name_1'].isVisible()
+    assert window.widgets['prompt_1'].isVisible()
+    assert window.widgets['channels_4'].isVisible()
+    assert window.widgets['normalization'].isVisible()
+    window.advanced_panel.toggle.click()
+    app.processEvents()
+    assert window.widgets['name_1'].isVisible()
+    assert window.widgets['projection'].isVisible()
+    window.widgets['threshold'].setValue(.7)
+    window.advanced_panel.toggle.click()
+    assert window.values()['threshold']==.7
     window.widgets['prompt_4'].setText('old prompt')
     window.example.setCurrentIndex(1)
     assert window.widgets['prompt_1'].text()=='vascular bundles'

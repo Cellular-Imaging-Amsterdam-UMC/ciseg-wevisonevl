@@ -12,6 +12,7 @@ if __name__=='__main__':
     selection=json.loads((ROOT/'gallery_selection.json').read_text())
     chosen={s['selected_prompt_study'] for s in selection['examples'] if s.get('selected_prompt_study')}
     lines=['# Prompt comparison and gallery selection','',
+           'The subsequent [whole/part modality study](imaging-modes.html) adds 37 candidate queries on phase contrast, EM, fluorescence and IHC views. This page retains the original 52-query comparison as a separate study.','',
            'The main gallery is a positively selected demonstration set, **not a representative accuracy benchmark**. Unconvincing candidates and EM Z projections are excluded. Raw comparisons remain local; this page preserves their audit without rejected overlays.','',
            '## Protocol','',
            '- Official segmentation API and trained target-description template; no rewritten freeform system instruction.',

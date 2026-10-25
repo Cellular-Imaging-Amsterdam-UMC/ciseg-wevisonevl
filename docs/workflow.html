@@ -1,6 +1,6 @@
 <!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Workflow &amp; usage · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html" aria-current="page">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>Workflow &amp; usage</h1></header><article class="prose"><p>CISegWeVisOneVL segments OME-Zarr images with WeVisOne-VL-4B and up to four
 independent text prompts. It uses existing weights. The <a href="examples.html">gallery</a>
-shows actual predictions, including failures.</p>
+shows reviewed actual predictions; the research reports document rejected candidates.</p>
 <h2 id="getting-started">Getting started</h2>
 <p>Install Git and <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>, then
 run these commands on Windows:</p>
@@ -17,15 +17,34 @@ Inference uses only the local cache. GPU runs were tested on an RTX A5000 with
 <p>Select an example or input directory, use <strong>Check input</strong>, then <strong>Run local
 Python</strong>. Blank prompts disable their slots. Completed results are never
 overwritten: choose a new output directory for each run.</p>
+<p>All four prompts start blank, with generic output names <code>target1</code> through
+<code>target4</code>. The main form contains the four prompt/channel inputs and <strong>Model RGB
+view - intensity scaling</strong>. Output names, Z projection, mask output, probability
+threshold, image size, token limit, area filter and device are under <strong>Advanced
+parameters</strong>, collapsed initially in the local launcher. Expanding the panel
+does not change parameter values.</p>
+<p>Saved local settings are restored on reopening the launcher. Choosing an example
+fills its reviewed prompts and channel map; this does not change the blank
+descriptor defaults.</p>
 <h2 id="images-and-channels">Images and channels</h2>
 <ul>
 <li>Input: NGFF 0.4/Zarr v2 with explicit axes.</li>
 <li>Regular images, time series and all HCS screen fields are processed.</li>
-<li><code>1</code> supplies a single channel as a grayscale RGB view.</li>
-<li><code>1,2,3</code> maps three channels to red, green and blue.</li>
-<li><strong>Original uint8 RGB</strong> retains histology colors.</li>
-<li>Percentile contrast changes only the model view. Measurements use original
-  2D pixels or the projection before normalization.</li>
+<li>Each active target is inferred once on <strong>one composed RGB view</strong> per timepoint
+  and field. It does not infer every channel separately.</li>
+<li><code>1</code> selects source channel 1 and copies it to R, G and B, producing grayscale.</li>
+<li><code>1,2,3</code> maps source channels 1, 2 and 3 to R, G and B in that order. <code>4,2,1</code>
+  is also valid. No other channels are automatically mixed into this view.</li>
+<li><strong>Stretch each selected channel (1-99.8 percentile)</strong> scales each selected
+  source channel independently before composing RGB. This can make weak
+  fluorescence visible but changes color balance.</li>
+<li><strong>Preserve selected uint8 values (0-255)</strong> retains selected 8-bit intensities
+  and is usually appropriate for acquired RGB histology or phase contrast.</li>
+<li>The intensity-scaling control does not switch between combined RGB and
+  separate-channel inference. For separate channel-specific targets, use
+  different prompt slots with their own single-channel inputs.</li>
+<li>Rendering changes only the model view. Measurements include every source
+  channel and use original 2D pixels or the projection before normalization.</li>
 </ul>
 <p>Each XY plane is limited to 16 megapixels. The model view has a maximum side of
 1024 pixels by default, configurable from 128 to 2048. Masks return to native XY
@@ -146,9 +165,11 @@ are excluded from Git. Downloaded gallery labels are model-derived results,
 not manual ground truth. NPZ files contain uint32 <code>labels</code>, <code>time_indices</code> and
 the axis string <code>tczyx</code>; previews show the first timepoint.</p>
 <h2 id="curated-demonstrations-and-large-images">Curated demonstrations and large images</h2>
-<p>The current main gallery contains 15 examples and 18 reviewed labels, selected
-after 52 prompt comparisons. Empty or unconvincing outputs are excluded from the
-main examples; their audit remains in <a href="prompt-study.html">the comparison report</a>.
+<p>The current main gallery contains 22 examples and 29 reviewed labels, selected
+after 89 candidate prompt comparisons. Empty or unconvincing outputs are excluded from the
+main examples; audits remain in <a href="prompt-study.html">the first comparison</a> and
+<a href="imaging-modes.html">the whole/part modality study</a>. Filter the gallery by imaging
+mode to find phase contrast, EM, fluorescence and immunohistochemistry examples.
 EM examples are native 2D sections without Z projections. This is positive
 demonstration selection, not a representative accuracy benchmark.</p>
 <p>The <a href="tiling.html">large-image study</a> benchmarks tile sizes and object fusion and

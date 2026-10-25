@@ -1,7 +1,7 @@
 {
   "curated": true,
   "date": "2026-10-25",
-  "inference_directory": "test-results/curated-gallery-v2",
+  "inference_directory": "test-results/curated-gallery-v3",
   "selection_policy": "Selected after explicit prompt comparisons and visual review. Not a representative accuracy benchmark.",
   "em_2d_only": true,
   "examples": [
@@ -118,6 +118,84 @@
       ],
       "review": "A second native 2D EMPIAR patch from the same acquisition; not an independent generalization benchmark.",
       "selected_prompt_study": "study-cem-mito-27-1"
+    },
+    {
+      "name": "public-phase-paramecium-vacuoles",
+      "labels": [
+        "organism",
+        "round_vacuoles"
+      ],
+      "review": "Visible organism body and six bright circular interior structures. The two-contractile-vacuoles query selected the wrong structures and is excluded; circular masks are not validated contractile-vacuole identities.",
+      "reviewed_prompt_cases": [
+        "public-phase-paramecium-vacuoles-1",
+        "public-phase-paramecium-vacuoles-3"
+      ]
+    },
+    {
+      "name": "public-phase-paramecium-food",
+      "labels": [
+        "organism",
+        "red_food_vacuoles"
+      ],
+      "review": "Organism body and red carmine-containing food vacuoles. The black-vacuole query selected red structures and is excluded. No completeness claim for every small vacuole.",
+      "reviewed_prompt_cases": [
+        "public-phase-paramecium-food-1",
+        "public-phase-paramecium-food-3"
+      ]
+    },
+    {
+      "name": "public-em-chloroplast",
+      "labels": [
+        "chloroplast",
+        "dark_granules"
+      ],
+      "review": "Central chloroplast outline and three visible dark round granules. The membrane-stack query returned no masks; the generic all-chloroplasts query selected granules instead. Neither is shown. Source-described false-colour TEM, without projection.",
+      "reviewed_prompt_cases": [
+        "public-em-chloroplast-1",
+        "public-em-chloroplast-4"
+      ]
+    },
+    {
+      "name": "public-fluorescence-endothelial",
+      "labels": [
+        "cell_body",
+        "nucleus"
+      ],
+      "review": "Visible body of the large lower cell and its blue nucleus in the same view. The cell extends beyond the acquired left edge; the mask covers its visible portion. Fine red actin-network prompting was unsuccessful.",
+      "reviewed_prompt_cases": [
+        "public-fluorescence-endothelial-2",
+        "public-fluorescence-endothelial-5"
+      ]
+    },
+    {
+      "name": "public-fluorescence-kidney",
+      "labels": [
+        "glomeruli"
+      ],
+      "review": "Two conspicuous right-side glomerular profiles in native optical section 8. Other profiles are missed; this is a selected qualitative demonstration, not complete glomerulus counting. Tubule/lumen queries and the smaller glomerulus ROI were not convincing.",
+      "reviewed_prompt_cases": [
+        "public-fluorescence-kidney-4"
+      ]
+    },
+    {
+      "name": "public-ihc-pancreatic-islet",
+      "labels": [
+        "islet"
+      ],
+      "review": "Whole central insulin-stained islet profile. Brown-cell prompting on this overview filled the entire islet instead of separating positive cells; that query is excluded. Publication JPEG, qualitative only.",
+      "reviewed_prompt_cases": [
+        "public-ihc-pancreatic-islet-1"
+      ]
+    },
+    {
+      "name": "public-ihc-hyperplastic-islet",
+      "labels": [
+        "brown_tissue"
+      ],
+      "review": "Selected brown insulin-positive tissue regions within the published enlarged islet panel. Not individual positive-cell counts or validated stain quantification. The original arrow remains visible; whole-islet and lumen queries are excluded.",
+      "reviewed_prompt_cases": [
+        "public-ihc-hyperplastic-islet-3"
+      ]
     }
   ]
 }

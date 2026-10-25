@@ -42,6 +42,16 @@ def category(record):
     return 'Cells & organoids'
 
 
+def imaging_mode(record):
+    if record.get('imaging_mode'):return record['imaging_mode']
+    name=record['name'];kind=record.get('kind','').lower()
+    if '-em-' in name:return 'EM'
+    if 'ki67' in name or 'immunohistochemistry' in name:return 'Immunohistochemistry'
+    if any(part in name for part in ['dendrit','drosophila','brain','lily','neurofilament']):return 'Fluorescence'
+    if any(part in name for part in ['skin','CMU1']):return 'Histology (H&E)'
+    return 'Transmitted / other light microscopy'
+
+
 def public_error(message):
     return re.sub(r'[A-Za-z]:[\\/][^\n]+','<local file location>',message or '')
 
@@ -136,10 +146,10 @@ def export_site(destination,inference):
         urls=source_links(record)
         note=record.get('note') or record.get('source_provenance',{}).get('note','')
         selection=record.get('selection',{})
-        details={k:selection[k] for k in ['source_level','source_level0_size_xy','roi_xywh','roi_yxhw','roi_start_zyx','roi_stop_zyx_exclusive','selected_z_index_in_roi','source_time_indices','source_example','source_z_planes','source_study','roi_yxhw_relative_to_parent','image_member','mask_member','archive','operation'] if k in selection}
+        details={k:selection[k] for k in ['source_level','source_level0_size_xy','roi_xywh','roi_yxhw','roi_start_zyx','roi_stop_zyx_exclusive','selected_z_index_in_roi','source_time_indices','source_example','source_z_planes','source_study','roi_yxhw_relative_to_parent','image_member','mask_member','archive','operation','source_panel','source_z_index','source_shape','source_notes','channel_mapping','calibration'] if k in selection}
         if record.get('source_time_index') is not None:details['source_time_index']=record['source_time_index']
         attribution=record.get('attribution') or record.get('source_provenance',{}).get('attribution','')
-        item={'name':name,'category':category(record),'kind':record.get('kind','Public 2D example'),'shape':list(field.shape),
+        item={'name':name,'category':category(record),'imaging_mode':imaging_mode(record),'kind':record.get('kind','Public 2D example'),'shape':list(field.shape),
               'timepoints':field.timepoints,'z_planes':field.z_planes,'input':image_file,'labels':labels,'sources':urls,
               'license':record.get('license','See original source'),'attribution':attribution,'selection':details,
               'measurements':csv_file,'reference':reference_assets,'note':note,'review':record.get('review',''),'search':name+' '+record.get('kind','')+' '+' '.join(p['text'] for p in presets)}
@@ -167,8 +177,13 @@ def export_site(destination,inference):
         start=intro.index('<div class="callout warning">');end=intro.index('<div class="toolbar">',start)
         intro=intro[:start]+'<div class="callout warning"><strong>Curated demonstrations, not an accuracy benchmark.</strong> These results were selected after prompt comparisons and visual inspection. Empty, invalid and unconvincing candidates are excluded from this gallery and documented in the research report. EM images are native 2D sections, never Z projections. Cards show timepoint 0; label downloads retain every computed timepoint.</div>'+intro[end:]
         (destination/'examples.html').write_text(page('Curated example gallery',intro,'examples'),encoding='utf-8')
+    modes=''.join(f'<option>{E(mode)}</option>' for mode in sorted({s['imaging_mode'] for s in public}))
+    mode_filter=f'<select aria-label="Imaging mode" data-imaging-mode><option value="">All imaging modes</option>{modes}</select>'
+    intro=intro.replace('<select aria-label="Image category"',mode_filter+'<select aria-label="Image category"')
+    intro=intro.replace('<div class="toolbar">','<p><a href="imaging-modes.html">Whole structures and their parts: modality comparisons and sources ↗</a></p><div class="toolbar">')
+    (destination/'examples.html').write_text(page('Curated example gallery' if curated else 'Example gallery',intro,'examples'),encoding='utf-8')
     build_home(destination,counts,len(public),curated)
-    for stem,title in [('workflow','Workflow & usage'),('tiling','Large images & object fusion'),('prompt-study','Prompt comparison & selection'),('research','Validation & limitations')]:
+    for stem,title in [('workflow','Workflow & usage'),('tiling','Large images & object fusion'),('prompt-study','Prompt comparison & selection'),('imaging-modes','Whole structures and their parts'),('research','Validation & limitations')]:
         source=destination/(stem+'.md')
         markdown_text=source.read_text(encoding='utf-8')
         if markdown_text.startswith('# '):markdown_text=markdown_text.split('\n',1)[1]

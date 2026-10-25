@@ -5,11 +5,11 @@ import subprocess
 import sys
 from datetime import datetime
 import yaml
-from PyQt6.QtCore import QProcess
+from PyQt6.QtCore import QProcess, Qt
 from PyQt6.QtGui import QFont, QTextCursor
 from PyQt6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFileDialog,
     QFormLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow,
-    QMessageBox, QPushButton, QScrollArea, QSpinBox, QTextEdit, QVBoxLayout, QWidget)
+    QMessageBox, QPushButton, QScrollArea, QSpinBox, QTextEdit, QToolButton, QVBoxLayout, QWidget)
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / ".last_launcher_settings.json"
@@ -22,6 +22,26 @@ def build_local_command(values, input_dir, output_dir, preflight=False):
     if preflight:
         command.append("--preflight-only")
     return command
+
+
+class CollapsiblePanel(QWidget):
+    """Keep advanced descriptor parameters available but initially hidden."""
+    def __init__(self, title):
+        super().__init__()
+        self.toggle = QToolButton(text=title, checkable=True, checked=False)
+        self.toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.toggle.setArrowType(Qt.ArrowType.RightArrow)
+        self.content = QWidget()
+        self.content.setVisible(False)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.toggle)
+        layout.addWidget(self.content)
+        self.toggle.toggled.connect(self.set_open)
+
+    def set_open(self, opened):
+        self.content.setVisible(opened)
+        self.toggle.setArrowType(Qt.ArrowType.DownArrow if opened else Qt.ArrowType.RightArrow)
 
 
 class Window(QMainWindow):
@@ -57,7 +77,14 @@ class Window(QMainWindow):
         layout.addLayout(folders)
         area = QScrollArea(widgetResizable=True)
         form_widget = QWidget()
-        form = QFormLayout(form_widget)
+        parameter_layout = QVBoxLayout(form_widget)
+        explanation = QLabel("Each target uses one RGB image: one channel = grayscale; three channels = R,G,B in the entered order. Channels are not inferred separately or automatically combined from all channels.")
+        explanation.setWordWrap(True)
+        parameter_layout.addWidget(explanation)
+        form = QFormLayout()
+        parameter_layout.addLayout(form)
+        self.advanced_panel = CollapsiblePanel("Advanced parameters")
+        advanced_form = QFormLayout(self.advanced_panel.content)
         config = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
         for spec in config["parameters"]:
             default = spec.get("default", "")
@@ -84,7 +111,10 @@ class Window(QMainWindow):
                 widget.textChanged.connect(self.preview_command)
             widget.setToolTip(spec.get("description", ""))
             self.widgets[spec["name"]] = widget
-            form.addRow(spec["label"], widget)
+            target_form = advanced_form if spec.get("mode") == "advanced" else form
+            target_form.addRow(spec["label"], widget)
+        parameter_layout.addWidget(self.advanced_panel)
+        parameter_layout.addStretch()
         area.setWidget(form_widget)
         layout.addWidget(area, 3)
         self.preview = QTextEdit(readOnly=True)

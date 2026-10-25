@@ -4,7 +4,7 @@
   "date": "2026-10-25",
   "curated": true,
   "summary": {
-    "complete": 18,
+    "complete": 29,
     "partial": 0,
     "failed": 0,
     "pending": 0
@@ -13,6 +13,7 @@
     {
       "name": "organoids_im10",
       "category": "Cells & organoids",
+      "imaging_mode": "Transmitted / other light microscopy",
       "kind": "Public 2D example",
       "shape": [
         1,
@@ -61,6 +62,7 @@
     {
       "name": "local-dendrite-spines",
       "category": "Neurites & vessels",
+      "imaging_mode": "Fluorescence",
       "kind": "dendrite and spines",
       "shape": [
         1,
@@ -106,6 +108,7 @@
     {
       "name": "local-drosophila-olfactory-neuron",
       "category": "Neurites & vessels",
+      "imaging_mode": "Fluorescence",
       "kind": "neuronal arbor",
       "shape": [
         1,
@@ -148,6 +151,7 @@
     {
       "name": "public-skin",
       "category": "Histology & tissue",
+      "imaging_mode": "Histology (H&E)",
       "kind": "histology",
       "shape": [
         1,
@@ -212,6 +216,7 @@
     {
       "name": "public-retina",
       "category": "Neurites & vessels",
+      "imaging_mode": "Transmitted / other light microscopy",
       "kind": "retinal fundus",
       "shape": [
         1,
@@ -258,6 +263,7 @@
     {
       "name": "public-diatoms",
       "category": "Other structures",
+      "imaging_mode": "Transmitted / other light microscopy",
       "kind": "diatoms",
       "shape": [
         1,
@@ -340,6 +346,7 @@
     {
       "name": "public-embryos",
       "category": "Other structures",
+      "imaging_mode": "Transmitted / other light microscopy",
       "kind": "embryos",
       "shape": [
         1,
@@ -386,6 +393,7 @@
     {
       "name": "local-CMU1-whole-section",
       "category": "Histology & tissue",
+      "imaging_mode": "Histology (H&E)",
       "kind": "H&E whole-section overview",
       "shape": [
         1,
@@ -428,7 +436,8 @@
           46000,
           32914
         ],
-        "operation": "Complete acquired image extent at an existing pyramid level; no spatial crop"
+        "operation": "Complete acquired image extent at an existing pyramid level; no spatial crop",
+        "calibration": "MPP multiplied by independent X/Y level dimension ratios"
       },
       "measurements": "downloads/local-CMU1-whole-section-measurements.csv",
       "reference": null,
@@ -439,6 +448,7 @@
     {
       "name": "public-ki67-lymphoma-section",
       "category": "Histology & tissue",
+      "imaging_mode": "Immunohistochemistry",
       "kind": "histological section",
       "shape": [
         1,
@@ -481,7 +491,8 @@
           28800,
           34816
         ],
-        "operation": "Complete acquired image extent at an existing pyramid level; no spatial crop"
+        "operation": "Complete acquired image extent at an existing pyramid level; no spatial crop",
+        "calibration": "MPP multiplied by independent X/Y level dimension ratios"
       },
       "measurements": "downloads/public-ki67-lymphoma-section-measurements.csv",
       "reference": null,
@@ -492,6 +503,7 @@
     {
       "name": "local-mouse-brain-astrocytes-vessels",
       "category": "Neurites & vessels",
+      "imaging_mode": "Fluorescence",
       "kind": "brain blood vessels and astrocyte processes",
       "shape": [
         1,
@@ -539,6 +551,7 @@
     {
       "name": "public-lily-stem",
       "category": "Other structures",
+      "imaging_mode": "Fluorescence",
       "kind": "plant stem confocal section",
       "shape": [
         1,
@@ -585,6 +598,7 @@
     {
       "name": "public-neurofilament-network-roi",
       "category": "Neurites & vessels",
+      "imaging_mode": "Fluorescence",
       "kind": "Fluorescent fiber network",
       "shape": [
         1,
@@ -640,6 +654,7 @@
     {
       "name": "public-ki67-brown-nuclei-detail",
       "category": "Histology & tissue",
+      "imaging_mode": "Immunohistochemistry",
       "kind": "DAB-positive nuclei",
       "shape": [
         1,
@@ -710,6 +725,7 @@
     {
       "name": "public-em-mitolab-folded-mitochondria",
       "category": "EM",
+      "imaging_mode": "EM",
       "kind": "2D EM mitochondria",
       "shape": [
         1,
@@ -751,7 +767,8 @@
         "image_member": "cem_mitolab/1FT878Ctp40415358509_2D/images/1FT878Ctp40415358509_2D_img00263-LOC-2d-0-512_1536-2048.tiff",
         "mask_member": "cem_mitolab/1FT878Ctp40415358509_2D/masks/1FT878Ctp40415358509_2D_img00263-LOC-2d-0-512_1536-2048.tiff",
         "archive": "https://ftp.ebi.ac.uk/empiar/world_availability/11037/data/cem_mitolab.zip",
-        "operation": "Exact native 2D EM patch and paired instance annotation; no projection"
+        "operation": "Exact native 2D EM patch and paired instance annotation; no projection",
+        "calibration": "No physical pixel spacing supplied; not invented"
       },
       "measurements": "downloads/public-em-mitolab-folded-mitochondria-measurements.csv",
       "reference": {
@@ -765,6 +782,7 @@
     {
       "name": "public-em-mitolab-mitochondrial-cluster",
       "category": "EM",
+      "imaging_mode": "EM",
       "kind": "2D EM mitochondria",
       "shape": [
         1,
@@ -806,7 +824,8 @@
         "image_member": "cem_mitolab/1FT878Ctp40415358509_2D/images/1FT878Ctp40415358509_2D_img00264-LOC-2d-0-512_512-1024.tiff",
         "mask_member": "cem_mitolab/1FT878Ctp40415358509_2D/masks/1FT878Ctp40415358509_2D_img00264-LOC-2d-0-512_512-1024.tiff",
         "archive": "https://ftp.ebi.ac.uk/empiar/world_availability/11037/data/cem_mitolab.zip",
-        "operation": "Exact native 2D EM patch and paired instance annotation; no projection"
+        "operation": "Exact native 2D EM patch and paired instance annotation; no projection",
+        "calibration": "No physical pixel spacing supplied; not invented"
       },
       "measurements": "downloads/public-em-mitolab-mitochondrial-cluster-measurements.csv",
       "reference": {
@@ -816,6 +835,465 @@
       "note": "",
       "review": "A second native 2D EMPIAR patch from the same acquisition; not an independent generalization benchmark.",
       "search": "public-em-mitolab-mitochondrial-cluster 2D EM mitochondria mitochondria"
+    },
+    {
+      "name": "public-phase-paramecium-vacuoles",
+      "category": "Cells & organoids",
+      "imaging_mode": "Phase contrast",
+      "kind": "Paramecium with contractile vacuoles",
+      "shape": [
+        1,
+        3,
+        1,
+        521,
+        744
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-phase-paramecium-vacuoles-input.webp",
+      "labels": [
+        {
+          "name": "organism",
+          "text": "the complete oval paramecium",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-phase-paramecium-vacuoles-organism-overlay.webp",
+          "download": "downloads/public-phase-paramecium-vacuoles-organism-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 45.7%.",
+          "foreground_fraction": 0.45713629703011166
+        },
+        {
+          "name": "round_vacuoles",
+          "text": "the bright circular vacuoles inside the organism",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-phase-paramecium-vacuoles-round_vacuoles-overlay.webp",
+          "download": "downloads/public-phase-paramecium-vacuoles-round_vacuoles-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 6,
+          "message": "Timepoint 0: 6 predicted objects. 1/1 timepoints completed. Mask coverage: 2.4%.",
+          "foreground_fraction": 0.024358656842713558
+        }
+      ],
+      "sources": [
+        "https://www6.pbrc.hawaii.edu/allen/ch01/00-pm.html"
+      ],
+      "license": "Educational/research use encouraged; commercial reproduction may require permission. See the Richard Allen collection foreword.",
+      "attribution": "Klaus Hausmann; Richard D. Allen Image Collection, Pacific Biosciences Research Center, University of Hawaii",
+      "selection": {
+        "roi_xywh": [
+          0,
+          0,
+          744,
+          521
+        ],
+        "operation": "Recorded 2D panel ROI; no resampling or enhancement",
+        "source_panel": "Figure 0a",
+        "calibration": "No numerical pixel spacing supplied; not inferred from organism size"
+      },
+      "measurements": "downloads/public-phase-paramecium-vacuoles-measurements.csv",
+      "reference": null,
+      "note": "",
+      "review": "Visible organism body and six bright circular interior structures. The two-contractile-vacuoles query selected the wrong structures and is excluded; circular masks are not validated contractile-vacuole identities.",
+      "search": "public-phase-paramecium-vacuoles Paramecium with contractile vacuoles the complete oval paramecium the bright circular vacuoles inside the organism"
+    },
+    {
+      "name": "public-phase-paramecium-food",
+      "category": "Cells & organoids",
+      "imaging_mode": "Phase contrast",
+      "kind": "Paramecium with stained food vacuoles",
+      "shape": [
+        1,
+        3,
+        1,
+        731,
+        744
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-phase-paramecium-food-input.webp",
+      "labels": [
+        {
+          "name": "organism",
+          "text": "the complete oval paramecium",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-phase-paramecium-food-organism-overlay.webp",
+          "download": "downloads/public-phase-paramecium-food-organism-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 42.5%.",
+          "foreground_fraction": 0.42500882573584575
+        },
+        {
+          "name": "red_food_vacuoles",
+          "text": "the red circular food vacuoles",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-phase-paramecium-food-red_food_vacuoles-overlay.webp",
+          "download": "downloads/public-phase-paramecium-food-red_food_vacuoles-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 28,
+          "message": "Timepoint 0: 28 predicted objects. 1/1 timepoints completed. Mask coverage: 4.2%.",
+          "foreground_fraction": 0.042251371666446026
+        }
+      ],
+      "sources": [
+        "https://www6.pbrc.hawaii.edu/allen/ch01/00-pm.html"
+      ],
+      "license": "Educational/research use encouraged; commercial reproduction may require permission. See the Richard Allen collection foreword.",
+      "attribution": "Klaus Hausmann; Richard D. Allen Image Collection, Pacific Biosciences Research Center, University of Hawaii",
+      "selection": {
+        "roi_xywh": [
+          0,
+          529,
+          744,
+          731
+        ],
+        "operation": "Recorded 2D panel ROI; no resampling or enhancement",
+        "source_panel": "Figure 0b",
+        "source_notes": "Food vacuoles contain red carmine or black India ink; displayed source colors are preserved."
+      },
+      "measurements": "downloads/public-phase-paramecium-food-measurements.csv",
+      "reference": null,
+      "note": "",
+      "review": "Organism body and red carmine-containing food vacuoles. The black-vacuole query selected red structures and is excluded. No completeness claim for every small vacuole.",
+      "search": "public-phase-paramecium-food Paramecium with stained food vacuoles the complete oval paramecium the red circular food vacuoles"
+    },
+    {
+      "name": "public-em-chloroplast",
+      "category": "EM",
+      "imaging_mode": "EM",
+      "kind": "Bean-leaf chloroplast, TEM",
+      "shape": [
+        1,
+        3,
+        1,
+        1800,
+        2400
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-em-chloroplast-input.webp",
+      "labels": [
+        {
+          "name": "chloroplast",
+          "text": "the large oval chloroplast in the center",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-chloroplast-chloroplast-overlay.webp",
+          "download": "downloads/public-em-chloroplast-chloroplast-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 24.1%.",
+          "foreground_fraction": 0.24131226851851853
+        },
+        {
+          "name": "dark_granules",
+          "text": "the dark round granules inside the central chloroplast",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-em-chloroplast-dark_granules-overlay.webp",
+          "download": "downloads/public-em-chloroplast-dark_granules-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 3,
+          "message": "Timepoint 0: 3 predicted objects. 1/1 timepoints completed. Mask coverage: 0.3%.",
+          "foreground_fraction": 0.003392824074074074
+        }
+      ],
+      "sources": [
+        "https://wellcomecollection.org/works/bx3dctp2"
+      ],
+      "license": "CC BY 4.0",
+      "attribution": "Kevin Mackenzie, University of Aberdeen; Wellcome Collection",
+      "selection": {
+        "roi_xywh": null,
+        "operation": "Exact published 2D pixels",
+        "source_notes": "Source-described false-colour TEM, not fluorescence. No extra recoloring or Z projection.",
+        "calibration": "Full image width 4.5 micrometers stated by source; square-pixel spacing = 4.5 / 2400 micrometers."
+      },
+      "measurements": "downloads/public-em-chloroplast-measurements.csv",
+      "reference": null,
+      "note": "",
+      "review": "Central chloroplast outline and three visible dark round granules. The membrane-stack query returned no masks; the generic all-chloroplasts query selected granules instead. Neither is shown. Source-described false-colour TEM, without projection.",
+      "search": "public-em-chloroplast Bean-leaf chloroplast, TEM the large oval chloroplast in the center the dark round granules inside the central chloroplast"
+    },
+    {
+      "name": "public-fluorescence-endothelial",
+      "category": "Cells & organoids",
+      "imaging_mode": "Fluorescence",
+      "kind": "Endothelial cells: actin, tubulin and DNA",
+      "shape": [
+        1,
+        3,
+        1,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-fluorescence-endothelial-input.webp",
+      "labels": [
+        {
+          "name": "cell_body",
+          "text": "the large elongated cell in the lower half",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-fluorescence-endothelial-cell_body-overlay.webp",
+          "download": "downloads/public-fluorescence-endothelial-cell_body-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 40.8%.",
+          "foreground_fraction": 0.4084892272949219
+        },
+        {
+          "name": "nucleus",
+          "text": "the blue nucleus inside the large cell in the lower half",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-fluorescence-endothelial-nucleus-overlay.webp",
+          "download": "downloads/public-fluorescence-endothelial-nucleus-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 0.8%.",
+          "foreground_fraction": 0.008148193359375
+        }
+      ],
+      "sources": [
+        "https://imagej.net/ij/images/FluorescentCells.txt"
+      ],
+      "license": "Public ImageJ sample; no separate file-specific redistribution license identified",
+      "attribution": "Molecular Probes demonstration slide; ImageJ public samples",
+      "selection": {
+        "roi_xywh": null,
+        "operation": "Exact published 2D pixels",
+        "source_notes": "Three separate source channels retained: 1 red F-actin (Texas Red X-Phalloidin), 2 green tubulin (Bodipy FL), 3 blue DNA (DAPI).",
+        "channel_mapping": "ImageJ RGB channel order; quantitative channels retained, no rendered overlay imported"
+      },
+      "measurements": "downloads/public-fluorescence-endothelial-measurements.csv",
+      "reference": null,
+      "note": "",
+      "review": "Visible body of the large lower cell and its blue nucleus in the same view. The cell extends beyond the acquired left edge; the mask covers its visible portion. Fine red actin-network prompting was unsuccessful.",
+      "search": "public-fluorescence-endothelial Endothelial cells: actin, tubulin and DNA the large elongated cell in the lower half the blue nucleus inside the large cell in the lower half"
+    },
+    {
+      "name": "public-fluorescence-kidney",
+      "category": "Cells & organoids",
+      "imaging_mode": "Fluorescence",
+      "kind": "Mouse kidney: native confocal optical section",
+      "shape": [
+        1,
+        3,
+        1,
+        512,
+        512
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-fluorescence-kidney-input.webp",
+      "labels": [
+        {
+          "name": "glomeruli",
+          "text": "the bright round glomeruli",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-fluorescence-kidney-glomeruli-overlay.webp",
+          "download": "downloads/public-fluorescence-kidney-glomeruli-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 2,
+          "message": "Timepoint 0: 2 predicted objects. 1/1 timepoints completed. Mask coverage: 2.5%.",
+          "foreground_fraction": 0.02468109130859375
+        }
+      ],
+      "sources": [
+        "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.kidney"
+      ],
+      "license": "CC0; scikit-image kidney dataset",
+      "attribution": "Genevieve Buckley, Monash Micro Imaging (2018); scikit-image data.kidney",
+      "selection": {
+        "roi_xywh": null,
+        "operation": "Exact published 2D pixels",
+        "source_z_index": 8,
+        "source_shape": [
+          16,
+          512,
+          512,
+          3
+        ],
+        "source_notes": "One native optical section (Z index 8 of 16), not a projection. Channels retained as provided.",
+        "channel_mapping": "Source emission channels 450, 515 and 605 nm in original order. The model display maps channels 1,2,3 to R,G,B as an explicit pseudocolor view, not emission-color reconstruction.",
+        "calibration": "1.24 micrometers per X/Y pixel from the dataset documentation."
+      },
+      "measurements": "downloads/public-fluorescence-kidney-measurements.csv",
+      "reference": null,
+      "note": "",
+      "review": "Two conspicuous right-side glomerular profiles in native optical section 8. Other profiles are missed; this is a selected qualitative demonstration, not complete glomerulus counting. Tubule/lumen queries and the smaller glomerulus ROI were not convincing.",
+      "search": "public-fluorescence-kidney Mouse kidney: native confocal optical section the bright round glomeruli"
+    },
+    {
+      "name": "public-ihc-pancreatic-islet",
+      "category": "Cells & organoids",
+      "imaging_mode": "Immunohistochemistry",
+      "kind": "Normal pancreatic islet, insulin IHC",
+      "shape": [
+        1,
+        3,
+        1,
+        458,
+        608
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-ihc-pancreatic-islet-input.webp",
+      "labels": [
+        {
+          "name": "islet",
+          "text": "the entire pancreatic islet in the center",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ihc-pancreatic-islet-islet-overlay.webp",
+          "download": "downloads/public-ihc-pancreatic-islet-islet-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 1.8%.",
+          "foreground_fraction": 0.018063376235348195
+        }
+      ],
+      "sources": [
+        "https://doi.org/10.1177/1177390117690140"
+      ],
+      "license": "CC BY-NC 4.0; article authors (2017). Non-commercial educational/research demonstration.",
+      "attribution": "Joseph de Nanassy and Dina El Demellawy (2017); DOI 10.1177/1177390117690140",
+      "selection": {
+        "roi_xywh": null,
+        "operation": "Exact published 2D pixels",
+        "source_panel": "Figure 33",
+        "source_notes": "Published insulin immunohistochemistry image; no manual segmentation reference. Publication JPEG is suitable for qualitative prompting, not quantitative stain validation."
+      },
+      "measurements": "downloads/public-ihc-pancreatic-islet-measurements.csv",
+      "reference": null,
+      "note": "",
+      "review": "Whole central insulin-stained islet profile. Brown-cell prompting on this overview filled the entire islet instead of separating positive cells; that query is excluded. Publication JPEG, qualitative only.",
+      "search": "public-ihc-pancreatic-islet Normal pancreatic islet, insulin IHC the entire pancreatic islet in the center"
+    },
+    {
+      "name": "public-ihc-hyperplastic-islet",
+      "category": "Cells & organoids",
+      "imaging_mode": "Immunohistochemistry",
+      "kind": "Hyperplastic pancreatic islet, insulin IHC",
+      "shape": [
+        1,
+        3,
+        1,
+        453,
+        607
+      ],
+      "timepoints": 1,
+      "z_planes": 1,
+      "input": "gallery/public-ihc-hyperplastic-islet-input.webp",
+      "labels": [
+        {
+          "name": "brown_tissue",
+          "text": "the brown insulin-positive tissue",
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "status": "complete",
+          "overlay": "gallery/public-ihc-hyperplastic-islet-brown_tissue-overlay.webp",
+          "download": "downloads/public-ihc-hyperplastic-islet-brown_tissue-labels.npz",
+          "timepoints_available": [
+            0
+          ],
+          "first_frame_objects": 1,
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 28.0%.",
+          "foreground_fraction": 0.2803932051016289
+        }
+      ],
+      "sources": [
+        "https://doi.org/10.1177/1177390117690140"
+      ],
+      "license": "CC BY-NC 4.0; article authors (2017). Non-commercial educational/research demonstration.",
+      "attribution": "Joseph de Nanassy and Dina El Demellawy (2017); DOI 10.1177/1177390117690140",
+      "selection": {
+        "roi_xywh": [
+          0,
+          478,
+          607,
+          453
+        ],
+        "operation": "Recorded 2D panel ROI; no resampling or enhancement",
+        "source_panel": "Figures 31 and 32, lower panel",
+        "source_notes": "Native lower publication panel; the published arrow remains visible. No annotation removal or image enhancement. Qualitative example only."
+      },
+      "measurements": "downloads/public-ihc-hyperplastic-islet-measurements.csv",
+      "reference": null,
+      "note": "",
+      "review": "Selected brown insulin-positive tissue regions within the published enlarged islet panel. Not individual positive-cell counts or validated stain quantification. The original arrow remains visible; whole-islet and lumen queries are excluded.",
+      "search": "public-ihc-hyperplastic-islet Hyperplastic pancreatic islet, insulin IHC the brown insulin-positive tissue"
     }
   ]
 }

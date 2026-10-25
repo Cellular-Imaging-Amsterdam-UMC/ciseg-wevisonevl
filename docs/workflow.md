@@ -2,7 +2,7 @@
 
 CISegWeVisOneVL segments OME-Zarr images with WeVisOne-VL-4B and up to four
 independent text prompts. It uses existing weights. The [gallery](examples.html)
-shows actual predictions, including failures.
+shows reviewed actual predictions; the research reports document rejected candidates.
 
 ## Getting started
 
@@ -26,15 +26,36 @@ Select an example or input directory, use **Check input**, then **Run local
 Python**. Blank prompts disable their slots. Completed results are never
 overwritten: choose a new output directory for each run.
 
+All four prompts start blank, with generic output names `target1` through
+`target4`. The main form contains the four prompt/channel inputs and **Model RGB
+view - intensity scaling**. Output names, Z projection, mask output, probability
+threshold, image size, token limit, area filter and device are under **Advanced
+parameters**, collapsed initially in the local launcher. Expanding the panel
+does not change parameter values.
+
+Saved local settings are restored on reopening the launcher. Choosing an example
+fills its reviewed prompts and channel map; this does not change the blank
+descriptor defaults.
+
 ## Images and channels
 
 - Input: NGFF 0.4/Zarr v2 with explicit axes.
 - Regular images, time series and all HCS screen fields are processed.
-- `1` supplies a single channel as a grayscale RGB view.
-- `1,2,3` maps three channels to red, green and blue.
-- **Original uint8 RGB** retains histology colors.
-- Percentile contrast changes only the model view. Measurements use original
-  2D pixels or the projection before normalization.
+- Each active target is inferred once on **one composed RGB view** per timepoint
+  and field. It does not infer every channel separately.
+- `1` selects source channel 1 and copies it to R, G and B, producing grayscale.
+- `1,2,3` maps source channels 1, 2 and 3 to R, G and B in that order. `4,2,1`
+  is also valid. No other channels are automatically mixed into this view.
+- **Stretch each selected channel (1-99.8 percentile)** scales each selected
+  source channel independently before composing RGB. This can make weak
+  fluorescence visible but changes color balance.
+- **Preserve selected uint8 values (0-255)** retains selected 8-bit intensities
+  and is usually appropriate for acquired RGB histology or phase contrast.
+- The intensity-scaling control does not switch between combined RGB and
+  separate-channel inference. For separate channel-specific targets, use
+  different prompt slots with their own single-channel inputs.
+- Rendering changes only the model view. Measurements include every source
+  channel and use original 2D pixels or the projection before normalization.
 
 Each XY plane is limited to 16 megapixels. The model view has a maximum side of
 1024 pixels by default, configurable from 128 to 2048. Masks return to native XY
@@ -143,9 +164,11 @@ the axis string `tczyx`; previews show the first timepoint.
 
 ## Curated demonstrations and large images
 
-The current main gallery contains 15 examples and 18 reviewed labels, selected
-after 52 prompt comparisons. Empty or unconvincing outputs are excluded from the
-main examples; their audit remains in [the comparison report](prompt-study.html).
+The current main gallery contains 22 examples and 29 reviewed labels, selected
+after 89 candidate prompt comparisons. Empty or unconvincing outputs are excluded from the
+main examples; audits remain in [the first comparison](prompt-study.html) and
+[the whole/part modality study](imaging-modes.html). Filter the gallery by imaging
+mode to find phase contrast, EM, fluorescence and immunohistochemistry examples.
 EM examples are native 2D sections without Z projections. This is positive
 demonstration selection, not a representative accuracy benchmark.
 

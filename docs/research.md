@@ -153,7 +153,7 @@ live OMERO database import.
 
 ## Follow-up prompt curation and tiling study
 
-The current main gallery replaces the initial all-results presentation with
+The first curation phase replaced the initial all-results presentation with
 **15 positively selected examples and 18 reviewed labels**. It excludes all
 EM Z projections, empty outputs and unconvincing predictions. Source stores and
 all original experiments remain local. This curation must not be interpreted as
@@ -183,6 +183,29 @@ tests**. They cover crossing objects, four-tile junctions, touching neighbors,
 ambiguous matches, odd edges and the prototype memory guard. The production
 16-megapixel limit remains until the full IO/projection/storage/measurement
 pipeline becomes bounded. No new Docker image or BIOMERO deployment was built.
+
+## Whole/part modality follow-up and simpler controls
+
+The [modality comparison](imaging-modes.html) adds 37 candidate descriptions
+on nine prepared 2D views. Seven new views and eleven labels were retained:
+two phase-contrast Paramecium panels, chloroplast TEM, endothelial fluorescence,
+a native kidney optical section, and two insulin IHC views. The current gallery
+contains **22 positively selected examples and 29 labels** after 89 candidate
+queries across the two studies. These new views have no manual reference masks.
+IHC cell-level and several kidney substructure queries remain unreliable and
+are excluded rather than presented as validated segmentations.
+
+Final retained masks were rerun through the actual workflow with descriptive
+label names. All eleven new labels preserved source pixels exactly and produced
+46 CSV rows; calibrated areas were checked against pixel counts and XY spacing.
+Raw arrays, all experiments and publication source images remain local.
+
+Fresh descriptor/CLI defaults now use blank prompts and `target1` through
+`target4`. The launcher honors advanced descriptor flags and collapses that panel
+initially. Channel inputs select one grayscale channel or three explicit RGB
+channels for each target; the renamed intensity-scaling control changes only
+their contrast. The 39-test suite also checks the generic defaults and advanced
+panel visibility/value retention.
 
 ## Primary sources
 

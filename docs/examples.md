@@ -435,3 +435,223 @@ Timepoint 0: 7 predicted objects. 1/1 timepoints completed. Mask coverage: 21.0%
 
 
 [Independent dataset reference, cyan](gallery/public-em-mitolab-mitochondrial-cluster-reference.webp) · [Reference label file](downloads/public-em-mitolab-mitochondrial-cluster-reference.npz)
+
+## public-phase-paramecium-vacuoles
+
+![Source image: public-phase-paramecium-vacuoles](gallery/public-phase-paramecium-vacuoles-input.webp)
+
+**Shape:** `(1, 3, 1, 521, 744)` (TCZYX) · **type:** Cells & organoids · **storage:** 1.06 MB
+
+### `organism` — complete
+
+Prompt: **the complete oval paramecium** · channels `1,2,3`
+
+Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 45.7%.
+
+![Actual prediction: organism](gallery/public-phase-paramecium-vacuoles-organism-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-phase-paramecium-vacuoles-organism-labels.npz)
+
+### `round_vacuoles` — complete
+
+Prompt: **the bright circular vacuoles inside the organism** · channels `1,2,3`
+
+Timepoint 0: 6 predicted objects. 1/1 timepoints completed. Mask coverage: 2.4%.
+
+![Actual prediction: round_vacuoles](gallery/public-phase-paramecium-vacuoles-round_vacuoles-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-phase-paramecium-vacuoles-round_vacuoles-labels.npz)
+
+**Selection review:** Visible organism body and six bright circular interior structures. The two-contractile-vacuoles query selected the wrong structures and is excluded; circular masks are not validated contractile-vacuole identities.
+
+**Sources:**
+
+- https://www6.pbrc.hawaii.edu/allen/ch01/00-pm.html
+
+**Attribution/license:** Klaus Hausmann; Richard D. Allen Image Collection, Pacific Biosciences Research Center, University of Hawaii · Educational/research use encouraged; commercial reproduction may require permission. See the Richard Allen collection foreword.
+
+
+
+## public-phase-paramecium-food
+
+![Source image: public-phase-paramecium-food](gallery/public-phase-paramecium-food-input.webp)
+
+**Shape:** `(1, 3, 1, 731, 744)` (TCZYX) · **type:** Cells & organoids · **storage:** 1.36 MB
+
+### `organism` — complete
+
+Prompt: **the complete oval paramecium** · channels `1,2,3`
+
+Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 42.5%.
+
+![Actual prediction: organism](gallery/public-phase-paramecium-food-organism-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-phase-paramecium-food-organism-labels.npz)
+
+### `red_food_vacuoles` — complete
+
+Prompt: **the red circular food vacuoles** · channels `1,2,3`
+
+Timepoint 0: 28 predicted objects. 1/1 timepoints completed. Mask coverage: 4.2%.
+
+![Actual prediction: red_food_vacuoles](gallery/public-phase-paramecium-food-red_food_vacuoles-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-phase-paramecium-food-red_food_vacuoles-labels.npz)
+
+**Selection review:** Organism body and red carmine-containing food vacuoles. The black-vacuole query selected red structures and is excluded. No completeness claim for every small vacuole.
+
+**Sources:**
+
+- https://www6.pbrc.hawaii.edu/allen/ch01/00-pm.html
+
+**Attribution/license:** Klaus Hausmann; Richard D. Allen Image Collection, Pacific Biosciences Research Center, University of Hawaii · Educational/research use encouraged; commercial reproduction may require permission. See the Richard Allen collection foreword.
+
+
+
+## public-em-chloroplast
+
+![Source image: public-em-chloroplast](gallery/public-em-chloroplast-input.webp)
+
+**Shape:** `(1, 3, 1, 1800, 2400)` (TCZYX) · **type:** EM · **storage:** 14.98 MB
+
+### `chloroplast` — complete
+
+Prompt: **the large oval chloroplast in the center** · channels `1,2,3`
+
+Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 24.1%.
+
+![Actual prediction: chloroplast](gallery/public-em-chloroplast-chloroplast-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-em-chloroplast-chloroplast-labels.npz)
+
+### `dark_granules` — complete
+
+Prompt: **the dark round granules inside the central chloroplast** · channels `1,2,3`
+
+Timepoint 0: 3 predicted objects. 1/1 timepoints completed. Mask coverage: 0.3%.
+
+![Actual prediction: dark_granules](gallery/public-em-chloroplast-dark_granules-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-em-chloroplast-dark_granules-labels.npz)
+
+**Selection review:** Central chloroplast outline and three visible dark round granules. The membrane-stack query returned no masks; the generic all-chloroplasts query selected granules instead. Neither is shown. Source-described false-colour TEM, without projection.
+
+**Sources:**
+
+- https://wellcomecollection.org/works/bx3dctp2
+
+**Attribution/license:** Kevin Mackenzie, University of Aberdeen; Wellcome Collection · CC BY 4.0
+
+
+
+## public-fluorescence-endothelial
+
+![Source image: public-fluorescence-endothelial](gallery/public-fluorescence-endothelial-input.webp)
+
+**Shape:** `(1, 3, 1, 512, 512)` (TCZYX) · **type:** Cells & organoids · **storage:** 0.57 MB
+
+### `cell_body` — complete
+
+Prompt: **the large elongated cell in the lower half** · channels `1,2,3`
+
+Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 40.8%.
+
+![Actual prediction: cell_body](gallery/public-fluorescence-endothelial-cell_body-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-fluorescence-endothelial-cell_body-labels.npz)
+
+### `nucleus` — complete
+
+Prompt: **the blue nucleus inside the large cell in the lower half** · channels `1,2,3`
+
+Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 0.8%.
+
+![Actual prediction: nucleus](gallery/public-fluorescence-endothelial-nucleus-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-fluorescence-endothelial-nucleus-labels.npz)
+
+**Selection review:** Visible body of the large lower cell and its blue nucleus in the same view. The cell extends beyond the acquired left edge; the mask covers its visible portion. Fine red actin-network prompting was unsuccessful.
+
+**Sources:**
+
+- https://imagej.net/ij/images/FluorescentCells.txt
+
+**Attribution/license:** Molecular Probes demonstration slide; ImageJ public samples · Public ImageJ sample; no separate file-specific redistribution license identified
+
+
+
+## public-fluorescence-kidney
+
+![Source image: public-fluorescence-kidney](gallery/public-fluorescence-kidney-input.webp)
+
+**Shape:** `(1, 3, 1, 512, 512)` (TCZYX) · **type:** Cells & organoids · **storage:** 1.35 MB
+
+### `glomeruli` — complete
+
+Prompt: **the bright round glomeruli** · channels `1,2,3`
+
+Timepoint 0: 2 predicted objects. 1/1 timepoints completed. Mask coverage: 2.5%.
+
+![Actual prediction: glomeruli](gallery/public-fluorescence-kidney-glomeruli-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-fluorescence-kidney-glomeruli-labels.npz)
+
+**Selection review:** Two conspicuous right-side glomerular profiles in native optical section 8. Other profiles are missed; this is a selected qualitative demonstration, not complete glomerulus counting. Tubule/lumen queries and the smaller glomerulus ROI were not convincing.
+
+**Sources:**
+
+- https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.kidney
+
+**Attribution/license:** Genevieve Buckley, Monash Micro Imaging (2018); scikit-image data.kidney · CC0; scikit-image kidney dataset
+
+
+
+## public-ihc-pancreatic-islet
+
+![Source image: public-ihc-pancreatic-islet](gallery/public-ihc-pancreatic-islet-input.webp)
+
+**Shape:** `(1, 3, 1, 458, 608)` (TCZYX) · **type:** Cells & organoids · **storage:** 0.78 MB
+
+### `islet` — complete
+
+Prompt: **the entire pancreatic islet in the center** · channels `1,2,3`
+
+Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 1.8%.
+
+![Actual prediction: islet](gallery/public-ihc-pancreatic-islet-islet-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-ihc-pancreatic-islet-islet-labels.npz)
+
+**Selection review:** Whole central insulin-stained islet profile. Brown-cell prompting on this overview filled the entire islet instead of separating positive cells; that query is excluded. Publication JPEG, qualitative only.
+
+**Sources:**
+
+- https://doi.org/10.1177/1177390117690140
+
+**Attribution/license:** Joseph de Nanassy and Dina El Demellawy (2017); DOI 10.1177/1177390117690140 · CC BY-NC 4.0; article authors (2017). Non-commercial educational/research demonstration.
+
+
+
+## public-ihc-hyperplastic-islet
+
+![Source image: public-ihc-hyperplastic-islet](gallery/public-ihc-hyperplastic-islet-input.webp)
+
+**Shape:** `(1, 3, 1, 453, 607)` (TCZYX) · **type:** Cells & organoids · **storage:** 1.00 MB
+
+### `brown_tissue` — complete
+
+Prompt: **the brown insulin-positive tissue** · channels `1,2,3`
+
+Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 28.0%.
+
+![Actual prediction: brown_tissue](gallery/public-ihc-hyperplastic-islet-brown_tissue-overlay.webp)
+
+[Download uint32 labels and time indices](downloads/public-ihc-hyperplastic-islet-brown_tissue-labels.npz)
+
+**Selection review:** Selected brown insulin-positive tissue regions within the published enlarged islet panel. Not individual positive-cell counts or validated stain quantification. The original arrow remains visible; whole-islet and lumen queries are excluded.
+
+**Sources:**
+
+- https://doi.org/10.1177/1177390117690140
+
+**Attribution/license:** Joseph de Nanassy and Dina El Demellawy (2017); DOI 10.1177/1177390117690140 · CC BY-NC 4.0; article authors (2017). Non-commercial educational/research demonstration.

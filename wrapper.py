@@ -21,7 +21,7 @@ def build_parser():
                             type=field.type, default=field.default)
     for slot in range(1, 5):
         for key, default in [("prompt", ""),
-                             ("name", "nuclei" if slot == 1 else f"target{slot}"),
+                             ("name", f"target{slot}"),
                              ("channels", "1")]:
             parser.add_argument(f"--{key}-{slot}", f"--{key}_{slot}", dest=f"{key}_{slot}", default=default)
     return parser

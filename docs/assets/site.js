@@ -29,16 +29,18 @@ if (catalogElement) {
   }
   const search = document.querySelector('[data-search]');
   const category = document.querySelector('[data-category]');
+  const imagingMode = document.querySelector('[data-imaging-mode]');
   const statusFilter = document.querySelector('[data-status-filter]');
   const filter = () => {
     const query = search.value.toLowerCase(); let count = 0;
     for (const card of document.querySelectorAll('.sample')) {
       const sample = samples.get(card.dataset.name);
       const match = (!query || sample.search.toLowerCase().includes(query)) && (!category.value || sample.category === category.value) &&
+        (!imagingMode.value || sample.imaging_mode === imagingMode.value) &&
         (!statusFilter.value || sample.labels.some(label => label.status === statusFilter.value));
       card.hidden = !match; count += Number(match);
     }
     document.querySelector('[data-count]').textContent = `${count} / ${catalog.examples.length} images`;
   };
-  search.addEventListener('input', filter); category.addEventListener('change', filter); statusFilter.addEventListener('change', filter); filter();
+  search.addEventListener('input', filter); category.addEventListener('change', filter); imagingMode.addEventListener('change', filter); statusFilter.addEventListener('change', filter); filter();
 }

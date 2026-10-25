@@ -42,11 +42,16 @@ there is no model-selection menu.
 
 Choose a retained example or input directory, use **Check input**, then **Run
 local Python**. Example selection fills suggested prompts and channels. Blank
-prompts disable their slots. Start with `cell` or `organoids_im10`.
+prompts disable their slots. Fresh forms start with four blank prompts and
+generic names `target1` through `target4`. Start with a reviewed example such
+as `organoids_im10`. Extra parameters are initially collapsed under **Advanced
+parameters**; the main form shows the four prompt/channel inputs and intensity
+scaling of the model RGB view.
 
 Each slot has an English description, a unique label name and a one-based channel
 selection. `1` renders one grayscale channel as RGB; `1,2,3` maps channels to red,
-green and blue. Use **Original uint8 RGB** for histology or percentile contrast for
+green and blue. Each target sees one composed RGB view, without automatic inference
+on separate channels. Use **Preserve selected uint8 values (0-255)** for histology or percentile stretching for
 a fluorescence model view. Original intensities are retained for measurements.
 
 ```powershell
@@ -141,10 +146,11 @@ diatoms, embryos, dendritic spines, neurites and vessels. Original WSI files,
 archives and downloaded EM chunks are retained separately. EM includes volumes
 and explicit 2D sections because projections can superimpose ultrastructures.
 
-The main gallery now retains **15 reviewed examples with 18 selected labels**,
-after 52 prompt comparisons and visual inspection. It excludes weak/empty
+The main gallery now retains **22 reviewed examples with 29 selected labels**,
+after 89 candidate prompt comparisons and visual inspection. It excludes weak/empty
 predictions and every EM Z projection. Original runs remain local, with an
-image-free audit in [the prompt study](docs/prompt-study.md). This positively
+image-free audits in [the original prompt study](docs/prompt-study.md) and
+[the whole/part modality study](docs/imaging-modes.md). This positively
 selected demonstration set is not a representative accuracy benchmark.
 
 New native 2D CEM-MitoLab examples have paired references and selected foreground
@@ -153,6 +159,12 @@ positive nuclei from blue tissue. More concrete fluorescence descriptions retain
 the vessel profile, green plant bundles and a white filament network. The site
 provides real overlays, prompts, source attribution, NPZ labels, reference
 overlays when available and calibrated CSV measurements.
+
+The modality follow-up adds phase-contrast Paramecium, chloroplast TEM,
+endothelial fluorescence, a native kidney section and insulin IHC. The gallery
+can be filtered by imaging mode. Whole organisms/cell bodies and selected
+interior structures have separate labels. New IHC examples show islet outlines
+or brown tissue regions; they do not establish reliable positive-cell separation.
 
 ```powershell
 .venv\Scripts\python.exe tools\prepare_publicdata.py --organoids
