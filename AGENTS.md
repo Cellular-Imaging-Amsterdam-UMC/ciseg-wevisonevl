@@ -10,6 +10,7 @@
 - Preserve source stores and source pixels; write results to a new store. Do not overwrite completed outputs.
 - Keep a maximum of four independently optional prompt slots. Do not merge different prompt classes into one exclusive label image.
 - Separate successful execution and file compatibility from biological segmentation accuracy. Retain failed predictions and report poor reference agreement.
+- When XY calibration is known, export lengths and coordinates in micrometers and areas in square micrometers alongside pixel references. Respect anisotropic spacing, ordered transforms and image origins. Do not convert intensity values or dimensionless ratios to length units, and never invent missing calibration.
 - Run tests with `.venv/Scripts/python.exe -m pytest -q`; real GPU validation is `tools/validate_local.py`.
 - Docker recipes are preparation only. Do not build, publish, deploy or change the running BIOMERO stack unless requested for that phase.
 - The public model is an inference foundation model. Do not describe this adapter as a newly trained or fine-tuned microscopy model.

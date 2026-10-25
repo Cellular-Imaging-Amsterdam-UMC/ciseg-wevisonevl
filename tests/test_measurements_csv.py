@@ -41,6 +41,13 @@ def test_known_shape_and_every_channel_native_intensities(tmp_path):
     assert row['bbox_max_y_px_exclusive']=='5' and row['bbox_max_x_px_exclusive']=='7'
     assert float(row['solidity'])==1
     assert float(row['perimeter_px'])==10
+    assert float(row['perimeter_um'])==5
+    assert row['perimeter_um_method']=='scaled_pixel_estimator'
+    assert float(row['centroid_y_um'])==1.5 and float(row['centroid_x_um'])==2.25
+    assert float(row['bbox_min_y_um'])==1 and float(row['bbox_max_x_um_exclusive'])==3.5
+    for feature in ['equivalent_diameter','major_axis_length','minor_axis_length']:
+        assert float(row[feature+'_um'])==pytest.approx(float(row[feature+'_px'])*.5)
+    assert row['shape_basis']=='physical_um'
     for c in range(3):
         pixels=raw[2:5,3:7,c]
         assert float(row[f'channel_{c+1}_min'])==pixels.min()
@@ -61,6 +68,8 @@ def test_single_csv_across_inputs_different_channel_counts_and_empty_labels(tmp_
     assert len(rows)==2
     assert rows[0]['channel_2_mean']=='' and float(rows[1]['channel_3_mean'])==7
     assert all(r['area_um2']=='' for r in rows)
+    assert all(r['centroid_y_um']==r['perimeter_um']==r['major_axis_length_um']=='' for r in rows)
+    assert all(r['shape_basis']=='pixels' for r in rows)
     assert {r['prompt_name'] for r in rows}=={'tissue'}
 
 
@@ -88,6 +97,54 @@ def test_mean_projection_measurements_preserve_every_timepoint_and_channel(tmp_p
         assert float(row['area_um2'])==pytest.approx(12*.4*.6)
         for c in range(2):
             assert float(row[f'channel_{c+1}_total'])==pytest.approx(expected[t,c,2:5,3:7].sum(dtype=np.float64))
+
+
+def test_anisotropic_physical_shapes_and_positions(tmp_path):
+    from test_projection_time import volume
+    source=tmp_path/'anisotropic.ome.zarr';volume(source)
+    run(source,tmp_path/'out',Settings(projection='Mean'),[Prompt('tissue','tissue')],predictor_factory=KnownMask)
+    row=read_csv(tmp_path/'out/measurements.csv')[0]
+    assert float(row['pixel_size_y_um'])==.4 and float(row['pixel_size_x_um'])==.6
+    assert float(row['origin_y_um'])==11 and float(row['origin_x_um'])==12
+    assert float(row['centroid_y_um'])==pytest.approx(12.2)
+    assert float(row['centroid_x_um'])==pytest.approx(14.7)
+    assert float(row['bbox_min_y_um'])==pytest.approx(11.8)
+    assert float(row['bbox_max_x_um_exclusive'])==pytest.approx(16.2)
+    assert float(row['major_axis_length_um'])==pytest.approx(4*np.sqrt(1.25*.6**2))
+    assert float(row['minor_axis_length_um'])==pytest.approx(4*np.sqrt((2/3)*.4**2))
+    assert float(row['equivalent_diameter_um'])==pytest.approx(np.sqrt(4*12*.4*.6/np.pi))
+    expected_perimeter=2*(3*.6+2*.4)+4*np.hypot(.6/2,.4/2)
+    assert float(row['perimeter_um'])==pytest.approx(expected_perimeter)
+    assert row['perimeter_um_method']=='anisotropic_marching_squares'
+    assert float(row['eccentricity'])!=pytest.approx(float(row['eccentricity_px']))
+
+
+def test_composes_dataset_and_global_coordinate_transforms(tmp_path):
+    from test_projection_time import volume
+    source=tmp_path/'transformed.ome.zarr';volume(source)
+    root=zarr.open_group(str(source),mode='a');ms=root.attrs['multiscales']
+    ms[0]['coordinateTransformations']=[{'type':'scale','scale':[1,1,1,2,3]},{'type':'translation','translation':[0,0,0,100,200]}]
+    root.attrs['multiscales']=ms
+    run(source,tmp_path/'out',Settings(),[Prompt('tissue','tissue')],predictor_factory=KnownMask)
+    row=read_csv(tmp_path/'out/measurements.csv')[0]
+    assert float(row['pixel_size_y_um'])==pytest.approx(.8)
+    assert float(row['pixel_size_x_um'])==pytest.approx(1.8)
+    assert float(row['origin_y_um'])==122 and float(row['origin_x_um'])==236
+    assert float(row['centroid_y_um'])==pytest.approx(124.4)
+    assert float(row['centroid_x_um'])==pytest.approx(244.1)
+
+
+def test_nanometer_calibration_exports_micrometers(tmp_path):
+    source=tmp_path/'nano.ome.zarr';write_store(source,np.ones((8,10),np.uint8),'nano',pixel_um=.5)
+    root=zarr.open_group(str(source),mode='a');ms=root.attrs['multiscales']
+    for axis in ms[0]['axes']:
+        if axis['name'] in ('y','x'):axis['unit']='nanometer'
+    ms[0]['datasets'][0]['coordinateTransformations']=[{'type':'scale','scale':[1,1,1,500,500]},{'type':'translation','translation':[0,0,0,2500,7500]}]
+    root.attrs['multiscales']=ms
+    run(source,tmp_path/'out',Settings(),[Prompt('tissue','tissue')],predictor_factory=KnownMask)
+    row=read_csv(tmp_path/'out/measurements.csv')[0]
+    assert float(row['area_um2'])==3 and float(row['perimeter_um'])==5
+    assert float(row['centroid_y_um'])==4 and float(row['centroid_x_um'])==9.75
 
 
 def test_failed_run_leaves_no_completed_measurement_attachment(tmp_path):

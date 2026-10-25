@@ -149,10 +149,17 @@ remain in separate ignored local result directories.</p>
 <h2 id="measurements-and-descriptor">Measurements and descriptor</h2>
 <p>One CSV covers all inputs, fields, timepoints and prompts. It stores shape,
 area/position and min/max/mean/total intensity plus a valid count for every
-channel. Physical area needs positive NGFF XY calibration in known units.
+channel. Positive NGFF XY calibration enables area in µm² and perimeter,
+diameter, axes, centroid and bounding-box coordinates in µm, alongside pixel
+references. Dataset and global transforms are composed in order, including
+origins and unit conversion. Anisotropic axes use physical moments; anisotropic
+perimeter uses scaled closed contours. The estimator and shape basis are
+recorded. Unknown calibration leaves physical columns blank.
 Measurements use original 2D pixels or the projection before normalization.</p>
-<p><strong>31 tests pass</strong>, covering a fourth real fluorescence channel, varying channel
+<p><strong>34 tests pass</strong>, covering a fourth real fluorescence channel, varying channel
 counts, time/label correspondence, calibration, failed runs and descriptor fields.
+Calibration tests include isotropic and unequal X/Y spacing, nanometer-to-µm
+conversion, physical shape axes and ordered global/dataset transforms.
 Actual 4B Max/Mean runs each wrote four rows; measurements matched output pixels.
 The installed BIOMERO adapter validated one CSV measurement output and the correct
 workflow name/description. The first citation entry supplies these fields.

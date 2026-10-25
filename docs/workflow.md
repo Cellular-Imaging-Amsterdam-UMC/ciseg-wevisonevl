@@ -100,13 +100,21 @@ run. Each row describes one label ID.
 | Identification | Source, output, field, well, timepoint, prompt and label ID |
 | Area and position | Pixel area, centroid, bounding box with exclusive maximum |
 | Shape | Perimeter, equivalent diameter, major/minor axes, eccentricity, solidity, extent and orientation |
-| Physical area | µm² only with positive NGFF XY calibration and known units |
+| Physical geometry | Area in µm²; perimeter, equivalent diameter, major/minor axes, centroid and bounding box in µm when calibrated |
 | Every image channel | Valid pixel count, minimum, maximum, mean and total intensity |
 
 Channels outside the model input are measured too. For 3D input, measurements use
 the projection before normalization. NaN/Inf pixels are excluded and reflected in
 the valid count. Empty runs write headers. Failed runs retain `measurements.partial-*`
 instead of a completed CSV. Semantic label 1 describes the full merged region.
+
+Pixel columns remain as references. Physical coordinates include NGFF origins;
+X/Y spacings are applied independently. Axes, eccentricity and orientation use
+physical geometry when calibrated; `shape_basis` records the basis. Isotropic
+perimeter scales the pixel estimator. Anisotropic perimeter uses scaled closed
+contours, recorded in `perimeter_um_method`. Intensities keep their original
+units, ratios are dimensionless and angles remain radians. Missing calibration
+leaves physical columns blank.
 
 ## Bilayers and BIOMERO
 

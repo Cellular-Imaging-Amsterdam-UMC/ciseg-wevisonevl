@@ -110,7 +110,8 @@ describes a label ID within its source, field, timepoint and prompt.
 - Pixel area, centroid, bounding box with exclusive maximum and perimeter.
 - Equivalent diameter, major/minor axes, eccentricity, solidity, extent and
   orientation in radians.
-- Physical area in µm² only with positive NGFF XY calibration in known units.
+- Physical area in µm² and perimeter, diameters, axis lengths, centroid and
+  bounding-box coordinates in µm when calibrated. Pixel columns remain available.
 - Valid pixel count and min/max/mean/total intensity for every image channel,
   including channels not supplied to the model.
 
@@ -118,6 +119,14 @@ Intensities use original 2D pixels or the projection before model normalization.
 NaN/Inf pixels are excluded and reflected in the valid count. Empty masks create
 no object rows; empty runs still write headers. Semantic label 1 describes the
 entire merged region for that prompt.
+
+Physical coordinates include NGFF XY origins. X/Y spacings are applied
+independently; shape axes and eccentricity use physical spacing instead of an
+average pixel size. `shape_basis` records whether shape ratios/angles use physical
+or pixel geometry. Isotropic perimeter scales the pixel estimator; anisotropic
+perimeter uses scaled closed contours, recorded in `perimeter_um_method`.
+Intensities retain their original units, ratios remain dimensionless and angles
+remain radians. Physical columns are blank when calibration is unavailable.
 
 The final CSV is published only after the whole run succeeds. Failed runs retain
 `measurements.partial-*`. The Bilayers descriptor declares one measurement output

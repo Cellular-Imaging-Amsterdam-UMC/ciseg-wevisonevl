@@ -61,7 +61,7 @@ outputs:
 - name: measurements_csv_out
   type: measurement
   label: Basic label measurements CSV
-  description: One measurements.csv for the complete run, covering every input, HCS field, timepoint and prompt. Includes pixel shape features, calibrated area when available, and min/max/mean/total intensity for every channel; measured on the projected image for 3D inputs.
+  description: One measurements.csv for the complete run, covering every input, HCS field, timepoint and prompt. Calibrated images include lengths and positions in micrometers and area in square micrometers, alongside pixel references. Includes min/max/mean/total intensity for every channel; measured on the projected image for 3D inputs.
   cli_tag: "None"
   default: ""
   optional: false
