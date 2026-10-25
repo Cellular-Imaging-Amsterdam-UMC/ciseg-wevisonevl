@@ -42,14 +42,18 @@ def update_xml(output, method):
             tree.write(file,encoding="utf-8",xml_declaration=True)
 
 
-def prepare_output(source, output, fields, prompts, method):
+def prepare_output(source, output, fields, prompts, method, input_labels='keep'):
+    if input_labels not in ('keep', 'remove'):
+        raise ValueError('Choose keep or remove for existing input labels')
     projected=[f for f in fields if f.z_planes>1]
     rewritten=[f for f in fields if f.z_planes>1 or f.names!=list("tczyx")]
     skipped={}
+    for field in fields:
+        base=PurePosixPath(field.path) if field.path else PurePosixPath()
+        if input_labels == 'remove' or field.z_planes>1:
+            skipped.setdefault(str(base),set()).add("labels")
     for field in rewritten:
         base=PurePosixPath(field.path) if field.path else PurePosixPath()
-        if field.z_planes>1:
-            skipped.setdefault(str(base),set()).add("labels")
         for dataset in field.multiscale["datasets"]:
             path=base/PurePosixPath(dataset["path"])
             skipped.setdefault(str(path.parent),set()).add(path.name)
@@ -59,6 +63,16 @@ def prepare_output(source, output, fields, prompts, method):
     shutil.copytree(source,output,ignore=ignore)
     (output/".zmetadata").unlink(missing_ok=True)
     root=zarr.open_group(str(output),mode="a")
+    for field in fields:
+        group=root[field.path] if field.path else root
+        if input_labels == 'remove' or field.z_planes>1:
+            if 'labels' in group.attrs:del group.attrs['labels']
+        action='removed_from_result' if input_labels == 'remove' else 'omitted_for_z_projection' if field.z_planes>1 else 'preserved'
+        group.attrs['ciseg_wevisonevl_input_labels']={'policy':input_labels,'action':action,'source_unchanged':True}
+        original=zarr.open_group(str(source),mode='r')
+        original=original[field.path] if field.path else original
+        if input_labels == 'keep' and field.z_planes>1 and 'labels' in original:
+            print(f'NOTE: Existing labels in {field.path or source.name} remain in the source; label IDs are not projected into the 2D result.',flush=True)
     for field in rewritten:
         group=root[field.path] if field.path else root
         axes=canonical_axes(field,projected=field.z_planes>1)
@@ -101,8 +115,6 @@ def prepare_output(source, output, fields, prompts, method):
             if "rdefs" in display:
                 display["rdefs"]["defaultZ"]=0
             group.attrs["omero"]=display
-        if "labels" in group.attrs:
-            del group.attrs["labels"]
         group.attrs["ciseg_wevisonevl_projection"]={"method":method if field.z_planes>1 else "none","source_z_planes":field.z_planes,"timepoints":field.timepoints,
                                                    "source_dtype":str(original[field.dataset].dtype),"output_dtype":str(dtype),
                                                    "source_axes":field.names,"output_axes":names,

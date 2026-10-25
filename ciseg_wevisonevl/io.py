@@ -3,9 +3,25 @@ from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 import json
+import time
 import numpy as np
 import zarr
 from numcodecs import Blosc
+
+
+def publish_store(partial, output):
+    """Publish atomically, allowing brief Windows file-sharing locks to clear."""
+    for attempt in range(8):
+        if output.exists():
+            raise FileExistsError(output)
+        try:
+            partial.rename(output)
+            return
+        except PermissionError as exc:
+            # A file reader or scanner can briefly prevent a directory rename.
+            if getattr(exc, "winerror", None) not in (5, 32, 33) or attempt == 7:
+                raise
+            time.sleep(min(.05 * 2 ** attempt, .5))
 
 
 def safe_path(value):
@@ -40,6 +56,29 @@ class Field:
     @property
     def z_planes(self):
         return dict(zip(self.names, self.shape)).get("z", 1)
+
+    def render_options(self, normalization, channels):
+        """Use each image field's source dtype and saved channel display windows."""
+        from .inference import display_window_limits, unsigned_dtype_limits
+        group = zarr.open_group(str(self.store), mode="r")
+        group = group[self.path] if self.path else group
+        options = {"source_dtype": group[self.dataset].dtype}
+        if normalization == "dtype":
+            unsigned_dtype_limits(options["source_dtype"])
+        elif normalization == "metadata":
+            omero = group.attrs.get("omero", {})
+            records = omero.get("channels", []) if isinstance(omero, dict) else []
+            windows = {}
+            for channel in set(channels):
+                record = records[channel - 1] if isinstance(records, list) and 0 < channel <= len(records) else {}
+                window = record.get("window") if isinstance(record, dict) else None
+                try:
+                    display_window_limits(window, channel)
+                except ValueError as exc:
+                    raise ValueError(f"{self.store.name}/{self.path or '.'}: {exc}") from exc
+                windows[channel] = deepcopy(window)
+            options["windows"] = windows
+        return options
 
     def pixels(self, channels, time_index=0, projection="Max"):
         group = zarr.open_group(str(self.store), mode="r")
@@ -77,7 +116,7 @@ def discover(source):
     return stores
 
 
-def inspect_store(store, prompts):
+def inspect_store(store, prompts, *, check_label_names=True):
     # Only the already supported BIOMERO combination; never reinterpret v3 as v2.
     if not (store / ".zgroup").is_file():
         raise ValueError(f"Expected Zarr v2 store: {store}")
@@ -127,8 +166,8 @@ def inspect_store(store, prompts):
                 if kind == "scale" and any(float(v) <= 0 for v in values):
                     raise ValueError("NGFF scales must be positive")
         for p in prompts:
-            if sizes.get("z",1) == 1 and f"labels/wevisone_{p.name}" in group:
-                raise ValueError(f"Output label name already exists: wevisone_{p.name}; choose another name")
+            if check_label_names and sizes.get("z",1) == 1 and f"labels/wevisone_{p.name}" in group:
+                raise ValueError(f"Output label name already exists: wevisone_{p.name}; choose another name or Remove existing input labels")
         fields.append(Field(store, path, dataset, axes, array.shape, deepcopy(ms)))
     return fields
 

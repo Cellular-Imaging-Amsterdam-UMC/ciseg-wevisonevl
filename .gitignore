@@ -11,4 +11,5 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .last_launcher_settings.json
+.last_gui_settings.json
 *.partial*

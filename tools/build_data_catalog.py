@@ -32,7 +32,8 @@ def main():
         if record.get('axes')!=field.names and 'original_shape' not in record:record['original_shape']=record.get('shape')
         record.update(shape=list(field.shape),axes=field.names,stored_bytes=sum(p.stat().st_size for p in source.rglob('*') if p.is_file()),format_validation='preflight passed',timepoints=field.timepoints,z_planes=field.z_planes)
         channels=tuple(map(int,record['channels'].split(',')))
-        image,limits=render_rgb(field.pixels(channels,0,'Max'),channels,record['normalization'])
+        image,limits=render_rgb(field.pixels(channels,0,'Max'),channels,record['normalization'],
+                               **field.render_options(record['normalization'],channels))
         image.thumbnail((600,420),Image.Resampling.LANCZOS)
         buffer=io.BytesIO();image.save(buffer,format='PNG');encoded=base64.b64encode(buffer.getvalue()).decode()
         shape=' × '.join(str(n) for n in field.shape)

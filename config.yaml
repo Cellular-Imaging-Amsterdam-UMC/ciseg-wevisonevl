@@ -73,6 +73,17 @@ outputs:
   mode: beginner
 display_only: []
 parameters:
+- name: overwrite
+  type: dropdown
+  label: Existing results
+  description: Replace matching result stores and measurements.csv in the selected output folder after a successful run. A failed run keeps the previous completed results. Input images and unrelated files are preserved.
+  options: [{label: Replace after successful run, value: 1}, {label: Keep existing results, value: 0}]
+  default: 1
+  cli_tag: --overwrite
+  cli_order: 38
+  optional: true
+  section_id: advanced
+  mode: advanced
 - name: projection
   type: dropdown
   label: Z projection
@@ -85,22 +96,33 @@ parameters:
   section_id: advanced
   mode: advanced
 - {name: prompt_1, type: string, label: '1 — Prompt', description: English target description. Blank disables this slot., default: '', cli_tag: --prompt-1, cli_order: 11, optional: true, section_id: essential, mode: beginner}
-- {name: name_1, type: string, label: '1 — Label name', description: Unique safe label name., default: target1, cli_tag: --name-1, cli_order: 12, optional: true, section_id: advanced, mode: advanced}
+- {name: name_1, type: string, label: '1 — Label name', description: Unique output label name., default: target1, cli_tag: --name-1, cli_order: 12, optional: true, section_id: essential, mode: beginner}
 - {name: channels_1, type: string, label: '1 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-1, cli_order: 13, optional: true, section_id: essential, mode: beginner}
 - {name: prompt_2, type: string, label: '2 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-2, cli_order: 14, optional: true, section_id: essential, mode: beginner}
-- {name: name_2, type: string, label: '2 — Label name', default: target2, cli_tag: --name-2, cli_order: 15, optional: true, section_id: advanced, mode: advanced}
+- {name: name_2, type: string, label: '2 — Label name', default: target2, cli_tag: --name-2, cli_order: 15, optional: true, section_id: essential, mode: beginner}
 - {name: channels_2, type: string, label: '2 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-2, cli_order: 16, optional: true, section_id: essential, mode: beginner}
 - {name: prompt_3, type: string, label: '3 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-3, cli_order: 17, optional: true, section_id: essential, mode: beginner}
-- {name: name_3, type: string, label: '3 — Label name', default: target3, cli_tag: --name-3, cli_order: 18, optional: true, section_id: advanced, mode: advanced}
+- {name: name_3, type: string, label: '3 — Label name', default: target3, cli_tag: --name-3, cli_order: 18, optional: true, section_id: essential, mode: beginner}
 - {name: channels_3, type: string, label: '3 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-3, cli_order: 19, optional: true, section_id: essential, mode: beginner}
 - {name: prompt_4, type: string, label: '4 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-4, cli_order: 20, optional: true, section_id: essential, mode: beginner}
-- {name: name_4, type: string, label: '4 — Label name', default: target4, cli_tag: --name-4, cli_order: 21, optional: true, section_id: advanced, mode: advanced}
+- {name: name_4, type: string, label: '4 — Label name', default: target4, cli_tag: --name-4, cli_order: 21, optional: true, section_id: essential, mode: beginner}
 - {name: channels_4, type: string, label: '4 — Channels', description: 'One RGB model image per target. Enter one channel (1) for grayscale, or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel inference; other channels are excluded from the model view but retained for measurements.', default: '1', cli_tag: --channels-4, cli_order: 22, optional: true, section_id: essential, mode: beginner}
+- name: input_labels
+  type: dropdown
+  label: Existing input labels
+  description: Keep existing label groups from 2D inputs in the output alongside the new predictions, or omit all existing input label groups from the output. The input store is never changed. Labels from Z stacks are omitted when projecting to 2D; instance IDs are never projected. With Keep, choose a different label name if it already exists. With Remove, the same name can be recomputed.
+  options: [{label: Keep existing labels, value: keep}, {label: Remove existing labels from result, value: remove}]
+  default: keep
+  cli_tag: --input-labels
+  cli_order: 29
+  optional: true
+  section_id: essential
+  mode: beginner
 - name: normalization
   type: dropdown
   label: Model RGB view - intensity scaling
-  description: Each target is inferred once on one RGB view. The channel input selects one grayscale channel or three channels mapped to R,G,B. This option only scales intensities in that view. Percentile stretches each selected channel independently from its 1st to 99.8th percentile before RGB composition; Preserve keeps uint8 values 0-255. It does not choose combined versus separate-channel inference. Source pixels and measurement intensities are unchanged.
-  options: [{label: Stretch each selected channel (1-99.8 percentile), value: percentile}, {label: Preserve selected uint8 values (0-255), value: dtype}]
+  description: Each target sees one RGB view from the selected grayscale channel or three channels mapped to R,G,B. Percentile stretches each channel independently. Full data-type range uses 0-255 for 8-bit or 0-65535 for 16-bit input, mapped to the model's 8-bit RGB view without per-channel contrast stretching. OME-Zarr metadata uses each selected channel's saved window.start and window.end; missing or invalid windows fail Check input. Only intensity limits are read from metadata; your explicit channel mapping is retained. Original source pixels and measurement intensities are unchanged.
+  options: [{label: Stretch each selected channel (1-99.8 percentile), value: percentile}, {label: 'Full data-type range (8-bit / 16-bit)', value: dtype}, {label: Use OME-Zarr metadata display windows, value: metadata}]
   default: percentile
   cli_tag: --normalization
   cli_order: 30

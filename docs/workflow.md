@@ -23,21 +23,45 @@ Inference uses only the local cache. GPU runs were tested on an RTX A5000 with
 24 GB VRAM; CPU execution is also available.
 
 Select an example or input directory, use **Check input**, then **Run local
-Python**. Blank prompts disable their slots. Completed results are never
-overwritten: choose a new output directory for each run.
+Python**. Blank prompts disable their slots. The local GUI and launcher default to
+**Existing results: Replace after successful run** under Advanced parameters.
+Reruns may reuse the output directory: matching result stores and
+`measurements.csv` are replaced only after the whole new run succeeds. Failed runs
+keep the previous completed results. Input images and unrelated files are
+preserved. Select **Keep existing results** to retain the previous protection.
+The CLI requires `--overwrite 1` to enable replacement. **Check input** never
+changes existing results.
 
 All four prompts start blank, with generic output names `target1` through
-`target4`. The main form contains the four prompt/channel inputs and **Model RGB
-view - intensity scaling**. Output names, Z projection, mask output, probability
+`target4`. The main form contains the four prompt, label-name and channel inputs,
+**Existing input labels**, and **Model RGB view - intensity scaling**.
+Z projection, mask output, probability
 threshold, image size, token limit, area filter and device are under **Advanced
 parameters**, collapsed initially in the local launcher. Expanding the panel
 does not change parameter values.
+
+**Existing input labels** defaults to **Keep existing labels**: label groups from
+2D inputs are copied to the result alongside new predictions. **Remove existing
+labels from result** omits the input label groups when preparing the new output;
+it never deletes labels from the original input store. The same choice is
+available with `--input-labels keep` or `--input-labels remove`. Keep requires
+unique new label names; Remove allows an existing name to be recomputed. The
+choice applies to every HCS field and timepoint. For Z-stack projections, existing
+volume labels stay in the source and are omitted from the 2D output; instance IDs
+are never numerically projected. The measurements CSV describes new predictions.
 
 Saved local settings are restored on reopening the launcher. Choosing an example
 fills its reviewed prompts and channel map; this does not change the blank
 descriptor defaults.
 
 ## Images and channels
+
+The local single-viewer GUI is available through `launch_gui.cmd` or
+`gui\run.cmd`. Parameters stay on the left, and completed labels open as overlays
+in the same image viewer. Existing results can be opened with **Open results…**;
+the layer list and opacity slider control independent prompt overlays. Timepoint,
+HCS field, projected view and native Z-section controls are available. The original
+launcher remains available through `launch.cmd`.
 
 - Input: NGFF 0.4/Zarr v2 with explicit axes.
 - Regular images, time series and all HCS screen fields are processed.
@@ -49,8 +73,26 @@ descriptor defaults.
 - **Stretch each selected channel (1-99.8 percentile)** scales each selected
   source channel independently before composing RGB. This can make weak
   fluorescence visible but changes color balance.
-- **Preserve selected uint8 values (0-255)** retains selected 8-bit intensities
-  and is usually appropriate for acquired RGB histology or phase contrast.
+- **Full data-type range (8-bit / 16-bit)** maps the unsigned source data type
+  to the model's 8-bit RGB view: 0-255 for uint8 and 0-65535 for uint16. There is
+  no per-channel contrast stretch, so the same input range is used across RGB
+  channels. Both 8-bit and 16-bit RGB are supported. Mean projections use the
+  original source data type's range even though their output pixels are float32.
+- **Use OME-Zarr metadata display windows** (`--normalization metadata`) uses
+  the saved `omero.channels[].window.start` and `window.end` for each selected
+  source channel. Start maps to 0, end maps to 255, and values outside the window
+  are clipped. Windows are read from each image field, including HCS fields,
+  and reused across timepoints and Max/Mean projections. Missing, non-finite,
+  equal or reversed limits fail **Check input** before model loading; there is
+  no automatic fallback. The allowed `window.min`/`window.max` bounds are not
+  substituted for the saved start/end display limits. See the
+  [OME-NGFF channel display metadata](https://ngff.openmicroscopy.org/0.4/#omero-md).
+  Only intensity limits are used: metadata colors, active flags, inversion and
+  gamma do not override your explicit grayscale/RGB channel mapping.
+- Full data-type range can make 12-bit data stored as uint16 look dark because
+  its values occupy only part of 0-65535. Use the metadata window or percentile
+  scaling when a narrower display range is intended. Floating-point source
+  images require metadata or percentile scaling.
 - The intensity-scaling control does not switch between combined RGB and
   separate-channel inference. For separate channel-specific targets, use
   different prompt slots with their own single-channel inputs.

@@ -40,6 +40,13 @@ there is no model-selection menu.
 
 ## Launcher and CLI
 
+For a local GUI with a parameter sidebar and one zoomable image/label viewer,
+run **`launch_gui.cmd`** (or `gui\run.cmd`). Successful runs automatically display
+the computed instance labels over the image. Existing outputs can be reopened,
+with independent layer visibility, opacity, timepoint, HCS field and Z-section
+controls. See [the GUI guide](gui/README.md). The original `launch.cmd` remains
+available.
+
 Choose a retained example or input directory, use **Check input**, then **Run
 local Python**. Example selection fills suggested prompts and channels. Blank
 prompts disable their slots. Fresh forms start with four blank prompts and
@@ -51,8 +58,22 @@ scaling of the model RGB view.
 Each slot has an English description, a unique label name and a one-based channel
 selection. `1` renders one grayscale channel as RGB; `1,2,3` maps channels to red,
 green and blue. Each target sees one composed RGB view, without automatic inference
-on separate channels. Use **Preserve selected uint8 values (0-255)** for histology or percentile stretching for
-a fluorescence model view. Original intensities are retained for measurements.
+on separate channels. **Full data-type range (8-bit / 16-bit)** maps the source
+range (0-255 or 0-65535) to the model's 8-bit RGB view without per-channel contrast
+stretching. This supports 16-bit RGB as well as 8-bit RGB. **Use OME-Zarr metadata
+display windows** (`--normalization metadata`) applies each selected channel's
+saved `omero.channels[].window.start` and `window.end`. Missing, non-finite or
+reversed windows fail input checks before loading the model; there is no silent
+fallback. Percentile stretching remains available. Original intensities are
+retained for measurements.
+
+Label names are available in the basic form, next to each prompt and channel map.
+The basic **Existing input labels** option keeps existing 2D label groups by
+default, or removes them from the new result with **Remove existing labels from
+result** (`--input-labels remove`). The input store is unchanged. Keep requires a
+new label name if one already exists; Remove allows that name to be recomputed.
+Existing labels in Z stacks are still omitted from projected 2D outputs rather
+than projecting instance IDs. The CSV measures the newly predicted labels.
 
 ```powershell
 .venv\Scripts\python.exe wrapper.py `
@@ -63,8 +84,12 @@ a fluorescence model view. Original intensities are retained for measurements.
   --prompt-2 "bright round cell nuclei" --name-2 bright_nuclei --channels-2 1
 ```
 
-Use a new output directory for each run. Completed results and CSVs are never
-overwritten. `--preflight-only` checks all fields without loading a model or
+The local GUI and launcher default to **Existing results: Replace after successful
+run**, so a rerun can use the same output directory. New results are staged until
+the complete run succeeds, then replace matching result stores and
+`measurements.csv`. Failed runs retain the previous completed results. Use
+**Keep existing results** to prevent replacement. The CLI keeps existing results
+unless `--overwrite 1` is supplied. `--preflight-only` checks all fields without loading a model or
 writing results.
 
 ## Projection and data contract

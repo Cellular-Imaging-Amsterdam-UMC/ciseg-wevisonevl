@@ -39,6 +39,8 @@ class Settings:
     normalization: str = "percentile"
     label_mode: str = "instances"
     projection: str = "Max"
+    overwrite: int = 0
+    input_labels: str = "keep"
 
     def validate(self, prompts):
         if not 1 <= len(prompts) <= 4:
@@ -59,12 +61,16 @@ class Settings:
             raise ValueError("Token limit must be 32-8192")
         if not 1 <= self.decoder_batch_size <= 8 or self.min_area < 0:
             raise ValueError("Invalid decoder batch size or minimum pixel area")
-        if self.normalization not in ("percentile", "dtype"):
-            raise ValueError("Choose percentile or dtype normalization")
+        if self.normalization not in ("percentile", "dtype", "metadata"):
+            raise ValueError("Choose percentile, dtype or metadata normalization")
         if self.label_mode not in ("instances", "semantic"):
             raise ValueError("Choose instances or semantic masks")
         if self.projection not in ("Max", "Mean"):
             raise ValueError("Choose Max or Mean for the automatic Z projection")
+        if self.overwrite not in (0, 1):
+            raise ValueError("Choose 0 to keep existing results or 1 to replace them")
+        if self.input_labels not in ('keep', 'remove'):
+            raise ValueError('Choose keep or remove for existing input labels')
 
     def asdict(self):
         return asdict(self)

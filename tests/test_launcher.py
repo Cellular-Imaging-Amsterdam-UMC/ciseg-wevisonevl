@@ -14,6 +14,7 @@ def test_launcher_executes_same_wrapper_and_restores_buttons(tmp_path, monkeypat
     write_store(source,np.zeros((16,20),np.uint8),"source")
     app=QApplication.instance() or QApplication([])
     window=Window()
+    assert window.widgets['normalization'].findData('metadata') >= 0
     window.input_path.setText(str(source))
     window.output_path.setText(str(tmp_path/"out"))
     window.widgets["prompt_1"].setText("cell")
@@ -50,7 +51,11 @@ def test_dataset_presets_fill_prompt_channels_and_clear_unused_slots(tmp_path,mo
     window.show()
     app.processEvents()
     assert not window.advanced_panel.toggle.isChecked()
-    assert not window.widgets['name_1'].isVisible()
+    assert window.widgets['name_1'].isVisible()
+    assert window.widgets['name_4'].isVisible()
+    assert window.widgets['input_labels'].isVisible()
+    assert window.widgets['input_labels'].currentData()=='keep'
+    assert not window.widgets['projection'].isVisible()
     assert window.widgets['prompt_1'].isVisible()
     assert window.widgets['channels_4'].isVisible()
     assert window.widgets['normalization'].isVisible()

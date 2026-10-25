@@ -45,8 +45,9 @@ class CollapsiblePanel(QWidget):
 
 
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, *, state_path=None):
         super().__init__()
+        self.state_path = Path(state_path) if state_path is not None else STATE
         self.setFont(QFont("Segoe UI", 10))
         self.setWindowTitle("CISegWeVisOneVL — 2D microscopy segmentation")
         self.resize(1020, 900)
@@ -188,7 +189,7 @@ class Window(QMainWindow):
 
     def restore(self):
         try:
-            state = json.loads(STATE.read_text())
+            state = json.loads(self.state_path.read_text())
         except (OSError, ValueError):
             return
         self.input_path.setText(state.get("input", self.input_path.text()))
@@ -206,7 +207,7 @@ class Window(QMainWindow):
 
     def start(self, preflight):
         command = build_local_command(self.values(), self.input_path.text(), self.output_path.text(), preflight)
-        STATE.write_text(json.dumps({"input": self.input_path.text(), "output": self.output_path.text(), "values": self.values()}, indent=2))
+        self.state_path.write_text(json.dumps({"input": self.input_path.text(), "output": self.output_path.text(), "values": self.values()}, indent=2))
         self.log.clear()
         self.status.setText("Checking input…" if preflight else "Running segmentation…")
         self.run_button.setEnabled(False)
@@ -228,7 +229,13 @@ class Window(QMainWindow):
         self.stop_button.setEnabled(False)
 
     def stop(self):
-        self.process.kill()
+        pid = int(self.process.processId())
+        if sys.platform == "win32" and pid:
+            # The Windows virtual-environment redirector can own a Python child.
+            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"],
+                           capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
+        else:
+            self.process.kill()
 
     def closeEvent(self, event):
         if self.process.state() != QProcess.ProcessState.NotRunning:

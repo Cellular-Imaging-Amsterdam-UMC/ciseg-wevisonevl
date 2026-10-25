@@ -9,32 +9,39 @@ import zarr
 
 from . import __version__
 from .settings import UPSTREAM_COMMIT
-from .io import discover, inspect_store, write_labels, write_json
+from .io import discover, inspect_store, write_labels, write_json, publish_store
 from .inference import Predictor, render_rgb, combine_masks
 from .projection import prepare_output
 from .measurements import MeasurementCSV
+from .outputs import replace_completed_run
 
 
 def preflight(input_dir, output_dir, settings, prompts):
     settings.validate(prompts)
     stores = discover(input_dir)
     output_dir = Path(output_dir).resolve()
-    if (output_dir/'measurements.csv').exists():
+    if (output_dir/'measurements.csv').exists() and not settings.overwrite:
         raise FileExistsError(f'Measurements already exist; choose a new output folder: {output_dir}')
+    if settings.overwrite:
+        csv_path = output_dir/'measurements.csv'
+        if csv_path.is_symlink() or csv_path.is_junction() or csv_path.exists() and not csv_path.is_file():
+            raise ValueError('Cannot replace measurements: expected a regular measurements.csv file')
     jobs = []
     for store in stores:
+        store = store.resolve()
         if store == output_dir or store in output_dir.parents or output_dir in store.parents:
             raise ValueError("Input and output stores must be separate; output cannot contain or be inside a source")
         output = output_dir / (store.name.removesuffix(".ome.zarr") + "__wevisonevl.ome.zarr")
-        if output.exists():
+        if output.exists() and not settings.overwrite:
             raise FileExistsError(f"Output already exists; choose an empty output folder: {output}")
-        fields = inspect_store(store, prompts)
-        if settings.normalization == "dtype":
-            for field in fields:
-                group = zarr.open_group(str(store), mode="r")
-                group = group[field.path] if field.path else group
-                if group[field.dataset].dtype != np.uint8:
-                    raise ValueError("dtype normalization requires uint8 inputs in every field")
+        if settings.overwrite and (output.is_symlink() or output.is_junction()):
+            raise ValueError(f'Refusing to replace a linked output store: {output}')
+        if settings.overwrite and output.exists() and (not output.is_dir() or not (output/'wevisone-run.json').is_file()):
+            raise ValueError(f'Refusing to replace a folder without a CISegWeVisOneVL run report: {output}')
+        fields = inspect_store(store, prompts, check_label_names=settings.input_labels == 'keep')
+        selected_channels = {c for prompt in prompts for c in prompt.channels}
+        for field in fields:
+            field.render_options(settings.normalization, selected_channels)
         jobs.append((store, output, fields))
     return jobs
 
@@ -46,8 +53,23 @@ def run(input_dir, output_dir, settings, prompts, *, predictor_factory=Predictor
     predictor = predictor_factory(settings)
     model_loaded = time.perf_counter()
     max_channels=max(field.cyx_shape[0] for _,_,fields in jobs for field in fields)
-    with MeasurementCSV(output_dir,max_channels) as measurements:
-        return _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
+    if not settings.overwrite:
+        with MeasurementCSV(output_dir,max_channels) as measurements:
+            return _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
+    output_dir = Path(output_dir).resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    staging = output_dir / ('.wevisone-run-'+uuid4().hex+'.partial')
+    staging.mkdir()
+    staged_jobs = [(source, staging/output.name, fields) for source, output, fields in jobs]
+    print('Existing results remain available until the new run has completed.', flush=True)
+    with MeasurementCSV(staging,max_channels) as measurements:
+        _run_jobs(staged_jobs,settings,prompts,predictor,started,model_loaded,measurements)
+    replace_completed_run(staging, output_dir, [output.name for _,output,_ in jobs]+['measurements.csv'])
+    outputs = [output for _,output,_ in jobs]
+    for output in outputs:
+        print(f'DONE: {output}', flush=True)
+    print(f'MEASUREMENTS: {output_dir / "measurements.csv"} ({measurements.rows} rows)', flush=True)
+    return outputs
 
 
 def _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements):
@@ -62,7 +84,7 @@ def _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
         report['measurements_file']='../measurements.csv'
         try:
             print(f"Preparing images and per-timepoint Z projections: {store.name}", flush=True)
-            prepared = prepare_output(store, partial, fields, prompts, settings.projection)
+            prepared = prepare_output(store, partial, fields, prompts, settings.projection, settings.input_labels)
             report["input_fields"] = [{"field":f.path,"timepoints":f.timepoints,"source_z_planes":f.z_planes,
                                        "projection":settings.projection if f.z_planes>1 else "none",
                                        "source_axes":f.names,"output_axes":prepared[f.path].names} for f in fields]
@@ -79,9 +101,7 @@ def _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
             root = zarr.open_group(str(partial), mode="a")
             root.attrs["ciseg_wevisonevl"] = {"version": __version__, "status": "complete", "report": "wevisone-run.json", "measurements_file":"../measurements.csv", "model": settings.model, "revision": predictor.manifest.get("revision")}
             # Atomic same-filesystem rename; never publish a partial as a completed store.
-            if output.exists():
-                raise FileExistsError(output)
-            partial.rename(output)
+            publish_store(partial, output)
             outputs.append(output)
             print(f"DONE: {output}", flush=True)
         except BaseException as exc:
@@ -100,7 +120,8 @@ def _segment_frame(predictor, settings, prompts, source_field, field, output, in
     print(f"  Timepoint {time_index+1}/{field.timepoints}",flush=True)
     planes=field.pixels([c for p in prompts for c in p.channels],time_index)
     for slot,prompt in enumerate(prompts,1):
-        rgb,limits=render_rgb(planes,prompt.channels,settings.normalization)
+        rgb,limits=render_rgb(planes,prompt.channels,settings.normalization,
+                              **source_field.render_options(settings.normalization,prompt.channels))
         native_shape=(rgb.height,rgb.width)
         rgb.thumbnail((settings.max_side,settings.max_side),Image.Resampling.LANCZOS)
         tick=time.perf_counter()

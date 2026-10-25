@@ -20,7 +20,24 @@ def is_absent_response(response):
     return bool(re.fullmatch(r"(?:None|<ref>[^<>]*</ref>\s*<box>\s*None\s*</box>)", response.strip(), flags=re.IGNORECASE))
 
 
-def render_rgb(planes, channels, normalization):
+def display_window_limits(window, channel):
+    """Read the saved display window, rather than the allowed min/max bounds."""
+    values = [window.get(key) for key in ("start", "end")] if isinstance(window, dict) else []
+    if (len(values) != 2 or any(isinstance(v, bool) or not isinstance(v, (int, float)) for v in values)
+            or not np.isfinite(values).all() or values[1] <= values[0]
+            or not np.isfinite(float(values[1]) - float(values[0]))):
+        raise ValueError(f"Channel {channel} needs finite OME-Zarr omero.channels window.start < window.end; choose percentile or full data-type range if unavailable")
+    return tuple(map(float, values))
+
+
+def unsigned_dtype_limits(dtype):
+    dtype = np.dtype(dtype)
+    if dtype.kind != "u":
+        raise ValueError("Full data-type range requires unsigned integer source pixels, such as uint8 or uint16; choose metadata or percentile for floating-point inputs")
+    return 0., float(np.iinfo(dtype).max)
+
+
+def render_rgb(planes, channels, normalization, *, windows=None, source_dtype=None):
     """Render a model-only RGB view; retain original microscopy pixels."""
     rendered, limits = [], []
     for channel in channels:
@@ -28,12 +45,16 @@ def render_rgb(planes, channels, normalization):
         if not np.isfinite(original).all():
             raise ValueError(f"Channel {channel} contains NaN or infinite pixels")
         if normalization == "dtype":
-            if original.dtype != np.uint8 and not (original.dtype.kind=="f" and original.min()>=0 and original.max()<=255):
-                raise ValueError("dtype normalization requires the uint8 intensity range; use percentile for fluorescence")
-            lo, hi = 0., 255.
-        else:
+            lo, hi = unsigned_dtype_limits(source_dtype if source_dtype is not None else original.dtype)
+        elif normalization == "metadata":
+            lo, hi = display_window_limits((windows or {}).get(channel), channel)
+        elif normalization == "percentile":
             lo, hi = map(float, np.percentile(original, [1, 99.8]))
-        scaled = np.clip((original.astype(np.float32) - lo) / max(hi - lo, 1e-12), 0, 1)
+        else:
+            raise ValueError("Choose percentile, dtype or metadata normalization")
+        precision = np.float32 if normalization == "percentile" else np.float64
+        span = max(hi - lo, 1e-12) if normalization == "percentile" else hi - lo
+        scaled = np.clip((original.astype(precision) - lo) / span, 0, 1)
         rendered.append(np.rint(scaled * 255).astype(np.uint8))
         limits.append({"channel": channel, "low": lo, "high": hi})
     if len(rendered) == 1:

@@ -15,18 +15,40 @@ The pinned 4B snapshot takes approximately 19.37 GB, including the pixel decoder
 Inference uses only the local cache. GPU runs were tested on an RTX A5000 with
 24 GB VRAM; CPU execution is also available.</p>
 <p>Select an example or input directory, use <strong>Check input</strong>, then <strong>Run local
-Python</strong>. Blank prompts disable their slots. Completed results are never
-overwritten: choose a new output directory for each run.</p>
+Python</strong>. Blank prompts disable their slots. The local GUI and launcher default to
+<strong>Existing results: Replace after successful run</strong> under Advanced parameters.
+Reruns may reuse the output directory: matching result stores and
+<code>measurements.csv</code> are replaced only after the whole new run succeeds. Failed runs
+keep the previous completed results. Input images and unrelated files are
+preserved. Select <strong>Keep existing results</strong> to retain the previous protection.
+The CLI requires <code>--overwrite 1</code> to enable replacement. <strong>Check input</strong> never
+changes existing results.</p>
 <p>All four prompts start blank, with generic output names <code>target1</code> through
-<code>target4</code>. The main form contains the four prompt/channel inputs and <strong>Model RGB
-view - intensity scaling</strong>. Output names, Z projection, mask output, probability
+<code>target4</code>. The main form contains the four prompt, label-name and channel inputs,
+<strong>Existing input labels</strong>, and <strong>Model RGB view - intensity scaling</strong>.
+Z projection, mask output, probability
 threshold, image size, token limit, area filter and device are under <strong>Advanced
 parameters</strong>, collapsed initially in the local launcher. Expanding the panel
 does not change parameter values.</p>
+<p><strong>Existing input labels</strong> defaults to <strong>Keep existing labels</strong>: label groups from
+2D inputs are copied to the result alongside new predictions. <strong>Remove existing
+labels from result</strong> omits the input label groups when preparing the new output;
+it never deletes labels from the original input store. The same choice is
+available with <code>--input-labels keep</code> or <code>--input-labels remove</code>. Keep requires
+unique new label names; Remove allows an existing name to be recomputed. The
+choice applies to every HCS field and timepoint. For Z-stack projections, existing
+volume labels stay in the source and are omitted from the 2D output; instance IDs
+are never numerically projected. The measurements CSV describes new predictions.</p>
 <p>Saved local settings are restored on reopening the launcher. Choosing an example
 fills its reviewed prompts and channel map; this does not change the blank
 descriptor defaults.</p>
 <h2 id="images-and-channels">Images and channels</h2>
+<p>The local single-viewer GUI is available through <code>launch_gui.cmd</code> or
+<code>gui\run.cmd</code>. Parameters stay on the left, and completed labels open as overlays
+in the same image viewer. Existing results can be opened with <strong>Open results…</strong>;
+the layer list and opacity slider control independent prompt overlays. Timepoint,
+HCS field, projected view and native Z-section controls are available. The original
+launcher remains available through <code>launch.cmd</code>.</p>
 <ul>
 <li>Input: NGFF 0.4/Zarr v2 with explicit axes.</li>
 <li>Regular images, time series and all HCS screen fields are processed.</li>
@@ -38,8 +60,26 @@ descriptor defaults.</p>
 <li><strong>Stretch each selected channel (1-99.8 percentile)</strong> scales each selected
   source channel independently before composing RGB. This can make weak
   fluorescence visible but changes color balance.</li>
-<li><strong>Preserve selected uint8 values (0-255)</strong> retains selected 8-bit intensities
-  and is usually appropriate for acquired RGB histology or phase contrast.</li>
+<li><strong>Full data-type range (8-bit / 16-bit)</strong> maps the unsigned source data type
+  to the model's 8-bit RGB view: 0-255 for uint8 and 0-65535 for uint16. There is
+  no per-channel contrast stretch, so the same input range is used across RGB
+  channels. Both 8-bit and 16-bit RGB are supported. Mean projections use the
+  original source data type's range even though their output pixels are float32.</li>
+<li><strong>Use OME-Zarr metadata display windows</strong> (<code>--normalization metadata</code>) uses
+  the saved <code>omero.channels[].window.start</code> and <code>window.end</code> for each selected
+  source channel. Start maps to 0, end maps to 255, and values outside the window
+  are clipped. Windows are read from each image field, including HCS fields,
+  and reused across timepoints and Max/Mean projections. Missing, non-finite,
+  equal or reversed limits fail <strong>Check input</strong> before model loading; there is
+  no automatic fallback. The allowed <code>window.min</code>/<code>window.max</code> bounds are not
+  substituted for the saved start/end display limits. See the
+  <a href="https://ngff.openmicroscopy.org/0.4/#omero-md">OME-NGFF channel display metadata</a>.
+  Only intensity limits are used: metadata colors, active flags, inversion and
+  gamma do not override your explicit grayscale/RGB channel mapping.</li>
+<li>Full data-type range can make 12-bit data stored as uint16 look dark because
+  its values occupy only part of 0-65535. Use the metadata window or percentile
+  scaling when a narrower display range is intended. Floating-point source
+  images require metadata or percentile scaling.</li>
 <li>The intensity-scaling control does not switch between combined RGB and
   separate-channel inference. For separate channel-specific targets, use
   different prompt slots with their own single-channel inputs.</li>

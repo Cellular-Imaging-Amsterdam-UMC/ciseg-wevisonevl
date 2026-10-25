@@ -9,7 +9,7 @@ description = "CISegWeVisOneVL: four-prompt OME-Zarr segmentation with automatic
 requires-python = ">=3.12,<3.13"
 
 [tool.setuptools.packages.find]
-include = ["ciseg_wevisonevl*"]
+include = ["ciseg_wevisonevl*", "gui*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

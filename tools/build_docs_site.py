@@ -75,7 +75,8 @@ def export_site(destination,inference):
     for record in records:
         name=record['name'];source=ROOT/'publicdata/ome-zarr'/(name+'.ome.zarr');field=inspect_store(source,[])[0]
         channels=tuple(map(int,record['channels'].split(',')))
-        image,_=render_rgb(field.pixels(channels,0,'Max'),channels,record['normalization'])
+        image,_=render_rgb(field.pixels(channels,0,'Max'),channels,record['normalization'],
+                           **field.render_options(record['normalization'],channels))
         image.thumbnail((720,520),Image.Resampling.LANCZOS)
         image_file=f'gallery/{name}-input.webp';image.save(destination/image_file,quality=90)
         presets=record.get('prompt_presets') or [{'name':record.get('label_name','nuclei' if name=='human_mitosis' else 'glands' if name=='immunohistochemistry' else 'organoids' if name.startswith('organoids') else 'cell'),
