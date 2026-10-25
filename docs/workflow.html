@@ -190,9 +190,13 @@ leaves physical columns blank.</p>
 <p>The display name is <strong>CISegWeVisOneVL</strong>; the configuration key can be
 <code>cisegwevisonevl</code>. The CSV is declared as one measurement output with CSV format;
 the installed BIOMERO parser was tested with this declaration.</p>
-<p>Headless workflow and internal model-cache Docker recipes are prepared. No new
-image has been built or installed in Slurm/BIOMERO. A live attachment-import
-test remains part of that later validation phase.</p>
+<p>Release <strong>v0.1.0</strong> provides <code>cellularimagingcf/w_cisegwevisonevl:v0.1.0</code>, a
+headless Linux image with the pinned model weights included. Reserve <strong>one NVIDIA
+GPU with at least 24 GB VRAM</strong> on the Slurm partition. Host RAM is reserved
+separately. The <a href="deployment.html">deployment guide</a> provides measured memory use,
+Docker/Apptainer commands and the versioned BIOMERO configuration. Container GPU
+inference and descriptor parsing are checked; OMERO reimport remains an acceptance
+step for each deployment.</p>
 <h2 id="reproducing-the-examples">Reproducing the examples</h2>
 <pre><code class="language-powershell">.venv\Scripts\python tools\prepare_publicdata.py --organoids
 .venv\Scripts\python tools\run_gallery_inference.py

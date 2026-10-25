@@ -15,5 +15,5 @@
 - `tools/experimental_tiling.py` is a bounded in-memory research prototype. Do not remove the production 16-megapixel guard or advertise gigapixel support until input/projection, label storage, pyramids and measurements all use bounded streaming.
 - When XY calibration is known, export lengths and coordinates in micrometers and areas in square micrometers alongside pixel references. Respect anisotropic spacing, ordered transforms and image origins. Do not convert intensity values or dimensionless ratios to length units, and never invent missing calibration.
 - Run tests with `.venv/Scripts/python.exe -m pytest -q`; real GPU validation is `tools/validate_local.py`.
-- Docker recipes are preparation only. Do not build, publish, deploy or change the running BIOMERO stack unless requested for that phase.
+- Build or publish Docker images and change a running BIOMERO stack only when requested for that phase. Keep release tags, descriptors and model revisions consistent; validate offline GPU inference before publishing a release image.
 - The public model is an inference foundation model. Do not describe this adapter as a newly trained or fine-tuned microscopy model.

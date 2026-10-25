@@ -1,0 +1,73 @@
+{
+  "model_revision": "4a7bed92750ac9d8b8a124cede14759036932dc2",
+  "model_bytes": 19372591679,
+  "inventory_and_sizes_verified": true,
+  "torch": "2.11.0+cu126",
+  "cuda_runtime": "12.6",
+  "gpu": "NVIDIA RTX A5000",
+  "gpu_total_gib": 23.98779296875,
+  "bf16_supported": true,
+  "results": [
+    {
+      "sample": "cell",
+      "passed": true,
+      "source_unchanged": true,
+      "instances": [
+        1
+      ]
+    },
+    {
+      "sample": "organoids_im10",
+      "passed": true,
+      "source_unchanged": true,
+      "instances": [
+        84
+      ],
+      "foreground_dice": 0.8796253217952297,
+      "reference_note": "microSAM consensus masks; foreground agreement only, not instance accuracy"
+    },
+    {
+      "sample": "derived-hcs",
+      "projection": "Max",
+      "passed": true,
+      "fields": 2,
+      "timepoints": 2,
+      "source_unchanged": true
+    },
+    {
+      "sample": "derived-hcs",
+      "projection": "Mean",
+      "passed": true,
+      "fields": 2,
+      "timepoints": 2,
+      "source_unchanged": true
+    }
+  ],
+  "peak_cuda_allocated_gib": 11.372832775115967,
+  "peak_cuda_reserved_gib": 12.416015625,
+  "peak_process_rss_gib": 25.419174194335938,
+  "date": "2026-10-25",
+  "platform": "linux/amd64, Docker Desktop GPU passthrough",
+  "network": "disabled during inference",
+  "recommendation": {
+    "gpu_count": 1,
+    "gpu_vram_gb": 24,
+    "host_ram": "32G",
+    "max_side": 1024,
+    "max_new_tokens": 2048,
+    "decoder_batch_size": 1
+  },
+  "biomero_version": "2.9.0b11",
+  "scope": "Container GPU inference, source/pixel preservation, derived HCS/time/Z processing, descriptor/command compatibility. OMERO reimport remains a deployment acceptance step.",
+  "regression_tests": {
+    "passed": 97,
+    "command": ".venv/Scripts/python.exe -m pytest -q --basetemp work/pytest-release-v010"
+  },
+  "site_check": "passed; 8 HTML pages, 22 selected gallery examples, 29 complete labels",
+  "biomero_descriptor_and_gpu_command": "passed; --nv, GPU request, versioned SIF filename and Bilayers input/output folder arguments",
+  "windows_comparison": {
+    "organoids_im10_instances": 83,
+    "foreground_dice": 0.8807507084346304,
+    "note": "Different runtime backends are not assumed bit-identical."
+  }
+}

@@ -2,7 +2,8 @@
 
 [Website and workflow guide](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/) ·
 [Public examples with actual masks](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/examples.html) ·
-[Markdown example gallery](docs/examples.md)
+[Markdown example gallery](docs/examples.md) ·
+[Docker, BIOMERO and GPU requirements](docs/deployment.md)
 
 Text-prompted biological image segmentation using **WeVisOne-VL-4B**, with up to
 **four independent prompts**. **3D images are automatically projected to 2D per
@@ -29,7 +30,8 @@ launch.cmd
 
 The setup creates `.venv/` with Python 3.12, PyTorch 2.11/CUDA 12.6 and the pinned
 Transformers backend. Python 3.12 is required by upstream SciPy 1.18.1. The validated
-Windows environment is recorded in `requirements-lock.windows.txt`. vLLM, Gradio
+Windows environment is recorded in `requirements-lock.windows.txt`; the tested
+release container is recorded in `requirements-lock.linux.txt`. vLLM, Gradio
 and a separate Triton installation are not workflow requirements.
 
 The pinned snapshot under `models/WeVisOne-VL-4B` is approximately 19.37 GB,
@@ -161,7 +163,8 @@ remain radians. Physical columns are blank when calibration is unavailable.
 The final CSV is published only after the whole run succeeds. Failed runs retain
 `measurements.partial-*`. The Bilayers descriptor declares one measurement output
 with CSV format under `/data/out`; this was checked with the installed BIOMERO
-parser. A live attachment-import test remains for the later Docker/BIOMERO phase.
+parser. Container inference and descriptor parsing are validated; OMERO attachment reimport
+remains a deployment acceptance step.
 
 ## Curated public examples and gallery
 
@@ -240,6 +243,11 @@ working files are excluded from Git. Public assets contain small derived preview
 and mask results only.
 
 The display name is **CISegWeVisOneVL**; use `cisegwevisonevl` as a BIOMERO key.
-`Dockerfile.models` prepares a separate internal cache; `Dockerfile` prepares a
-headless image. No new image has been built, published or deployed. See
+`Dockerfile.models` builds a separate internal cache; `Dockerfile` builds the
+headless workflow image, including pinned offline model weights. Release **v0.1.0**
+is available as **`cellularimagingcf/w_cisegwevisonevl:v0.1.0`** (`linux/amd64`).
+Reserve **one NVIDIA GPU with at least 24 GB VRAM** per Slurm job; smaller GPUs
+have not been validated. Host RAM is a separate Slurm resource. See the
+[deployment guide](docs/deployment.md) for measurements, Docker/Apptainer commands
+and BIOMERO configuration. The release does not change a running BIOMERO stack. See
 [NOTICE.md](NOTICE.md) for component and data attribution.

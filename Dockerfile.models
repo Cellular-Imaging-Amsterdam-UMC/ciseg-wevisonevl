@@ -1,3 +1,3 @@
-# Prepared for later builds; this image is an internal model cache dependency.
+# Internal build cache only; publish the final workflow image, not this cache.
 FROM scratch
 COPY models/ /models/

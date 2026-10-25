@@ -185,9 +185,13 @@ The display name is **CISegWeVisOneVL**; the configuration key can be
 `cisegwevisonevl`. The CSV is declared as one measurement output with CSV format;
 the installed BIOMERO parser was tested with this declaration.
 
-Headless workflow and internal model-cache Docker recipes are prepared. No new
-image has been built or installed in Slurm/BIOMERO. A live attachment-import
-test remains part of that later validation phase.
+Release **v0.1.0** provides `cellularimagingcf/w_cisegwevisonevl:v0.1.0`, a
+headless Linux image with the pinned model weights included. Reserve **one NVIDIA
+GPU with at least 24 GB VRAM** on the Slurm partition. Host RAM is reserved
+separately. The [deployment guide](deployment.html) provides measured memory use,
+Docker/Apptainer commands and the versioned BIOMERO configuration. Container GPU
+inference and descriptor parsing are checked; OMERO reimport remains an acceptance
+step for each deployment.
 
 ## Reproducing the examples
 
