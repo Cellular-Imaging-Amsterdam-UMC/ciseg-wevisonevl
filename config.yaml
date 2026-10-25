@@ -1,0 +1,134 @@
+citations:
+- name: CISegWeVisOneVL
+  doi: https://github.com/Cellular-Imaging-Amsterdam-UMC/cisegmentation
+  license: MIT
+  description: CISegWeVisOneVL uses WeVisOne-VL-4B to segment OME-Zarr images with up to four text prompts. 3D images are automatically projected to 2D per timepoint using Max (default) or Mean. Supports time series and HCS screens and writes one CSV with basic shape and per-channel intensity measurements.
+- name: WeVisOne-VL
+  doi: https://github.com/Tencent/WeVisOne-VL
+  license: Apache-2.0
+  description: Unified Visual Perception from Objects to Pixels (Liang et al., 2026).
+docker_image:
+  org: cellularimagingcf
+  name: w_cisegwevisonevl
+  tag: v0.1.0
+  platform: linux/amd64
+algorithm_folder_name: CISegWeVisOneVL
+exec_function:
+  name: generate_cli_command
+  cli_command: python wrapper.py
+  hidden_args:
+  - {cli_tag: --local, value: 'true', append_value: false, cli_order: 3}
+inputs:
+- name: infolder
+  type: image
+  label: Input 2D OME-Zarrs
+  description: NGFF 0.4 / Zarr v2 images or HCS plates. Z stacks are projected per timepoint using Max or Mean.
+  cli_tag: --infolder
+  cli_order: 1
+  default: directory
+  optional: false
+  format: [zarr]
+  unique_string: [.ome.zarr]
+  folder_name: /data/in
+  file_count: multiple
+  section_id: inputs
+  mode: beginner
+  subtype: [grayscale, color]
+  depth: true
+  timepoints: true
+  tiled: true
+  pyramidal: true
+outputs:
+- name: outfolder
+  type: image
+  label: CISegWeVisOneVL results
+  description: 2D images or Z projections for every timepoint with independent prompt labels. Source stores remain unchanged.
+  cli_tag: --outfolder
+  cli_order: 2
+  default: directory
+  optional: false
+  format: [zarr]
+  unique_string: [.ome.zarr]
+  folder_name: /data/out
+  file_count: multiple
+  section_id: outputs
+  mode: beginner
+  subtype: [label]
+  depth: false
+  timepoints: true
+  tiled: true
+  pyramidal: true
+- name: measurements_csv_out
+  type: measurement
+  label: Basic label measurements CSV
+  description: One measurements.csv for the complete run, covering every input, HCS field, timepoint and prompt. Includes pixel shape features, calibrated area when available, and min/max/mean/total intensity for every channel; measured on the projected image for 3D inputs.
+  cli_tag: "None"
+  default: ""
+  optional: false
+  format: [csv]
+  unique_string: [measurements.csv]
+  folder_name: /data/out
+  file_count: single
+  section_id: outputs
+  mode: beginner
+display_only: []
+parameters:
+- name: projection
+  type: dropdown
+  label: Z projection
+  description: Automatically project 3D inputs along Z for every channel and timepoint. Max preserves pixel dtype; Mean writes float32. 2D inputs are unchanged.
+  options: [{label: Max, value: Max}, {label: Mean, value: Mean}]
+  default: Max
+  cli_tag: --projection
+  cli_order: 37
+  optional: true
+  section_id: advanced
+  mode: advanced
+- {name: prompt_1, type: string, label: '1 — Prompt', description: English target description. Blank disables this slot., default: cell nuclei, cli_tag: --prompt-1, cli_order: 11, optional: true, section_id: essential, mode: beginner}
+- {name: name_1, type: string, label: '1 — Label name', description: Unique safe label name., default: nuclei, cli_tag: --name-1, cli_order: 12, optional: true, section_id: essential, mode: beginner}
+- {name: channels_1, type: string, label: '1 — Channels', description: 'One-based grayscale channel (1) or R,G,B mapping (1,2,3).', default: '1', cli_tag: --channels-1, cli_order: 13, optional: true, section_id: essential, mode: beginner}
+- {name: prompt_2, type: string, label: '2 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-2, cli_order: 14, optional: true, section_id: essential, mode: beginner}
+- {name: name_2, type: string, label: '2 — Label name', default: target2, cli_tag: --name-2, cli_order: 15, optional: true, section_id: essential, mode: beginner}
+- {name: channels_2, type: string, label: '2 — Channels', description: 'One-based grayscale or R,G,B channels.', default: '1', cli_tag: --channels-2, cli_order: 16, optional: true, section_id: essential, mode: beginner}
+- {name: prompt_3, type: string, label: '3 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-3, cli_order: 17, optional: true, section_id: essential, mode: beginner}
+- {name: name_3, type: string, label: '3 — Label name', default: target3, cli_tag: --name-3, cli_order: 18, optional: true, section_id: essential, mode: beginner}
+- {name: channels_3, type: string, label: '3 — Channels', description: 'One-based grayscale or R,G,B channels.', default: '1', cli_tag: --channels-3, cli_order: 19, optional: true, section_id: essential, mode: beginner}
+- {name: prompt_4, type: string, label: '4 — Prompt', description: Blank disables this slot., default: '', cli_tag: --prompt-4, cli_order: 20, optional: true, section_id: essential, mode: beginner}
+- {name: name_4, type: string, label: '4 — Label name', default: target4, cli_tag: --name-4, cli_order: 21, optional: true, section_id: essential, mode: beginner}
+- {name: channels_4, type: string, label: '4 — Channels', description: 'One-based grayscale or R,G,B channels.', default: '1', cli_tag: --channels-4, cli_order: 22, optional: true, section_id: essential, mode: beginner}
+- name: normalization
+  type: dropdown
+  label: Model view contrast
+  description: Percentile clips each selected channel at 1-99.8 percent. Original RGB preserves uint8 intensities. Source pixels are copied unchanged.
+  options: [{label: Percentile (fluorescence / grayscale), value: percentile}, {label: Original uint8 RGB / grayscale, value: dtype}]
+  default: percentile
+  cli_tag: --normalization
+  cli_order: 30
+  optional: true
+  section_id: essential
+  mode: beginner
+- name: label_mode
+  type: dropdown
+  label: Label output
+  description: Instances retain one ID per predicted object. Semantic merges objects within each prompt. Prompt groups can overlap.
+  options: [{label: Instance IDs, value: instances}, {label: Semantic binary mask, value: semantic}]
+  default: instances
+  cli_tag: --label-mode
+  cli_order: 31
+  optional: true
+  section_id: essential
+  mode: beginner
+- {name: threshold, type: float, label: Mask probability threshold, default: 0.5, minimum: 0.01, maximum: 0.99, cli_tag: --threshold, cli_order: 32, optional: true, section_id: advanced, mode: advanced}
+- {name: max_side, type: integer, label: Maximum model input side (pixels), description: Large inputs are explicitly downsampled for inference and masks mapped to original coordinates. No automatic tiling., default: 1024, minimum: 128, maximum: 2048, cli_tag: --max-side, cli_order: 33, optional: true, section_id: advanced, mode: advanced}
+- {name: max_new_tokens, type: integer, label: Maximum generated tokens, description: Truncated output fails the run instead of silently saving partial masks., default: 2048, minimum: 32, maximum: 8192, cli_tag: --max-new-tokens, cli_order: 34, optional: true, section_id: advanced, mode: advanced}
+- {name: min_area, type: integer, label: Minimum object area (native pixels), default: 0, minimum: 0, maximum: 16777216, cli_tag: --min-area, cli_order: 35, optional: true, section_id: advanced, mode: advanced}
+- name: device
+  type: dropdown
+  label: Compute device
+  options: [{label: Auto, value: auto}, {label: NVIDIA GPU, value: 'cuda:0'}, {label: CPU (slow), value: cpu}]
+  default: auto
+  cli_tag: --device
+  cli_order: 36
+  optional: true
+  section_id: advanced
+  mode: advanced

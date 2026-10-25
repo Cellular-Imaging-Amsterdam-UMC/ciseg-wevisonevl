@@ -1,0 +1,11 @@
+.git
+.venv
+models
+.cache
+publicdata
+inputfolder
+outputfolder
+test-results
+tests
+work
+__pycache__

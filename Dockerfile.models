@@ -1,0 +1,3 @@
+# Prepared for later builds; this image is an internal model cache dependency.
+FROM scratch
+COPY models/ /models/

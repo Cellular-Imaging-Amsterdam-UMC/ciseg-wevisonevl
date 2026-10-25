@@ -1,0 +1,4 @@
+# Optional data curation only; not required by the headless inference image.
+openslide-python==1.4.7
+openslide-bin==4.0.1.2
+imagecodecs==2026.10.10

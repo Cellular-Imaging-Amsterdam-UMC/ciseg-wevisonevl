@@ -1,0 +1,14 @@
+.venv/
+models/
+.cache/
+publicdata/
+inputfolder/
+outputfolder/
+test-results/
+work/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.last_launcher_settings.json
+*.partial*
