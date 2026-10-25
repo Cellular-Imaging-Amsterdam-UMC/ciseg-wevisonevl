@@ -40,7 +40,7 @@ def main():
         extra='Max Z preview' if field.z_planes>1 else 'Timepoint 0' if field.timepoints>1 else '2D'
         prompts_html=''.join('<li><code>'+html.escape(p['name'])+'</code>: '+html.escape(p['text'])+'</li>' for p in presets)
         notes=record.get('note','')
-        cards.append(f'<article><h2>{html.escape(record["name"])}</h2><p>{html.escape(kind)} · {record["stored_bytes"]/1e6:.2f} MB</p><img src="data:image/png;base64,{encoded}" alt="{html.escape(record["name"])}"><p><code>{shape}</code> TCZYX · {extra}</p><ul>{prompts_html}</ul><p>{html.escape(notes)}</p><details><summary>Herkomst en selectie</summary><p><a href="{html.escape(record["source"],quote=True)}">{html.escape(record["source"])}</a></p><p>{html.escape(record.get("license","See source"))}</p><pre>{html.escape(json.dumps(record.get("selection",record.get("source_provenance",{})),indent=2))}</pre></details></article>')
+        cards.append(f'<article><h2>{html.escape(record["name"])}</h2><p>{html.escape(kind)} · {record["stored_bytes"]/1e6:.2f} MB</p><img src="data:image/png;base64,{encoded}" alt="{html.escape(record["name"])}"><p><code>{shape}</code> TCZYX · {extra}</p><ul>{prompts_html}</ul><p>{html.escape(notes)}</p><details><summary>Sources and selection</summary><p><a href="{html.escape(record["source"],quote=True)}">{html.escape(record["source"])}</a></p><p>{html.escape(record.get("license","See source"))}</p><pre>{html.escape(json.dumps(record.get("selection",record.get("source_provenance",{})),indent=2))}</pre></details></article>')
         thumbs.append((record['name'],np.asarray(image)))
         csv_rows.append({'name':record['name'],'TCZYX':str(field.shape),'MB':round(record['stored_bytes']/1e6,2),'kind':kind,'source':record['source'],
                          'prompts':' | '.join(p['text'] for p in presets),'normalization':record['normalization'],'channels':record['channels'],'validation':'preflight passed'})
@@ -49,23 +49,23 @@ def main():
     summary={'total_examples':len(records),'added_examples':len(new),'ready_bytes':sum(r['stored_bytes'] for r in records),'added_ready_bytes':sum(r['stored_bytes'] for r in new),
              'added_2d':sum(r['z_planes']==1 and r['timepoints']==1 for r in new),'added_3d':sum(r['z_planes']>1 for r in new),'added_time_series':sum(r['timepoints']>1 for r in new),
              'source_stores_unchanged':True,'model_inference_on_new_examples':'not run; prompt presets are starting suggestions, not validated results'}
-    write_json(args.output/'CISegWeVisOneVL-datacatalogus.json',{'summary':summary,'examples':records})
-    with (args.output/'CISegWeVisOneVL-datacatalogus.csv').open('w',encoding='utf-8-sig',newline='') as stream:
+    write_json(args.output/'CISegWeVisOneVL-data-catalog.json',{'summary':summary,'examples':records})
+    with (args.output/'CISegWeVisOneVL-data-catalog.csv').open('w',encoding='utf-8-sig',newline='') as stream:
         writer=csv.DictWriter(stream,fieldnames=list(csv_rows[0]));writer.writeheader();writer.writerows(csv_rows)
-    document=f'''<!doctype html><html lang="nl"><meta charset="utf-8"><title>CISegWeVisOneVL — extra voorbeelden</title>
+    document=f'''<!doctype html><html lang="en"><meta charset="utf-8"><title>CISegWeVisOneVL — additional examples</title>
 <style>body{{font:16px/1.5 system-ui;background:#f3f6fa;color:#1d3048;max-width:1550px;margin:auto;padding:28px}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px}}article{{background:white;border:1px solid #d8e1ed;border-radius:12px;padding:20px;overflow:hidden}}h2{{font-size:18px}}img{{width:100%;height:250px;object-fit:contain;background:#eee}}pre{{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}}code{{font-size:13px}}a{{overflow-wrap:anywhere}}.intro{{background:white;padding:24px;border-radius:12px;margin-bottom:25px}}</style>
-<h1>CISegWeVisOneVL — uitgebreide voorbeeldset</h1><div class="intro"><p><b>{len(new)} nieuwe voorbeelden; {len(records)} totaal.</b> De complete set met OME-Zarr-invoer is {summary['ready_bytes']/1e6:.1f} MB. De originele archieven, WSI-bestanden en opgehaalde EM-chunks worden apart bewaard en tellen hierin niet mee.</p>
-<p>Kies een voorbeeld in de launcher; maximaal vier voorgestelde prompts worden ingevuld. Alle voorbeelden hebben de invoercontrole doorlopen. Er is nog geen modelkwaliteitsmeting op deze nieuwe voorbeelden uitgevoerd.</p>
-<p>3D wordt per tijdpunt automatisch geprojecteerd. Bij EM kunnen Max en Mean organellen over elkaar leggen; gebruik de meegeleverde 2D-doorsnede om afzonderlijke membranen en organellen te beoordelen. Coupe-overzichten tonen de gehele aangeleverde scan op een bestaande lagere resolutie. Het DAB-detail is een expliciet geregistreerde uitsnede. Intensiteiten blijven in hun oorspronkelijke kanalen; de vier kanalen van de plantstengel zijn alle vier bewaard.</p>
-<p>Elke segmentatierun maakt één <code>measurements.csv</code> met shape features en min/max/mean/total-intensiteit voor alle kanalen. De Bilayers-descriptor declareert dit bestand als measurement-uitvoer voor BIOMERO-attachments.</p>
-<p>Herkomst: lokale PublicData-map, <a href="https://cellmapchallenge.janelia.org/">CellMap/Janelia</a>, <a href="https://zenodo.org/records/18302140">QuPath-workshop</a>, <a href="https://imagej.net/ij/images/">ImageJ</a>, <a href="https://scikit-image.org/docs/stable/api/skimage.data.html">scikit-image</a>, <a href="https://mib.helsinki.fi/help/main2/user-interface/menu/tools/tools-watershed.html">MIB/Helsinki</a>.</p></div><div class="grid">{''.join(cards)}</div></html>'''
-    (args.output/'CISegWeVisOneVL-extra-voorbeelden.html').write_text(document,encoding='utf-8')
+<h1>CISegWeVisOneVL — expanded example collection</h1><div class="intro"><p><b>{len(new)} additional examples; {len(records)} total.</b> OME-Zarr inputs total {summary['ready_bytes']/1e6:.1f} MB. Original archives, WSI files and downloaded EM chunks are retained separately.</p>
+<p>Select an example in the launcher to fill up to four proposed prompts. All examples passed input checks. Prompt presets are starting suggestions, not validated biological annotations.</p>
+<p>3D stacks are projected independently per timepoint. EM projections can superimpose organelles; use the accompanying 2D section to inspect individual structures. Whole-section overviews use existing lower pyramid levels; the DAB detail is a recorded ROI. All four plant-stem fluorescence channels are retained.</p>
+<p>Each run writes one <code>measurements.csv</code> with shape features and min/max/mean/total intensity for every channel. The descriptor declares it as a BIOMERO measurement output.</p>
+<p>Sources: the original local PublicData collection, <a href="https://cellmapchallenge.janelia.org/">CellMap/Janelia</a>, <a href="https://zenodo.org/records/18302140">QuPath workshop</a>, <a href="https://imagej.net/ij/images/">ImageJ</a>, <a href="https://scikit-image.org/docs/stable/api/skimage.data.html">scikit-image</a>, <a href="https://mib.helsinki.fi/help/main2/user-interface/menu/tools/tools-watershed.html">MIB/Helsinki</a>.</p></div><div class="grid">{''.join(cards)}</div></html>'''
+    (args.output/'CISegWeVisOneVL-extra-examples.html').write_text(document,encoding='utf-8')
     selected=[(name,pixels) for name,pixels in thumbs if name.startswith(('local-','public-'))]
     rows=(len(selected)+3)//4;fig,axes=plt.subplots(rows,4,figsize=(16,3.4*rows),layout='constrained')
     for ax,(name,pixels) in zip(axes.flat,selected):ax.imshow(pixels);ax.set_title(name,fontsize=9);ax.axis('off')
     for ax in list(axes.flat)[len(selected):]:ax.axis('off')
-    fig.suptitle('CISegWeVisOneVL — nieuwe biologische voorbeelden',fontsize=18)
-    fig.savefig(args.output/'CISegWeVisOneVL-extra-contactsheet.png',dpi=120);plt.close(fig)
+    fig.suptitle('CISegWeVisOneVL — new biological examples',fontsize=18)
+    fig.savefig(args.output/'CISegWeVisOneVL-extra-contact-sheet.png',dpi=120);plt.close(fig)
     print(json.dumps(summary),flush=True)
 
 

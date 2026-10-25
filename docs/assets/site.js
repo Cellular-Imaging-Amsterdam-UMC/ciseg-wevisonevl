@@ -11,16 +11,16 @@ if (catalogElement) {
       figure.replaceChildren();
       if (label.overlay) {
         const image = document.createElement('img'); image.src = label.overlay;
-        image.alt = `${sample.name}: ${label.name}, werkelijke modelvoorspelling`;
+        image.alt = `${sample.name}: ${label.name}, actual model prediction`;
         const link = document.createElement('a'); link.href = label.overlay; link.target = '_blank'; link.rel = 'noopener';
         link.append(image); figure.append(link);
       } else {
         const placeholder = document.createElement('div'); placeholder.className = 'empty-image';
-        placeholder.textContent = label.status === 'failed' ? 'Geen voltooid masker voor deze prompt' : 'Berekening nog niet voltooid';
+        placeholder.textContent = label.status === 'failed' ? 'No completed mask for this prompt' : 'Computation is not complete';
         figure.append(placeholder);
       }
-      const caption = document.createElement('figcaption'); caption.textContent = 'MODELVOORSPELLING · ROZE'; figure.append(caption);
-      card.querySelector('[data-prompt]').textContent = `“${label.text}” · kanaal ${label.channels.join(', ')}`;
+      const caption = document.createElement('figcaption'); caption.textContent = 'MODEL PREDICTION · PINK'; figure.append(caption);
+      card.querySelector('[data-prompt]').textContent = `“${label.text}” · channels ${label.channels.join(', ')}`;
       const status = card.querySelector('[data-status]'); status.textContent = label.message; status.className = 'status ' + label.status;
       const download = card.querySelector('[data-mask-download]'); download.hidden = !label.download;
       if (label.download) download.href = label.download;
@@ -38,7 +38,7 @@ if (catalogElement) {
         (!statusFilter.value || sample.labels.some(label => label.status === statusFilter.value));
       card.hidden = !match; count += Number(match);
     }
-    document.querySelector('[data-count]').textContent = `${count} / ${catalog.examples.length} beelden`;
+    document.querySelector('[data-count]').textContent = `${count} / ${catalog.examples.length} images`;
   };
   search.addEventListener('input', filter); category.addEventListener('change', filter); statusFilter.addEventListener('change', filter); filter();
 }

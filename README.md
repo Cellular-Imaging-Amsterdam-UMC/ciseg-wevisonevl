@@ -1,198 +1,172 @@
 # CISegWeVisOneVL
 
-[Website en workflowuitleg](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/) ·
-[Publieke beelden met echte segmentaties](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/examples.html) ·
-[Voorbeeldgalerij als Markdown](docs/examples.md)
+[Website and workflow guide](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/) ·
+[Public examples with actual masks](https://cellular-imaging-amsterdam-umc.github.io/ciseg-wevisonevl/examples.html) ·
+[Markdown example gallery](docs/examples.md)
 
-Lokale microscopiesegmentatie met maximaal **vier onafhankelijke tekstprompts**,
-op basis van Tencent WeVisOne-VL-4B. **3D-beelden worden automatisch per kanaal en
-tijdpunt naar 2D geprojecteerd: Max is standaard; Mean is een geavanceerde
-Bilayers-optie.** Gewone beelden, tijdreeksen en HCS-screens worden ondersteund.
-De bronstore blijft intact. De uitvoer bevat de 2D-beelden of projecties met
-een native labelgroep per actieve prompt. Dezelfde parameters staan in de
-Bilayers-configuratie en de Windows-launcher.
+Text-prompted biological image segmentation using **WeVisOne-VL-4B**, with up to
+**four independent prompts**. **3D images are automatically projected to 2D per
+channel and timepoint: Max is the default; Mean is an advanced Bilayers option.**
+Regular images, time series and HCS screens use the same workflow. The source
+store remains untouched. Outputs contain 2D images or projections with native
+label groups and one CSV for the complete run.
 
-Dit is een inferentieworkflow met bestaande foundation-modelgewichten. Er is
-geen nieuw microscopiemodel getraind. De biologische kwaliteit verschilt sterk
-per beeld en prompt; zie [onderzoek en resultaten](docs/research.md).
+This is an inference adapter using existing foundation-model weights, not a newly
+trained microscopy model. Accuracy varies across images and prompts. See the
+[research and validation notes](docs/research.md).
 
-## Direct lokaal testen
+## Local setup
 
-De omgeving en het 4B-model zijn op deze werkplek al klaargezet. Dubbelklik
-op **`launch.cmd`**. Kies bovenin een publiek voorbeeld,
-gebruik **Check input**, en start **Run local Python**. Een leeg promptveld
-schakelt die stap uit. Begin met `cell` of `organoids_im10`.
-De workflow gebruikt uitsluitend WeVisOne-VL-4B; er is geen modelkeuzemenu.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
 
-Elke stap heeft een Engelse objectbeschrijving, een unieke labelnaam en een
-kanaalkeuze. `1` gebruikt één kanaal als grijswaarde-RGB; `1,2,3` betekent
-respectievelijk rood, groen, blauw. Verschillende stappen kunnen verschillende
-kanalen gebruiken. Voor RGB-histologie kies je **Original uint8 RGB**; voor
-fluorescentie is percentielcontrast doorgaans het geschikte startpunt.
+```powershell
+git clone https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl.git
+cd ciseg-wevisonevl
+create_env.cmd
+.venv\Scripts\python.exe tools\download_models.py
+launch.cmd
+```
 
-Commandoregelvoorbeeld, vanaf deze map:
+The setup creates `.venv/` with Python 3.12, PyTorch 2.11/CUDA 12.6 and the pinned
+Transformers backend. Python 3.12 is required by upstream SciPy 1.18.1. The validated
+Windows environment is recorded in `requirements-lock.windows.txt`. vLLM, Gradio
+and a separate Triton installation are not workflow requirements.
+
+The pinned snapshot under `models/WeVisOne-VL-4B` is approximately 19.37 GB,
+including the required `mask_decoder.pt` and licensing notices. Inference checks
+the local inventory and stays offline. Another cache can be selected with
+`--models-root` or `CISEGWEVISONEVL_MODELS`. This workflow uses 4B exclusively;
+there is no model-selection menu.
+
+## Launcher and CLI
+
+Choose a retained example or input directory, use **Check input**, then **Run
+local Python**. Example selection fills suggested prompts and channels. Blank
+prompts disable their slots. Start with `cell` or `organoids_im10`.
+
+Each slot has an English description, a unique label name and a one-based channel
+selection. `1` renders one grayscale channel as RGB; `1,2,3` maps channels to red,
+green and blue. Use **Original uint8 RGB** for histology or percentile contrast for
+a fluorescence model view. Original intensities are retained for measurements.
 
 ```powershell
 .venv\Scripts\python.exe wrapper.py `
   --infolder publicdata\ome-zarr\human_mitosis.ome.zarr `
   --outfolder outputfolder\nuclei-test `
   --device cuda:0 `
-  --prompt-1 "cell nuclei" --name-1 nuclei --channels-1 1 `
+  --prompt-1 "each bright fluorescent cell nucleus" --name-1 nuclei --channels-1 1 `
   --prompt-2 "bright round cell nuclei" --name-2 bright_nuclei --channels-2 1
 ```
 
-Kies bij een herhaling een nieuwe uitvoermap. Bestaande resultaten worden nooit
-overschreven. `--preflight-only` controleert alle velden zonder modelinvoer of
-schrijven. Bij Z>1 wordt iedere Z-stack afzonderlijk geprojecteerd, voor elk
-kanaal en elk tijdpunt. `--projection Max` is standaard; `--projection Mean`
-gebruikt het gemiddelde. De tijdas wordt nooit samengevoegd. Bij Z=1 blijven de
-bronpixels exact behouden, ook als de projectieoptie op Mean staat.
+Use a new output directory for each run. Completed results and CSVs are never
+overwritten. `--preflight-only` checks all fields without loading a model or
+writing results.
 
-Max behoudt het oorspronkelijke pixeltype. Mean schrijft float32 om gemiddelde
-waarden niet terug te ronden naar integers. Projectie-uitvoer gebruikt de
-OMERO-compatibele TCZYX-indeling met Z=1; de Z-as draagt geen fysieke
-vlakpositie van het bronvolume. XY-kalibratie, tijdkalibratie en oorsprong
-blijven behouden. Bestaande 3D-labels
-worden niet geprojecteerd: instance-ID's middelen of maximaliseren is niet
-betekenisvol. Ze blijven in de onaangeraakte bronstore beschikbaar.
+## Projection and data contract
 
-## Installatie opnieuw uitvoeren
+Inputs must be NGFF 0.4/Zarr v2 with explicit axes. Z>1 stacks are automatically
+projected per channel and timepoint. `--projection Max` is the default;
+`--projection Mean` writes the average as float32. Timepoints are never merged.
+Existing 2D pixels are preserved even when Mean is selected.
 
-`create_env.cmd` maakt met uv een lokale **Python 3.12**-omgeving in `.venv/`.
-De nieuwere SciPy-versie van de upstream-stack vereist 3.12. Het script
-installeert CUDA 12.6 / PyTorch 2.11 en de vastgezette Transformers-backend;
-vLLM, Triton en Gradio worden niet als aparte workflowafhankelijkheid toegevoegd.
-`requirements-lock.windows.txt` legt de gevalideerde Windows-omgeving vast.
+Output uses OMERO-compatible TCZYX with Z=1. Projected Z carries no source-volume
+physical plane position; XY/time calibration and origins remain intact. Existing
+volume labels are omitted from the new projection output instead of numerically
+projecting instance IDs. They remain in the original source store.
+
+At most 16 megapixels are accepted per XY plane. Projection streams planes rather
+than loading the full T/C/Z stack. Model views have a maximum side of 1024 pixels
+by default, configurable from 128 to 2048. Masks return to native XY coordinates.
+Automatic tiling with object fusion and tracking are not included.
+
+## Label outputs
+
+Each input produces `<source>__wevisonevl.ome.zarr`, preserving canonical 2D source
+pixels/pyramids or writing a new projection pyramid for 3D input. Other supported
+axis orders are normalized to TCZYX without changing full-resolution 2D values.
+HCS structure and every timepoint are retained.
+
+```text
+labels/wevisone_<name>/0       uint32 labels at native XY coordinates
+labels/wevisone_<name>/1,...   nearest-neighbor label pyramids
+wevisone-run.json             prompts, provenance, counts and timings
+wevisone_previews/            model inputs and overlays per timepoint
+```
+
+Prompt groups are independent and may overlap. Within one group, highest pixel
+probability owns overlap; the first prediction wins ties. Instance mode retains
+model-predicted IDs. `--label-mode semantic` merges a prompt into a binary mask.
+The default probability threshold is 0.5.
+
+Large foreground coverage gets a review note. Invalid coordinates or truncated
+generation fail the run. Diagnostic `.partial-*` stores remain available and
+are not published as completed results. Empty masks are not proof of absence.
+
+## Basic measurements in one CSV
+
+Every completed run writes **measurements.csv** in the output directory. One row
+describes a label ID within its source, field, timepoint and prompt.
+
+- Pixel area, centroid, bounding box with exclusive maximum and perimeter.
+- Equivalent diameter, major/minor axes, eccentricity, solidity, extent and
+  orientation in radians.
+- Physical area in µm² only with positive NGFF XY calibration in known units.
+- Valid pixel count and min/max/mean/total intensity for every image channel,
+  including channels not supplied to the model.
+
+Intensities use original 2D pixels or the projection before model normalization.
+NaN/Inf pixels are excluded and reflected in the valid count. Empty masks create
+no object rows; empty runs still write headers. Semantic label 1 describes the
+entire merged region for that prompt.
+
+The final CSV is published only after the whole run succeeds. Failed runs retain
+`measurements.partial-*`. The Bilayers descriptor declares one measurement output
+with CSV format under `/data/out`; this was checked with the installed BIOMERO
+parser. A live attachment-import test remains for the later Docker/BIOMERO phase.
+
+## Public examples and gallery
+
+The local collection has 27 examples, approximately 206 MB of OME-Zarr inputs:
+EM organelles, histology, Ki67/DAB, adipocytes, skin, plant vascular bundles,
+diatoms, embryos, dendritic spines, neurites and vessels. Original WSI files,
+archives and downloaded EM chunks are retained separately. EM includes volumes
+and explicit 2D sections because projections can superimpose ultrastructures.
+
+The published gallery contains new 4B predictions for every example/prompt:
+**63 label runs completed and 1 was rejected**. Nine completed label runs have
+empty first-frame masks. Execution success is not biological validation. The
+site provides real overlays, prompts, coverage, source attribution, NPZ labels
+with time indices and CSV measurements.
 
 ```powershell
-create_env.cmd
-.venv\Scripts\python.exe tools\download_models.py
 .venv\Scripts\python.exe tools\prepare_publicdata.py --organoids
+.venv\Scripts\python.exe tools\run_gallery_inference.py
 .venv\Scripts\python.exe -m pytest -q
 ```
 
-De vaste snapshot staat onder
-`models/WeVisOne-VL-4B` (19,37 GB), inclusief
-de vereiste `mask_decoder.pt` en licenties. De downloadmanifesten bewaren
-revisies, bestandsgroottes en upstream LFS-hashes. Inferentie gebruikt uitsluitend
-lokale bestanden en controleert de inventaris. Een andere locatie kan met
-`--models-root` of `CISEGWEVISONEVL_MODELS`.
+Additional curation uses `requirements_publicdata.txt`,
+`tools/curate_extra_publicdata.py` and `tools/curate_remote_examples.py`. Some
+examples originate in the original local PublicData collection. Exact copies,
+checksums, selections, resolutions and licenses are recorded. Basic preparation
+preserves additional catalog entries.
 
-`.venv/`, modellen, publieke data, testresultaten en uitvoer zijn uitgesloten van
-Git. Originele downloads, herkomst en referentiemaskers blijven onder
-`publicdata/` bewaard. De organoïdvoorbeelden worden als afzonderlijke ZIP-leden
-met HTTP-ranges opgehaald en met CRC32 gecontroleerd; de gehele 1,4-GB-collectie
-is daarvoor niet nodig.
+## Documentation and publication
 
-## Uitvoer en betekenis
-
-Per bron ontstaat `<bron>__wevisonevl.ome.zarr`, met ongewijzigde 2D-bronpixels
-en bronpiramides bij TCZYX-invoer, of bij 3D-invoer een nieuwe 2D-projectiepiramide.
-Andere geldige invoer-asvolgordes worden voor OMERO naar TCZYX genormaliseerd,
-met behoud van de 2D-pixelwaarden op volledige resolutie. De
-HCS-structuur en alle tijdpunten blijven behouden. Onder ieder beeld:
-
-```text
-labels/wevisone_<naam>/0         uint32-maskers op oorspronkelijke XY-coördinaten
-labels/wevisone_<naam>/1,2,...   labelpiramides met nearest-neighbour reductie
-```
-
-Elke prompt is een afzonderlijke klasse. Labels uit verschillende prompts mogen
-overlappen, zoals nuclei binnen cellen of cellen binnen een organoïd. Binnen
-één prompt wint het masker met de hoogste pixelwaarschijnlijkheid; bij een
-gelijke waarde wint het eerst voorspelde object. `--label-mode semantic` geeft
-per prompt een binair masker; standaard blijven de voorspelde instance-ID's
-behouden. Dit zijn modelinstanties, geen garantie dat iedere cel apart is herkend.
-
-`wevisone-run.json` bevat prompts, kanalen, contrastgrenzen, modelrevisie,
-gegenereerde coördinaten, aantallen en looptijden. `wevisone_previews/` bevat
-modelinvoer en overlays per tijdpunt. Te grote maskerdekking krijgt een inspectiemelding.
-Die melding verwijdert geen voorspellingen. Ongeldige coördinaten of afgebroken
-generatie geven een fout; `.partial-*` blijft met diagnostiek bewaard en wordt
-niet als voltooid resultaat gepubliceerd.
-
-Zowel gewone beelden als HCS-platen moeten NGFF 0.4 / Zarr v2 zijn. Alle velden
-worden vooraf gecontroleerd. Maximaal 16 megapixels per XY-vlak; Z-projecties
-worden vlak voor vlak opgebouwd, zonder de hele T/C/Z-stack in het geheugen
-te laden. Modelinvoer wordt
-expliciet naar maximaal 1024 pixels aan de langste zijde verkleind (instelbaar
-128–2048). Maskers worden naar de oorspronkelijke coördinaten teruggebracht.
-Deze eerste versie bevat geen automatische tegels met objectfusie. Kleine of
-dicht opeengepakte objecten kunnen daardoor worden gemist. Fysieke eenheden
-worden behouden als ze bekend zijn en niet verzonnen. Objecttracking en
-meetdatabases vallen buiten deze workflow.
-
-## Basis-metingen in één CSV
-
-Elke voltooide run schrijft **`measurements.csv`** direct in de uitvoermap:
-één tabel voor alle invoerbeelden, HCS-velden, tijdpunten en promptgroepen.
-Een rij beschrijft één label-ID; ID's zijn lokaal per veld, tijdpunt en prompt.
-De tabel bevat oppervlakte in pixels, centroid, bounding box (maximum exclusief),
-omtrek, equivalente diameter, hoofdas/nevenas, eccentriciteit, soliditeit,
-extent en oriëntatie in radialen. `area_um2` wordt alleen ingevuld bij positieve
-XY-kalibratie met bekende NGFF-eenheden. Anders blijft de fysieke oppervlakte leeg.
-
-Voor **ieder beeldkanaal**, ook kanalen die niet in de modelinvoer zijn gekozen,
-worden min/max/mean/total-intensiteit en het aantal geldige pixels vastgelegd.
-Deze waarden gebruiken de oorspronkelijke 2D-pixels of de gemaakte Max/Mean-
-projectie, vóór contrastnormalisatie voor het model. NaN/Inf-pixels worden niet
-meegeteld; het geldige aantal maakt dit zichtbaar. Lege promptmaskers leveren
-geen objectrijen op; een run zonder objecten geeft een CSV met kolomkoppen.
-Bij semantic-modus is label 1 de volledige samengevoegde regio per prompt.
-
-De CSV verschijnt pas onder zijn definitieve naam als de hele run slaagt;
-een mislukte run bewaart een `measurements.partial-*` voor onderzoek.
-De Bilayers-descriptor declareert de CSV als `type: measurement`, `format: csv`,
-`file_count: single`, onder `/data/out`. De geïnstalleerde BIOMERO-parser is
-hiermee lokaal gecontroleerd. De daadwerkelijke attachment-import in OMERO
-wordt tijdens de latere BIOMERO/Docker-test uitgevoerd.
-
-## Uitgebreide publieke voorbeelden
-
-Er staan 27 voorbeelden onder `publicdata/ome-zarr/`, waaronder 22 nieuwe
-voorbeelden uit de lokale PublicData-map en publieke bronnen. De nieuwe
-selectie omvat kleine Z-stacks, dendrieten/spines, bloedvaten, orgaoïdweefsel,
-vetcellen, huidlagen, plantstengelbundels, diatomeeën, embryo's,
-coupe-overzichten, Ki67/DAB en 2D/3D FIB-SEM met organellen.
-De volledige invoerset is ongeveer 206 MB; originele WSI-bestanden, archieven
-en opgehaalde EM-chunks worden apart behouden. De grootste OME-Zarr-invoer is
-de al aanwezige orgaoïdcoupe van circa 128 MB.
-
-Kies een voorbeeld in de launcher om de voorgestelde prompts en kanalen te
-laden. Deze prompts zijn startpunten, geen gemeten kwaliteitsgarantie.
-Bij EM worden naast kleine volumes ook native 2D-doorsneden bewaard, omdat een
-Max/Mean-projectie ultrastructuren kan laten overlappen. Volledige coupes worden
-op een bestaande lagere piramideresolutie getoond; alle uitsneden en resoluties
-staan expliciet in `publicdata/catalog.json`. Lokale kopieën zijn bestand voor
-bestand met SHA-256 gecontroleerd, zonder de bron te wijzigen.
-
-De optionele afhankelijkheden voor data-curatie staan in
-`requirements_publicdata.txt`. Curatie en export kunnen worden herhaald met
-`tools/curate_extra_publicdata.py`, `tools/curate_remote_examples.py` en
-`tools/build_data_catalog.py`. De gewone datavoorbereiding behoudt aanvullende
-catalogusrecords.
-
-## Bilayers en volgende BIOMERO-fase
-
-De zichtbare naam en `algorithm_folder_name` zijn **CISegWeVisOneVL**. BIOMERO
-normaliseert configuratiesleutels intern naar kleine letters; gebruik later
-`cisegwevisonevl` als sleutel. De imagenaam blijft conform Docker in kleine
-letters: `cellularimagingcf/w_cisegwevisonevl`.
+GitHub Pages serves the committed `docs/` directory, including HTML and Markdown
+guides. Dark is the default; a Bright/Dark toggle remembers explicit selections.
 
 ```powershell
-.venv\Scripts\python.exe bilayers_cli.py validate
-.venv\Scripts\python.exe bilayers_cli.py generate
+uv pip install --python .venv\Scripts\python.exe -r requirements_docs.txt
+.venv\Scripts\python.exe tools\build_docs_site.py
+.venv\Scripts\python.exe tools\check_site.py docs
 ```
 
-`Dockerfile.models` bereidt dezelfde aparte interne modelcache-image voor als
-bij cisegmentation. `Dockerfile` gebruikt die cache voor een headless workflow.
-**Geen nieuwe Docker-image is gebouwd of gepubliceerd**, de imageverwijzing in
-`config.yaml` is voorbereid, en deze workflow is nog niet in BIOMERO geregistreerd.
-Een echte Slurm/BIOMERO-importtest volgt pas in die volgende fase. De bestaande
-OMERO/Bio-Formats-reader is wel al met bron- en labelpixels getest.
+The Pages workflow validates and publishes static files. It does not download
+models or run inference. `.venv/`, full models, source stores, raw results and
+working files are excluded from Git. Public assets contain small derived previews
+and mask results only.
 
-De basisrepository cisegmentation is bijgewerkt naar v0.6.6. De eerder lokale
-tools-commit staat op `main` als `75568fc`; die commit wijzigt alleen vijf
-bestanden onder `tools/`.
-
-Zie [NOTICE.md](NOTICE.md) voor bron-, model- en data-attributie.
+The display name is **CISegWeVisOneVL**; use `cisegwevisonevl` as a BIOMERO key.
+`Dockerfile.models` prepares a separate internal cache; `Dockerfile` prepares a
+headless image. No new image has been built, published or deployed. See
+[NOTICE.md](NOTICE.md) for component and data attribution.

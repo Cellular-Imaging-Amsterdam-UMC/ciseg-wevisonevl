@@ -1,235 +1,157 @@
-# Implementatieonderzoek en lokale resultaten
+# Research and local validation
 
-Onderzocht en getest op 25 oktober 2026. Huidige uitvoering: uitsluitend
-**WeVisOne-VL-4B**. Het eerder onderzochte 2B-model en de modelkeuze zijn op
-verzoek verwijderd; historische testmetingen blijven in de genegeerde
-`test-results/` staan.
+Investigated on 25 October 2026. Current inference uses **WeVisOne-VL-4B only**.
+The evaluated 2B model and selection option were removed at the user's request;
+historical measurements remain in ignored local results.
 
-## Waarom deze implementatie
+## Implementation choices
 
-De officiële WeVisOne-VL Python-interface levert naast tekst ook boxen en
-pixelwaarschijnlijkheden. Een gewone Hugging Face tekstpipeline is daarom niet
-voldoende voor deze workflow: de kleine `mask_decoder.pt` is een noodzakelijk
-onderdeel. We gebruiken de officiële `WeVisOneVL.predict(task="segmentation")`
-met de Transformers-backend en zijn getrainde promptsjabloon. Er is geen aparte
-SAM-pipeline nodig. Temperatuur is nul, pixelkansdrempel standaard 0,5.
+The official `WeVisOneVL.predict(task="segmentation")` API returns boxes and
+pixel probabilities. The required `mask_decoder.pt` is part of the model; a
+generic text-only pipeline does not supply masks. We use the official trained
+prompt template, Transformers backend, temperature zero and a default 0.5
+probability threshold. No separate SAM pipeline is required.
 
-De upstream-code is vastgezet op
-`40f735b8daed437ece982db9718e9c9856f52a79`, de 4B-gewichten op
-`4a7bed92750ac9d8b8a124cede14759036932dc2`. De PyTorch-decoder heeft een
-device-onafhankelijke implementatie; op deze Windows-machine is geen extra
-CUDA-compilatie, FlashAttention of vLLM nodig. Python 3.12 was noodzakelijk voor
-de upstream vastgezette SciPy 1.18.1. De lokale omgeving gebruikt PyTorch
-2.11.0+cu126 en Transformers 5.12.1. `uv pip check` bevestigde compatibele
-afhankelijkheden.
+Upstream code is pinned to `40f735b8daed437ece982db9718e9c9856f52a79`; 4B weights
+to `4a7bed92750ac9d8b8a124cede14759036932dc2`. The device-independent PyTorch
+decoder runs on Windows without custom CUDA compilation, FlashAttention or vLLM.
+Python 3.12 is required by upstream SciPy 1.18.1. The environment uses PyTorch
+2.11.0+cu126 and Transformers 5.12.1; dependency checks pass.
 
-De technische rapportage en publieke benchmarks richten zich niet specifiek op
-microscopie. De resultaten hieronder zijn daarom nodig om de biologische
-toepasbaarheid te beoordelen. Er is geen training of fine-tuning uitgevoerd;
-de officiële repository biedt die code nog niet als uitgewerkte workflow.
+Output conventions follow cisegmentation v0.6.6. A separate engine avoids bringing
+Cellpose/StarDist dependencies into this environment. No microscopy training or
+fine-tuning was performed. Upstream benchmarks do not establish microscopy accuracy.
 
-De bronbehoudende uitvoer en Bilayers-conventies volgen cisegmentation v0.6.6.
-De nieuwe adapter heeft een eigen beperkte engine, zodat de oude Cellpose- en
-StarDist-afhankelijkheden niet in deze VLM-omgeving terechtkomen. Er zijn
-maximaal vier promptgroepen, met onafhankelijke labels en kanaalkeuze.
+## Initial public data
 
-## Data en conversie
+The five initial examples are genuine 2D images, converted to NGFF 0.4/Zarr v2
+with T=Z=1. RGB is stored as separate channels. Full-resolution values are unchanged;
+pyramids use area averaging. Originals, OME-XML, checksums and attribution remain local.
 
-De vijf biologische voorbeelden zijn echte 2D-beelden. Het oorspronkelijke beeld wordt als TCZYX met
-T=Z=1 naar NGFF 0.4/Zarr v2 geconverteerd. RGB wordt drie afzonderlijke kanalen.
-Piramides gebruiken area-gemiddelden; de hoogste resolutie blijft exact gelijk
-aan de bron. TIFF, OME-XML, hashes, herkomst en licentie zijn lokaal bewaard.
-
-| Voorbeeld | Vorm | Biologische toepassing | Referentie |
+| Example | Shape | Intended use | Reference |
 | --- | --- | --- | --- |
-| `cell` | 660 × 550, grijs | Losse cel, kwantitatieve fase | Geen handmatig masker; 0,107 µm/pixel gedocumenteerd |
-| `human_mitosis` | 512 × 512, grijs | Fluorescente nuclei | Geen bijgevoegd referentiemasker |
-| `immunohistochemistry` | 512 × 512, RGB | Colonglandulaire structuren en nuclei | Geen bijgevoegd referentiemasker |
-| `organoids_im9` | 1040 × 1408, grijs | Veel kleine organoïden in een well | microSAM consensusmasker |
-| `organoids_im10` | 1040 × 1408, grijs | Veel kleine organoïden in een well | microSAM consensusmasker |
+| `cell` | 660 × 550 grayscale | Isolated phase cell | No manual mask; documented 0.107 µm/pixel |
+| `human_mitosis` | 512 × 512 grayscale | Fluorescent nuclei | No supplied segmentation reference |
+| `immunohistochemistry` | 512 × 512 RGB | Colonic glands and nuclei | No supplied segmentation reference |
+| `organoids_im9` | 1040 × 1408 grayscale | Small organoids in a well | microSAM consensus mask |
+| `organoids_im10` | 1040 × 1408 grayscale | Small organoids in a well | microSAM consensus mask |
 
-De drie eerste beelden komen uit scikit-image; de organoïden uit de microSAM
-2D-gebruikersstudie, Zenodo 14036957, `final_dataset/test/images/` met de
-bijbehorende `masks/`. Alleen vier geselecteerde TIFF-leden zijn opgehaald met
-HTTP byte-ranges, gecontroleerd op membergrootte en CRC32. De onvolledige brede
-ZIP-download is niet als bron of geldig archief gebruikt. Consensusmaskers zijn
-onafhankelijke beeldannotaties; we meten foreground-overeenkomst, niet
-instance-identiteit of afzonderlijke objectdetectieprestatie.
+The first three come from scikit-image. Organoids come from the microSAM 2D user
+study, Zenodo 14036957, with matching test images and masks. Selected TIFF ZIP
+members were fetched by byte range and verified against size/CRC32. The incomplete
+initial full-ZIP download was not used. Foreground agreement is not an instance
+identity or detection-accuracy score.
 
-Voor een reproduceerbare HCS-smoketest staan twee ongewijzigde kopieën van de
-publieke fasecel in twee wells. Dit test bestandsstructuur en uitvoering; het
-zijn geen twee onafhankelijke biologische replicaten.
+## Observed behavior
 
-## Gemeten gedrag van 4B
+The RTX A5000 has 24 GB VRAM. The initial matrix peaked near **11.6 GiB of
+PyTorch-allocated memory**, excluding desktop/driver allocations. After loading,
+a cell query took about 2 seconds and the 83-object organoid query about 45 seconds.
+These are local workstation measurements, not Slurm/HPC benchmarks.
 
-De RTX A5000 heeft 24 GB VRAM. In de oorspronkelijke publieke matrix piekte
-PyTorch op circa **11,6 GiB toegewezen GPU-geheugen**, exclusief overige desktop-
-en driverallocaties. Een eenvoudige celprompt duurde na modelladen ongeveer
-2 seconden; het orgaoïdbeeld met 83 voorspellingen ongeveer 45 seconden.
-Dit zijn lokale metingen, geen Slurm- of HPC-benchmark.
-
-| Beeld / prompt | Resultaat | Betekenis |
+| Image / query | Output | Interpretation |
 | --- | --- | --- |
-| Losse cel / `cell` | 1 instance | Visueel plausibel; geen handmatige Dice-referentie |
-| Fluorescentie / `cell nuclei` | 1 zeer groot masker | Ongeschikte algemene beschrijving voor deze 4B-test |
-| Fluorescentie / `each bright fluorescent cell nucleus` | 127 instances in een verkennende prompttest | Veel specifieker resultaat; handmatige validatie blijft nodig |
-| Histologie / `cell nuclei` | 4 grote maskers | Geen betrouwbare nuclei-segmentatie in deze test |
-| Histologie / `colonic glands` | 4 maskers | Inspectie nodig; geen objectreferenties beschikbaar |
-| Organoïden im9 / `organoids` | Ongeldig aantal objecten versus geldige boxen | Run geweigerd, geen voltooid resultaat |
-| Organoïden im10 / `organoids` | 83 instances; Dice **0,8808**, IoU **0,7869** | Foreground-overeenkomst met consensusmasker, één beeld |
+| Cell / `cell` | 1 instance | Visually plausible; no manual Dice reference |
+| Fluorescence / `cell nuclei` | 1 very large mask | Poor generic query for this 4B image |
+| Fluorescence / `each bright fluorescent cell nucleus` | 127 instances | More specific result; manual validation needed |
+| Histology / `cell nuclei` | 4 large masks | Not reliable nuclei segmentation in this test |
+| Histology / `colonic glands` | 4 masks | Requires inspection; no object references |
+| Organoids im9 / `organoids` | Invalid token/box correspondence | Rejected; no completed mask |
+| Organoids im10 / `organoids` | 83 instances; Dice **0.8808**, IoU **0.7869** | Foreground agreement on one consensus-annotated image |
 
-Een specifiekere orgaoïdbeschrijving op im9 leverde in de eerdere 2B-verkenning
-118 objecttokens maar 116 geldige boxen op, waaronder omgekeerde coördinaten.
-De upstream-decoder filtert ongeldige boxen maar gebruikt daarna de eerste N
-objectrepresentaties. Dat kan boxen en objectrepresentaties verkeerd koppelen.
-Deze adapter controleert hun aantallen **vóór** maskerdecode en weigert de
-voorspelling met de volledige tekstrespons in het foutverslag. Er worden geen
-coördinaten verzonnen, omgewisseld of stil overgeslagen.
+The earlier 2B organoid results scored Dice 0.0890 and 0.0548. That model is no
+longer available through the workflow.
 
-Een afwezige `elephant` werd als
-`<ref>elephant</ref><box>none</box>` geretourneerd. Die geldige gestructureerde
-afwezigheid wordt nu als lege labelgroep verwerkt. Dit onderbouwt alleen dat
-specifieke controlevoorbeeld: een afwezige `organoid` op het nuclei-beeld gaf
-juist een groot foutpositief masker. Algemene betrouwbare afwijzing voor
-microscopie is hiermee niet aangetoond.
+## Invalid responses and absence
 
-De oorspronkelijke 2B-orgaoïdmaskers haalden Dice 0,0890 en 0,0548. Dat model
-is verwijderd en is niet meer te selecteren of te downloaden via deze workflow.
+A dense exploratory query generated 118 object tokens but only 116 valid boxes,
+including reversed coordinates. The upstream decoder filters invalid boxes and
+then uses the first N object representations, which can misalign them. This
+adapter checks correspondence **before decoding** and preserves invalid responses
+for diagnosis. It never invents, swaps or silently skips object coordinates.
 
-## Technische verificatie en grenzen
+The negative query `elephant` returned
+`<ref>elephant</ref><box>none</box>`, accepted as a valid empty mask. This supports
+that specific negative control, not general reliable microscopy rejection:
+an absent `organoid` query on nuclei instead produced a large false-positive mask.
 
-- De tests controleren vier afzonderlijke labelgroepen, bronbehoud, HCS-wells,
-  oorspronkelijke coördinaten en transformaties, kanaalfouten, automatische
-  Max/Mean-projectie per tijdpunt, incomplete runs, overlap en lege voorspellingen.
-- De launcher start dezelfde wrapper via QProcess; de invoercontrole is als
-  echte child-process-test uitgevoerd. De normale visuele Windowsinspectie kon
-  niet worden afgerond door `GetCursorPos failed: Toegang geweigerd (0x80070005)`.
-- De bestaande OMERO Server ZarrReader las een beeld met vier promptgroepen als
-  vijf series. Alle tien gecontroleerde bron-/labelvensters over twee
-  resoluties hadden exact dezelfde hashes als de Python-pixels.
-- De volledige oorspronkelijke beeldpiramides in voltooide publieke tests zijn
-  met hun invoer vergeleken; de bronstores bleven ongewijzigd.
-- Een inputlimiet beschermt tegen onbedoelde zeer grote 2D-velden. De eerste
-  versie heeft geen automatische tegels/objectfusie, batchconcurrentie,
-  meetdatabase, tracking of fijngetraind microscopiemodel.
-- Docker-recepten zijn voorbereid maar niet gebouwd, gepubliceerd of in de
-  draaiende BIOMERO-stack geïnstalleerd. Readercompatibiliteit is geen
-  uitgevoerde OMERO-database-import of Slurm-validatie.
+## Projection, time series and HCS
 
-De exacte JSON-rapporten, overlays, mislukte responsen en GPU-controles staan in
-de genegeerde `test-results/`. Succesvolle uitvoering en goede biologische
-segmentatie worden daar apart beoordeeld. De geschikte vervolgstap is nu
-beeld- en promptselectie in de lokale launcher. Domeintraining of een andere
-segmentatiebackbone zou apart onderzoek vereisen als consistente brede
-microscopieprestatie het doel wordt.
+The advanced projection option offers **Max** by default and **Mean**. Z stacks
+are reduced per channel, timepoint and screen field. Timepoints are never merged.
+Max retains dtype; Mean writes float32. Projection pyramids are rebuilt from the
+projected image. Existing 2D pixel values remain unchanged.
 
-## Toegevoegde automatische 3D-projectie en tijdreeksen
+Outputs use TCZYX with Z=1; labels use C=Z=1. Source-volume physical Z position is
+omitted while XY/time transforms remain intact. OME-XML is updated to SizeZ=1 and
+to float for Mean. Existing volume labels remain in the untouched source.
 
-De geavanceerde Bilayers-optie `projection` biedt **Max** (standaard) en
-**Mean**. Z>1 wordt automatisch gereduceerd per kanaal, per tijdpunt en per
-screenveld. De 2D-inferentie ontvangt elk tijdpunt afzonderlijk; tijd wordt
-nooit gemiddeld of gemaximaliseerd. Bij reeds 2D-invoer blijven alle pixels
-behouden. De uitvoer bevat de projectie en haar labels, de bronvolume blijft
-onaangeraakt. Max behoudt dtype; Mean schrijft float32. Outputpiramides worden
-na projectie opnieuw opgebouwd, zodat ze dezelfde projectie afbeelden.
+Derived fixtures have distinct T/Z values. A GPU fixture with two fields, two
+timepoints and three Z planes uses a shifted public phase-cell image. Exact
+projection values, unchanged sources and label movement were checked. This
+validates data handling, not independent biological 3D accuracy.
 
-Voor OMERO-compatibiliteit wordt geprojecteerde uitvoer naar TCZYX met Z=1
-genormaliseerd. De oorspronkelijke fysieke Z-transformatie vervalt; XY- en
-tijdtransformaties blijven intact. Ook labels krijgen TCZYX met C=Z=1.
-OME-XML wordt bijgewerkt naar
-SizeZ=1 en bij Mean naar het float-pixeltype. Bestaande volumelabels worden
-alleen uit de nieuwe projectie-uitvoer weggelaten en niet als numerieke IDs
-geprojecteerd. HCS-wells, velden, kanalen en tijdpunten blijven behouden.
+The installed ZarrReader incorrectly read timepoints as zero from compact TCYX
+arrays. Output was therefore changed to the five-axis cisegmentation layout.
+The corrected reader matched all **48** checked image/label windows across both
+projections, fields, timepoints and resolutions. Failed and corrected probes
+remain in separate ignored local result directories.
 
-De projectietests gebruiken expliciet afgeleide fixtures met verschillende
-Z- en T-waarden. Dat onderbouwt correcte gegevensverwerking, geen bewezen
-biologische segmentatiekwaliteit op echte 3D-acquisities. De aparte GPU-fixture
-bevat twee screenvelden, twee tijdpunten en drie Z-vlakken met een verplaatste
-publieke fasecel; zowel projectiepixels als labelverplaatsing worden gecontroleerd.
+## Measurements and descriptor
 
-De live readercontrole toonde dat de geïnstalleerde ZarrReader tijdpunten in
-compacte TCYX-projecties verkeerd als nul kon lezen. De compacte, op zichzelf
-geldige NGFF-opslag is daarom vervangen door dezelfde vijfassige indeling als
-cisegmentation. De aanvankelijke mislukte readercontrole blijft in
-`test-results/projection-runtime/` staan; de actuele controles staan in
-`test-results/projection-runtime-canonical/`.
+One CSV covers all inputs, fields, timepoints and prompts. It stores shape,
+area/position and min/max/mean/total intensity plus a valid count for every
+channel. Physical area needs positive NGFF XY calibration in known units.
+Measurements use original 2D pixels or the projection before normalization.
 
-## Uitbreiding: voorbeelden en compacte CSV-metingen
+**31 tests pass**, covering a fourth real fluorescence channel, varying channel
+counts, time/label correspondence, calibration, failed runs and descriptor fields.
+Actual 4B Max/Mean runs each wrote four rows; measurements matched output pixels.
+The installed BIOMERO adapter validated one CSV measurement output and the correct
+workflow name/description. The first citation entry supplies these fields.
+A live OMERO attachment import remains for the later Docker/Slurm phase.
 
-De lokale set bevat nu **27 voorbeelden**, waarvan **22 toegevoegd**: 14
-afzonderlijke 2D-beelden, 6 Z-stacks en 2 tijdreeksen. De volledige OME-Zarr-
-invoer is ongeveer 206 MB. Originele WSI-bestanden en de opgehaalde EM-chunks
-staan apart bewaard. De lokale bronkopieën zijn bestand voor bestand met
-SHA-256 gecontroleerd; conversies controleren hun pixelwaarden na schrijven.
-Alle voorbeelden slagen voor de workflow-preflight. Hun voorgestelde prompts
-zijn niet op modelkwaliteit gevalideerd.
+## Expanded collection and published masks
 
-Toegevoegd zijn onder andere dendritische spines, neurieten, bloedvaten,
-orgaoïdcoupes, vetcellen, huidlagen, vaatbundels in een plantstengel,
-diatomeeën en embryo's. Hele scans van CMU-1, een prostaatbeeld en een Ki67-
-lymfoomcoupe zijn op een bestaande lagere piramideresolutie als compacte
-voorbeelden beschikbaar. Het Ki67/DAB-detail is een expliciet geregistreerde
-native uitsnede. Twee CellMap FIB-SEM-bronnen (COS-7 en muizenlever) leveren
-elk een klein echt Z-volume en de middelste 2D-doorsnede; een MIB-voorbeeld
-voegt een ander EM-beeld met mitochondriën toe. Downloadherkomst, uitsneden,
-resoluties, kanaalbehoud en licentie-informatie staan per voorbeeld in de catalogus.
+The collection has **27 examples**, including **22 additions**: 14 separate 2D
+images, 6 Z stacks and 2 time series, about 206 MB of OME-Zarr input. Original WSI
+files, archives and EM chunks remain separate. Local copies were checked with
+SHA-256; conversions checked written values. All examples pass preflight.
 
-De CSV voegt één rij per label-ID/veld/tijdpunt/prompt toe aan één bestand
-`measurements.csv` voor de hele run, met oppervlakte, centroid, bounding box,
-omtrek, equivalente diameter, aslengtes, eccentriciteit, soliditeit, extent en
-oriëntatie. Alle beeldkanalen krijgen min/max/mean/total-intensiteit en een
-geldig-pixelaantal. Fysieke oppervlakte wordt alleen geschreven met bekende,
-positieve NGFF-XY-kalibratie. De intensiteiten komen uit de oorspronkelijke
-2D-invoer of de projectie, niet uit de voor het model genormaliseerde RGB-weergave.
+Examples include spines, neurites, vessels, organoid tissue, adipocytes, skin,
+plant vascular bundles, diatoms and embryos. Complete acquired CMU-1, prostate
+and Ki67 scans use existing lower pyramid resolutions; the DAB detail is a
+recorded native ROI. CellMap COS-7 and liver FIB-SEM each provide a contiguous
+volume and middle 2D section; MIB supplies another mitochondrial EM example.
+The catalog preserves sources, selections, resolutions, channel counts and licenses.
 
-**31 tests slagen**, inclusief behoud en metingen van een vierde echt
-fluorescentiekanaal, wisselende kanaalaantallen tussen invoerbeelden,
-correcte tijdpunt-/labelkoppeling, ontbrekende kalibratie en afgebroken runs.
-Echte 4B-runs met twee velden en twee tijdpunten geven zowel bij Max als Mean
-een CSV met vier rijen; oppervlakte en intensiteiten zijn tegen de geschreven
-beeld- en labelpixels gecontroleerd.
+Every example was processed again with its prompts and all timepoints:
+**64 label runs: 63 technically completed, 1 rejected**. `organoids_im9` generated
+210 object tokens but 209 valid boxes; no completed mask was published. Nine
+completed runs have an empty first-frame mask. Empty output is not proof that
+a target structure is absent.
 
-De Bilayers-descriptor declareert CSV als measurement-output met `format: csv`
-en `file_count: single`. De geïnstalleerde BIOMERO-schema-adapter valideerde dit
-en bevestigde de workflownaam CISegWeVisOneVL en de juiste beschrijving.
-BIOMERO gebruikt hiervoor de eerste citation-entry; die staat nu op de eigen
-workflownaam. De daadwerkelijke OMERO-attachment-import is nog niet uitgevoerd;
-die wordt samen met de latere Docker/Slurm-test gevalideerd.
+The gallery includes actual overlays, prompts, channels, coverage, source links,
+uint32 labels with time indices (NPZ) and CSV measurements. Cards show the first
+timepoint; downloads contain all available frames. "Computed" and "completed"
+describe execution, not biological correctness. Performance remains variable
+on ultrastructure, dense objects and staining patterns.
 
-## Gepubliceerde maskers voor alle 27 voorbeelden
+Automated launcher/process tests passed. Native Windows visual inspection was
+unavailable because desktop access was denied; the website is tested separately
+in the browser. Public assets are small derived previews and masks. Full stores,
+models, local workstation paths and raw logs are excluded. Docker recipes are
+prepared but no new image has been built or deployed; reader checks are not a
+live OMERO database import.
 
-Voor de GitHub Pages-galerij zijn alle 27 voorbeelden opnieuw met 4B verwerkt,
-met hun vastgelegde prompts en alle tijdpunten. Dat zijn **64 labelruns**:
-**63 technisch voltooid** en **1 geweigerd**. Het orgaoïdbeeld `organoids_im9`
-genereerde 210 objecttokens maar 209 geldige boxen; daarvoor is geen masker
-als voltooid gepubliceerd. Negen voltooide labelruns hebben op het eerste
-tijdpunt een leeg masker. Dat betekent dat het model niets aanwees; het is
-geen bewijs dat de gezochte structuur ontbreekt.
+## Primary sources
 
-De galerij toont per label de echte roze overlay, de gebruikte prompt,
-kanaalkeuze, maskerdekking en de bronvermelding. Downloads bevatten uint32-
-maskers met tijdindexen (NPZ) en meettabellen (CSV). De kaarten tonen tijdpunt 0;
-bij een volledige tijdreeks bevat het labelbestand alle berekende tijdpunten.
-De beschrijvingen "berekend" en "voltooid" beoordelen de uitvoering, geen
-biologische juistheid. De algemene VLM blijft duidelijk wisselend presteren
-op ultrastructuur, dicht opeengepakte objecten en kleuringen.
-
-De website bevat kleine afgeleide previews en labelresultaten. Volledige
-bronstores, modelgewichten, lokale werkplekpaden en ruwe runtime-logs blijven
-buiten de publieke repository.
-
-### Aanvullende primaire databronnen
-
-- [CellMap/Janelia FIB-SEM-data](https://cellmapchallenge.janelia.org/)
-- [QuPath-workshopbeelden, Thierry Pécot](https://zenodo.org/records/18302140)
-- [ImageJ publieke voorbeelden](https://imagej.net/ij/images/)
-- [MIB-mitochondriënvoorbeeld](https://mib.helsinki.fi/help/main2/user-interface/menu/tools/tools-watershed.html)
-
-### Oorspronkelijke primaire bronnen
-
-- [Officiële WeVisOne-VL-code en API](https://github.com/Tencent/WeVisOne-VL)
-- [Architectuur, benchmarks en technische rapportage](https://tencent.github.io/WeVisOne-VL/)
-- [Officiële 4B-modelbestanden](https://huggingface.co/tencent/WeVisOne-VL-4B)
-- [microSAM 2D-orgaoïden en consensusannotaties](https://zenodo.org/records/14036957)
-- [scikit-image voorbeelden, herkomst en licenties](https://scikit-image.org/docs/stable/api/skimage.data.html)
-- [BBBC038, aanvullend publiek 2D-nucleibenchmark voor later onderzoek](https://bbbc.broadinstitute.org/BBBC038)
+- [Official WeVisOne-VL code and API](https://github.com/Tencent/WeVisOne-VL)
+- [Architecture and benchmark report](https://tencent.github.io/WeVisOne-VL/)
+- [Official 4B model](https://huggingface.co/tencent/WeVisOne-VL-4B)
+- [microSAM organoids and consensus masks](https://zenodo.org/records/14036957)
+- [CellMap/Janelia FIB-SEM](https://cellmapchallenge.janelia.org/)
+- [QuPath workshop, Thierry Pécot](https://zenodo.org/records/18302140)
+- [ImageJ samples](https://imagej.net/ij/images/)
+- [scikit-image datasets and licensing](https://scikit-image.org/docs/stable/api/skimage.data.html)
+- [MIB mitochondrial example](https://mib.helsinki.fi/help/main2/user-interface/menu/tools/tools-watershed.html)

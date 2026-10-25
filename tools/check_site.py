@@ -25,6 +25,7 @@ def check(root):
         if any(not i.get('alt') for i in parser.images):errors.append(f'Image missing alt text: {file.name}')
         text=file.read_text(encoding='utf-8')
         if 'data-theme="dark"' not in text or 'data-theme-toggle' not in text:errors.append('Missing default Dark theme or theme button: '+file.name)
+        if '<html lang="en"' not in text:errors.append('Public page must use English: '+file.name)
     for file,parser in documents.items():
         for link in parser.links:
             url=urlsplit(link)

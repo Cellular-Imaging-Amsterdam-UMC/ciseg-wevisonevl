@@ -11,8 +11,8 @@
   "examples": [
     {
       "name": "human_mitosis",
-      "category": "Cellen & organoïden",
-      "kind": "Publiek 2D-voorbeeld",
+      "category": "Cells & organoids",
+      "kind": "Public 2D example",
       "shape": [
         1,
         1,
@@ -37,7 +37,7 @@
             0
           ],
           "first_frame_objects": 127,
-          "message": "Tijdpunt 0: 127 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 6.3%.",
+          "message": "Timepoint 0: 127 predicted objects. 1/1 timepoints completed. Mask coverage: 6.3%.",
           "foreground_fraction": 0.06301498413085938
         }
       ],
@@ -53,8 +53,8 @@
     },
     {
       "name": "immunohistochemistry",
-      "category": "Histologie & weefsel",
-      "kind": "Publiek 2D-voorbeeld",
+      "category": "Histology & tissue",
+      "kind": "Public 2D example",
       "shape": [
         1,
         3,
@@ -81,7 +81,7 @@
             0
           ],
           "first_frame_objects": 4,
-          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 59.7%.",
+          "message": "Timepoint 0: 4 predicted objects. 1/1 timepoints completed. Mask coverage: 59.7%.",
           "foreground_fraction": 0.5968399047851562
         }
       ],
@@ -97,8 +97,8 @@
     },
     {
       "name": "cell",
-      "category": "Cellen & organoïden",
-      "kind": "Publiek 2D-voorbeeld",
+      "category": "Cells & organoids",
+      "kind": "Public 2D example",
       "shape": [
         1,
         1,
@@ -123,7 +123,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 6.0%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 6.0%.",
           "foreground_fraction": 0.05985950413223141
         }
       ],
@@ -139,8 +139,8 @@
     },
     {
       "name": "organoids_im9",
-      "category": "Cellen & organoïden",
-      "kind": "Publiek 2D-voorbeeld",
+      "category": "Cells & organoids",
+      "kind": "Public 2D example",
       "shape": [
         1,
         1,
@@ -162,7 +162,7 @@
           "overlay": null,
           "download": null,
           "timepoints_available": [],
-          "message": "Voorspelling geweigerd: Model generated 210 object tokens but 209 valid boxes. Refusing misaligned mask decoding; try a more specific prompt or an explicit smaller ROI."
+          "message": "Prediction rejected: Model generated 210 object tokens but 209 valid boxes. Refusing misaligned mask decoding; try a more specific prompt or an explicit smaller ROI."
         }
       ],
       "sources": [
@@ -177,8 +177,8 @@
     },
     {
       "name": "organoids_im10",
-      "category": "Cellen & organoïden",
-      "kind": "Publiek 2D-voorbeeld",
+      "category": "Cells & organoids",
+      "kind": "Public 2D example",
       "shape": [
         1,
         1,
@@ -203,7 +203,7 @@
             0
           ],
           "first_frame_objects": 83,
-          "message": "Tijdpunt 0: 83 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 2.4%. Foreground Dice: 0.881 tegen consensus (geen instance-score).",
+          "message": "Timepoint 0: 83 predicted objects. 1/1 timepoints completed. Mask coverage: 2.4%. Foreground Dice: 0.881 against consensus (not an instance score).",
           "foreground_fraction": 0.02353515625,
           "foreground_dice": 0.8807507084346304
         }
@@ -220,7 +220,7 @@
     },
     {
       "name": "local-dendrite-spines",
-      "category": "Neuronaal & vaten",
+      "category": "Neurites & vessels",
       "kind": "dendrite and spines",
       "shape": [
         1,
@@ -246,7 +246,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 20.4%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 20.4%.",
           "foreground_fraction": 0.20382165605095542
         },
         {
@@ -262,7 +262,7 @@
             0
           ],
           "first_frame_objects": 3,
-          "message": "Tijdpunt 0: 3 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.9%.",
+          "message": "Timepoint 0: 3 predicted objects. 1/1 timepoints completed. Mask coverage: 1.9%.",
           "foreground_fraction": 0.018504282890401933
         }
       ],
@@ -279,7 +279,7 @@
     },
     {
       "name": "local-drosophila-olfactory-neuron",
-      "category": "Neuronaal & vaten",
+      "category": "Neurites & vessels",
       "kind": "neuronal arbor",
       "shape": [
         1,
@@ -305,7 +305,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 2.5%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 2.5%.",
           "foreground_fraction": 0.025012969970703125
         }
       ],
@@ -319,7 +319,7 @@
     },
     {
       "name": "local-mouse-brain-astrocytes-vessels",
-      "category": "Neuronaal & vaten",
+      "category": "Neurites & vessels",
       "kind": "brain blood vessels and astrocyte processes",
       "shape": [
         1,
@@ -347,7 +347,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 93.5%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 93.5%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.9345288531775018
         },
         {
@@ -365,7 +365,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 92.0%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 92.0%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.9203579254930606
         }
       ],
@@ -382,7 +382,7 @@
     },
     {
       "name": "local-neural-organoid-section",
-      "category": "Histologie & weefsel",
+      "category": "Histology & tissue",
       "kind": "organoid section neurofilament volume",
       "shape": [
         1,
@@ -408,7 +408,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 46.7%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 46.7%.",
           "foreground_fraction": 0.4674992561340332
         },
         {
@@ -424,7 +424,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.3%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 0.3%.",
           "foreground_fraction": 0.0033953189849853516
         }
       ],
@@ -440,7 +440,7 @@
     },
     {
       "name": "local-REAL-LYSOSOME",
-      "category": "Cellen & organoïden",
+      "category": "Cells & organoids",
       "kind": "lysosome time series",
       "shape": [
         19,
@@ -484,7 +484,7 @@
             18
           ],
           "first_frame_objects": 9,
-          "message": "Tijdpunt 0: 9 voorspelde objecten. 19/19 tijdpunten berekend. Maskerdekking: 9.3%.",
+          "message": "Timepoint 0: 9 predicted objects. 19/19 timepoints completed. Mask coverage: 9.3%.",
           "foreground_fraction": 0.09253692626953125
         }
       ],
@@ -500,7 +500,7 @@
     },
     {
       "name": "local-neurite-outgrowth-3t",
-      "category": "Neuronaal & vaten",
+      "category": "Neurites & vessels",
       "kind": "2D neuronal outgrowth time series",
       "shape": [
         3,
@@ -528,7 +528,7 @@
             2
           ],
           "first_frame_objects": 4,
-          "message": "Tijdpunt 0: 4 voorspelde objecten. 3/3 tijdpunten berekend. Maskerdekking: 2.2%.",
+          "message": "Timepoint 0: 4 predicted objects. 3/3 timepoints completed. Mask coverage: 2.2%.",
           "foreground_fraction": 0.0220444984047209
         },
         {
@@ -546,7 +546,7 @@
             2
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 3/3 tijdpunten berekend. Maskerdekking: 4.5%.",
+          "message": "Timepoint 0: 1 predicted objects. 3/3 timepoints completed. Mask coverage: 4.5%.",
           "foreground_fraction": 0.04465369737696586
         }
       ],
@@ -567,7 +567,7 @@
     },
     {
       "name": "local-neurites-2d",
-      "category": "Neuronaal & vaten",
+      "category": "Neurites & vessels",
       "kind": "2D neuron and neurites",
       "shape": [
         1,
@@ -593,7 +593,7 @@
             0
           ],
           "first_frame_objects": 4,
-          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 2.9%.",
+          "message": "Timepoint 0: 4 predicted objects. 1/1 timepoints completed. Mask coverage: 2.9%.",
           "foreground_fraction": 0.028898551543044302
         },
         {
@@ -609,7 +609,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 5.5%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 5.5%.",
           "foreground_fraction": 0.05479713132111698
         }
       ],
@@ -625,7 +625,7 @@
     },
     {
       "name": "public-skin",
-      "category": "Histologie & weefsel",
+      "category": "Histology & tissue",
       "kind": "histology",
       "shape": [
         1,
@@ -653,7 +653,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 20.8%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 20.8%.",
           "foreground_fraction": 0.2083740234375
         },
         {
@@ -671,7 +671,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 73.2%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 73.2%.",
           "foreground_fraction": 0.73222900390625
         },
         {
@@ -689,7 +689,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 81.5%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 81.5%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.8151749674479166
         }
       ],
@@ -705,7 +705,7 @@
     },
     {
       "name": "public-retina",
-      "category": "Neuronaal & vaten",
+      "category": "Neurites & vessels",
       "kind": "retinal fundus",
       "shape": [
         1,
@@ -733,7 +733,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 76.1%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 76.1%.",
           "foreground_fraction": 0.7611216115556569
         },
         {
@@ -751,7 +751,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.3%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 1.3%.",
           "foreground_fraction": 0.013254669572524474
         },
         {
@@ -769,7 +769,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 76.1%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 76.1%.",
           "foreground_fraction": 0.761185903408523
         }
       ],
@@ -785,7 +785,7 @@
     },
     {
       "name": "public-lily-stem",
-      "category": "Overige structuren",
+      "category": "Other structures",
       "kind": "plant stem confocal section",
       "shape": [
         1,
@@ -813,7 +813,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -831,7 +831,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 15.8%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 15.8%.",
           "foreground_fraction": 0.15804908691376382
         }
       ],
@@ -847,7 +847,7 @@
     },
     {
       "name": "public-diatoms",
-      "category": "Overige structuren",
+      "category": "Other structures",
       "kind": "diatoms",
       "shape": [
         1,
@@ -875,7 +875,7 @@
             0
           ],
           "first_frame_objects": 5,
-          "message": "Tijdpunt 0: 5 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 31.9%.",
+          "message": "Timepoint 0: 5 predicted objects. 1/1 timepoints completed. Mask coverage: 31.9%.",
           "foreground_fraction": 0.3185442386831276
         },
         {
@@ -893,7 +893,7 @@
             0
           ],
           "first_frame_objects": 2,
-          "message": "Tijdpunt 0: 2 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 14.8%.",
+          "message": "Timepoint 0: 2 predicted objects. 1/1 timepoints completed. Mask coverage: 14.8%.",
           "foreground_fraction": 0.14817226080246915
         },
         {
@@ -911,7 +911,7 @@
             0
           ],
           "first_frame_objects": 3,
-          "message": "Tijdpunt 0: 3 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 16.9%.",
+          "message": "Timepoint 0: 3 predicted objects. 1/1 timepoints completed. Mask coverage: 16.9%.",
           "foreground_fraction": 0.16924672067901234
         }
       ],
@@ -927,7 +927,7 @@
     },
     {
       "name": "public-embryos",
-      "category": "Overige structuren",
+      "category": "Other structures",
       "kind": "embryos",
       "shape": [
         1,
@@ -955,7 +955,7 @@
             0
           ],
           "first_frame_objects": 22,
-          "message": "Tijdpunt 0: 22 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 3.7%.",
+          "message": "Timepoint 0: 22 predicted objects. 1/1 timepoints completed. Mask coverage: 3.7%.",
           "foreground_fraction": 0.03704479166666667
         },
         {
@@ -973,7 +973,7 @@
             0
           ],
           "first_frame_objects": 5,
-          "message": "Tijdpunt 0: 5 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.8%.",
+          "message": "Timepoint 0: 5 predicted objects. 1/1 timepoints completed. Mask coverage: 0.8%.",
           "foreground_fraction": 0.00750625
         }
       ],
@@ -989,7 +989,7 @@
     },
     {
       "name": "public-adipose",
-      "category": "Histologie & weefsel",
+      "category": "Histology & tissue",
       "kind": "osmium-fixed human subcutaneous adipose tissue",
       "shape": [
         1,
@@ -1017,7 +1017,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 92.6%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 92.6%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.9262609375
         },
         {
@@ -1035,7 +1035,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 51.9%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 51.9%.",
           "foreground_fraction": 0.5190411458333334
         },
         {
@@ -1053,7 +1053,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 58.0%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 58.0%.",
           "foreground_fraction": 0.580134375
         }
       ],
@@ -1095,7 +1095,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -1111,7 +1111,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -1127,7 +1127,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 63.5%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 63.5%.",
           "foreground_fraction": 0.63525390625
         },
         {
@@ -1143,7 +1143,7 @@
             0
           ],
           "first_frame_objects": 4,
-          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.7%.",
+          "message": "Timepoint 0: 4 predicted objects. 1/1 timepoints completed. Mask coverage: 1.7%.",
           "foreground_fraction": 0.016773223876953125
         }
       ],
@@ -1199,7 +1199,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -1215,7 +1215,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 63.7%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 63.7%.",
           "foreground_fraction": 0.6372032165527344
         },
         {
@@ -1231,7 +1231,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 63.9%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 63.9%.",
           "foreground_fraction": 0.6390113830566406
         },
         {
@@ -1247,7 +1247,7 @@
             0
           ],
           "first_frame_objects": 19,
-          "message": "Tijdpunt 0: 19 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 11.7%.",
+          "message": "Timepoint 0: 19 predicted objects. 1/1 timepoints completed. Mask coverage: 11.7%.",
           "foreground_fraction": 0.11731338500976562
         }
       ],
@@ -1304,7 +1304,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 4.1%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 4.1%.",
           "foreground_fraction": 0.040874481201171875
         },
         {
@@ -1320,7 +1320,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -1336,7 +1336,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 81.9%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 81.9%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.8187179565429688
         },
         {
@@ -1352,7 +1352,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.4%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 1.4%.",
           "foreground_fraction": 0.014362335205078125
         }
       ],
@@ -1408,7 +1408,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 4.2%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 4.2%.",
           "foreground_fraction": 0.042217254638671875
         },
         {
@@ -1424,7 +1424,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 4.4%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 4.4%.",
           "foreground_fraction": 0.0439300537109375
         },
         {
@@ -1440,7 +1440,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 83.9%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 83.9%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.8394432067871094
         },
         {
@@ -1456,7 +1456,7 @@
             0
           ],
           "first_frame_objects": 6,
-          "message": "Tijdpunt 0: 6 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 10.2%.",
+          "message": "Timepoint 0: 6 predicted objects. 1/1 timepoints completed. Mask coverage: 10.2%.",
           "foreground_fraction": 0.10182571411132812
         }
       ],
@@ -1513,7 +1513,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -1529,7 +1529,7 @@
             0
           ],
           "first_frame_objects": 16,
-          "message": "Tijdpunt 0: 16 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 21.0%.",
+          "message": "Timepoint 0: 16 predicted objects. 1/1 timepoints completed. Mask coverage: 21.0%.",
           "foreground_fraction": 0.20953583453583455
         }
       ],
@@ -1545,7 +1545,7 @@
     },
     {
       "name": "local-CMU1-whole-section",
-      "category": "Histologie & weefsel",
+      "category": "Histology & tissue",
       "kind": "H&E whole-section overview",
       "shape": [
         1,
@@ -1573,7 +1573,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 18.8%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 18.8%.",
           "foreground_fraction": 0.187947158166177
         },
         {
@@ -1591,7 +1591,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -1609,7 +1609,7 @@
             0
           ],
           "first_frame_objects": 4,
-          "message": "Tijdpunt 0: 4 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 18.8%.",
+          "message": "Timepoint 0: 4 predicted objects. 1/1 timepoints completed. Mask coverage: 18.8%.",
           "foreground_fraction": 0.18790285557269978
         },
         {
@@ -1627,7 +1627,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         }
       ],
@@ -1650,7 +1650,7 @@
     },
     {
       "name": "public-prostate-section",
-      "category": "Histologie & weefsel",
+      "category": "Histology & tissue",
       "kind": "histological section",
       "shape": [
         1,
@@ -1678,7 +1678,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 45.1%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 45.1%.",
           "foreground_fraction": 0.45113152
         },
         {
@@ -1696,7 +1696,7 @@
             0
           ],
           "first_frame_objects": 6,
-          "message": "Tijdpunt 0: 6 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 1.3%.",
+          "message": "Timepoint 0: 6 predicted objects. 1/1 timepoints completed. Mask coverage: 1.3%.",
           "foreground_fraction": 0.01329168
         },
         {
@@ -1714,7 +1714,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 45.2%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 45.2%.",
           "foreground_fraction": 0.45150464
         }
       ],
@@ -1737,7 +1737,7 @@
     },
     {
       "name": "public-ki67-lymphoma-section",
-      "category": "Histologie & weefsel",
+      "category": "Histology & tissue",
       "kind": "histological section",
       "shape": [
         1,
@@ -1765,7 +1765,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 49.7%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 49.7%.",
           "foreground_fraction": 0.4974591503267974
         },
         {
@@ -1783,7 +1783,7 @@
             0
           ],
           "first_frame_objects": 0,
-          "message": "Tijdpunt 0: 0 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 0.0%. Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.",
+          "message": "Timepoint 0: 0 predicted objects. 1/1 timepoints completed. Mask coverage: 0.0%. The model returned an empty mask; this is not evidence that the structure is absent.",
           "foreground_fraction": 0.0
         },
         {
@@ -1801,7 +1801,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 50.4%.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 50.4%.",
           "foreground_fraction": 0.5039412275326798
         }
       ],
@@ -1824,7 +1824,7 @@
     },
     {
       "name": "public-ki67-lymphoma-dab-roi",
-      "category": "Histologie & weefsel",
+      "category": "Histology & tissue",
       "kind": "Ki67 IHC DAB detail",
       "shape": [
         1,
@@ -1852,7 +1852,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 99.0%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 99.0%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.9899320602416992
         },
         {
@@ -1870,7 +1870,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 98.8%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 98.8%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.9880008697509766
         },
         {
@@ -1888,7 +1888,7 @@
             0
           ],
           "first_frame_objects": 1,
-          "message": "Tijdpunt 0: 1 voorspelde objecten. 1/1 tijdpunten berekend. Maskerdekking: 99.0%. Grote dekking: controleer voorgrond en achtergrond in de overlay.",
+          "message": "Timepoint 0: 1 predicted objects. 1/1 timepoints completed. Mask coverage: 99.0%. High coverage: inspect foreground and background in the overlay.",
           "foreground_fraction": 0.9898128509521484
         }
       ],

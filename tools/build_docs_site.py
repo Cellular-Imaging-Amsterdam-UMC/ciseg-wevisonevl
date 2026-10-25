@@ -18,8 +18,8 @@ E=html.escape
 
 def page(title,body,current=''):
     icon='<svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg>'
-    nav=''.join(f'<a href="{url}"'+(' aria-current="page"' if current==name else '')+f'>{label}</a>' for name,url,label in [('home','index.html','Overzicht'),('workflow','workflow.html','Workflow'),('examples','examples.html','Voorbeelden'),('research','research.html','Validatie')])
-    return f'''<!doctype html><html lang="nl" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: tekstgestuurde biologische segmentatie van OME-Zarr, automatische 3D-projectie en echte publieke voorbeeldresultaten."><title>{E(title)} · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Naar inhoud</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html">{icon} CISegWeVisOneVL</a><nav class="navlinks" aria-label="Hoofdnavigatie">{nav}<button type="button" class="theme-toggle" data-theme-toggle aria-label="Thema: Dark. Wissel naar Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="{REPO}">GitHub ↗</a></nav></div></header><main class="shell" id="main">{body}</main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Versie 0.1.0 · Resultaten van 25 oktober 2026</span><a href="{REPO}/blob/main/NOTICE.md">Bronnen & licenties</a></div></footer></body></html>'''
+    nav=''.join(f'<a href="{url}"'+(' aria-current="page"' if current==name else '')+f'>{label}</a>' for name,url,label in [('home','index.html','Overview'),('workflow','workflow.html','Workflow'),('examples','examples.html','Examples'),('research','research.html','Validation')])
+    return f'''<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>{E(title)} · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html">{icon} CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation">{nav}<button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="{REPO}">GitHub ↗</a></nav></div></header><main class="shell" id="main">{body}</main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.1.0 · Results from 25 October 2026</span><a href="{REPO}/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>'''
 
 
 def source_links(record):
@@ -35,14 +35,14 @@ def source_links(record):
 def category(record):
     name=record['name'];kind=record.get('kind','').lower()
     if '-em-' in name:return 'EM'
-    if any(x in name for x in ['skin','adipose','section','ki67','immunohistochemistry']):return 'Histologie & weefsel'
-    if any(x in name for x in ['neur','dendrit','brain','retina']):return 'Neuronaal & vaten'
-    if any(x in name for x in ['lily','diatoms','embryos']):return 'Overige structuren'
-    return 'Cellen & organoïden'
+    if any(x in name for x in ['skin','adipose','section','ki67','immunohistochemistry']):return 'Histology & tissue'
+    if any(x in name for x in ['neur','dendrit','brain','retina']):return 'Neurites & vessels'
+    if any(x in name for x in ['lily','diatoms','embryos']):return 'Other structures'
+    return 'Cells & organoids'
 
 
 def public_error(message):
-    return re.sub(r'[A-Za-z]:[\\/][^\n]+','<lokale bestandslocatie>',message or '')
+    return re.sub(r'[A-Za-z]:[\\/][^\n]+','<local file location>',message or '')
 
 
 def export_site(destination,inference):
@@ -51,9 +51,9 @@ def export_site(destination,inference):
     downloads=destination/'downloads';downloads.mkdir(exist_ok=True)
     records=json.loads((ROOT/'publicdata/catalog.json').read_text(encoding='utf-8-sig'))
     manifest=json.loads((inference/'manifest.json').read_text())
-    public=[];cards=[];md=['# Publieke voorbeelden en werkelijke segmentaties','',
-        'Alle voorbeelden gebruiken WeVisOne-VL-4B. De afbeeldingen tonen tijdpunt 0; bij Z-stacks wordt Max-projectie gebruikt. Labelbestanden bevatten alle met succes berekende tijdpunten. Geweigerde voorspellingen zijn geen lege achtergrondmaskers.','',
-        '[Interactieve HTML-galerij](examples.html) · [Workflow](workflow.md) · [Bronnen en validatie](research.md)','']
+    public=[];cards=[];md=['# Public examples and actual segmentation results','',
+        'All examples use WeVisOne-VL-4B. Images show timepoint 0; Z stacks use Max projection. Label files include all successfully computed timepoints. Rejected predictions are not empty background masks.','',
+        '[Interactive HTML gallery](examples.html) · [Workflow](workflow.md) · [Sources and validation](research.md)','']
     for record in records:
         name=record['name'];source=ROOT/'publicdata/ome-zarr'/(name+'.ome.zarr');field=inspect_store(source,[])[0]
         channels=tuple(map(int,record['channels'].split(',')))
@@ -64,7 +64,7 @@ def export_site(destination,inference):
                                                  'text':record['suggested_query'],'channels':record['channels']}]
         results=manifest['examples'].get(name,{}).get('labels',{})
         labels=[];measurement_rows=[];measurement_columns=[]
-        md.extend([f'## {name}','',f'![Bronbeeld: {name}]({image_file})','',f'**Vorm:** `{field.shape}` (TCZYX) · **type:** {category(record)} · **opslag:** {record.get("stored_bytes",0)/1e6:.2f} MB',''])
+        md.extend([f'## {name}','',f'![Source image: {name}]({image_file})','',f'**Shape:** `{field.shape}` (TCZYX) · **type:** {category(record)} · **storage:** {record.get("stored_bytes",0)/1e6:.2f} MB',''])
         for preset in presets:
             label=preset['name'];result=results.get(label,{})
             frames=result.get('frames',[]);available=[int(f['time_index']) for f in frames]
@@ -84,26 +84,26 @@ def export_site(destination,inference):
                 label_file=f'downloads/{name}-{label}-labels.npz'
                 np.savez_compressed(destination/label_file,labels=masks.astype(np.uint32),time_indices=np.array(available,dtype=np.int32),axes=np.array('tczyx'))
                 entry.update(overlay=overlay_file,download=label_file,first_frame_objects=count,
-                             message=f'Tijdpunt {available[0]}: {count} voorspelde objecten. {len(available)}/{field.timepoints} tijdpunten berekend.'+(' Latere tijdpunten geweigerd: '+error if state=='partial' else ''))
+                             message=f'Timepoint {available[0]}: {count} predicted objects. {len(available)}/{field.timepoints} timepoints completed.'+(' Later timepoints rejected: '+error if state=='partial' else ''))
                 coverage=float(frames[0].get('foreground_fraction',np.count_nonzero(masks[0,0,0])/masks[0,0,0].size))
                 entry['foreground_fraction']=coverage
-                entry['message']+=f' Maskerdekking: {coverage:.1%}.'
-                if frames[0].get('review_note'):entry['message']+=' Grote dekking: controleer voorgrond en achtergrond in de overlay.'
-                if count==0:entry['message']+=' Het model gaf een leeg masker; dit is geen bewijs dat de structuur afwezig is.'
+                entry['message']+=f' Mask coverage: {coverage:.1%}.'
+                if frames[0].get('review_note'):entry['message']+=' High coverage: inspect foreground and background in the overlay.'
+                if count==0:entry['message']+=' The model returned an empty mask; this is not evidence that the structure is absent.'
                 reference=source.parent/(name+'_reference.npy')
                 if reference.exists() and state=='complete':
                     truth=np.load(reference,allow_pickle=False)>0;prediction=masks[0,0,0]>0
                     intersection=int((truth&prediction).sum());denominator=int(truth.sum())+int(prediction.sum())
                     entry['foreground_dice']=2*intersection/denominator if denominator else 1.
-                    entry['message']+=f' Foreground Dice: {entry["foreground_dice"]:.3f} tegen consensus (geen instance-score).'
+                    entry['message']+=f' Foreground Dice: {entry["foreground_dice"]:.3f} against consensus (not an instance score).'
                 if result.get('measurements'):
                     with (inference/result['measurements']).open(encoding='utf-8-sig',newline='') as stream:
                         reader=csv.DictReader(stream);measurement_columns=list(reader.fieldnames);measurement_rows.extend(reader)
             else:
-                entry['message']='Voorspelling geweigerd: '+error if state=='failed' else 'Nog geen nieuwe modelvoorspelling beschikbaar.'
+                entry['message']='Prediction rejected: '+error if state=='failed' else 'No new model prediction is available yet.'
             labels.append(entry)
-            md.extend([f'### `{label}` — {state}','',f'Prompt: **{preset["text"]}** · kanaal `{preset.get("channels",record["channels"])}`','',entry['message'],''])
-            if entry['overlay']:md.extend([f'![Werkelijke voorspelling: {label}]({entry["overlay"]})','',f'[Download uint32-labels en tijdindexen]({entry["download"]})',''])
+            md.extend([f'### `{label}` — {state}','',f'Prompt: **{preset["text"]}** · channels `{preset.get("channels",record["channels"])}`','',entry['message'],''])
+            if entry['overlay']:md.extend([f'![Actual prediction: {label}]({entry["overlay"]})','',f'[Download uint32 labels and time indices]({entry["download"]})',''])
         csv_file=None
         if measurement_columns:
             csv_file=f'downloads/{name}-measurements.csv'
@@ -115,44 +115,46 @@ def export_site(destination,inference):
         details={k:selection[k] for k in ['source_level','source_level0_size_xy','roi_xywh','roi_start_zyx','roi_stop_zyx_exclusive','selected_z_index_in_roi','source_time_indices','operation'] if k in selection}
         if record.get('source_time_index') is not None:details['source_time_index']=record['source_time_index']
         attribution=record.get('attribution') or record.get('source_provenance',{}).get('attribution','')
-        item={'name':name,'category':category(record),'kind':record.get('kind','Publiek 2D-voorbeeld'),'shape':list(field.shape),
+        item={'name':name,'category':category(record),'kind':record.get('kind','Public 2D example'),'shape':list(field.shape),
               'timepoints':field.timepoints,'z_planes':field.z_planes,'input':image_file,'labels':labels,'sources':urls,
-              'license':record.get('license','Zie oorspronkelijke bron'),'attribution':attribution,'selection':details,
+              'license':record.get('license','See original source'),'attribution':attribution,'selection':details,
               'measurements':csv_file,'note':note,'search':name+' '+record.get('kind','')+' '+' '.join(p['text'] for p in presets)}
         public.append(item)
         first=labels[0];complete=sum(l['status']=='complete' for l in labels)
-        tags=f'<span class="tag">{field.timepoints} T · {field.z_planes} Z</span><span class="tag">{record.get("stored_bytes",0)/1e6:.1f} MB</span><span class="tag {"success" if complete==len(labels) else "failed"}">{complete}/{len(labels)} labels voltooid</span>'
-        status_names={'complete':'berekend','partial':'gedeeltelijk','failed':'geweigerd','pending':'nog niet berekend'}
+        tags=f'<span class="tag">{field.timepoints} T · {field.z_planes} Z</span><span class="tag">{record.get("stored_bytes",0)/1e6:.1f} MB</span><span class="tag {"success" if complete==len(labels) else "failed"}">{complete}/{len(labels)} labels completed</span>'
+        status_names={'complete':'computed','partial':'partial','failed':'rejected','pending':'not yet computed'}
         options=''.join(f'<option value="{i}">{E(l["name"])} · {status_names[l["status"]]}</option>' for i,l in enumerate(labels))
-        sources=''.join(f'<li><a href="{E(url,quote=True)}">{E(url)}</a></li>' for url in urls) or '<li>Gekopieerd uit de lokale PublicData-collectie; oorspronkelijke URL niet vastgesteld.</li>'
-        csv_link=f'<a href="{csv_file}" download>Metingen CSV ↓</a>' if csv_file else ''
-        cards.append(f'''<article class="sample" id="{E(name)}" data-name="{E(name)}"><div class="sample-top"><h2>{E(name)}</h2><div class="sample-kind">{E(item['kind'])}</div><div class="tags">{tags}</div></div><div class="comparison"><figure><a href="{image_file}" target="_blank" rel="noopener"><img loading="lazy" src="{image_file}" alt="Bronweergave {E(name)}"></a><figcaption>TIJDPUNT 0 · {'MAX Z-PROJECTIE' if field.z_planes>1 else '2D-BRONBEELD'}</figcaption></figure><figure data-prediction></figure></div><div class="sample-body"><label class="fine" for="label-{E(name)}">Segmentatielabel</label><select id="label-{E(name)}" data-label>{options}</select><p class="prompt" data-prompt></p><div class="status" data-status></div><div class="downloads"><a data-mask-download download hidden>Labelbestand NPZ ↓</a>{csv_link}</div><details class="metadata"><summary>Herkomst, selectie en gebruikte kanalen</summary><p><code>{E(str(field.shape))}</code> TCZYX</p><ul>{sources}</ul><p>{E(attribution)}</p><p>{E(item['license'])}</p><p>{E(note)}</p><pre>{E(json.dumps(details,indent=2))}</pre></details></div></article>''')
-        md.extend(['**Herkomst:**','']+[f'- {url}' for url in urls]+(['- Lokale PublicData-collectie; oorspronkelijke URL niet vastgesteld.'] if not urls else [])+['',f'**Attributie/licentie:** {attribution} · {item["license"]}','',note,''])
+        sources=''.join(f'<li><a href="{E(url,quote=True)}">{E(url)}</a></li>' for url in urls) or '<li>Copied from the local PublicData collection; original URL not established.</li>'
+        csv_link=f'<a href="{csv_file}" download>Measurements CSV ↓</a>' if csv_file else ''
+        cards.append(f'''<article class="sample" id="{E(name)}" data-name="{E(name)}"><div class="sample-top"><h2>{E(name)}</h2><div class="sample-kind">{E(item['kind'])}</div><div class="tags">{tags}</div></div><div class="comparison"><figure><a href="{image_file}" target="_blank" rel="noopener"><img loading="lazy" src="{image_file}" alt="Source view {E(name)}"></a><figcaption>TIMEPOINT 0 · {'MAX Z-PROJECTION' if field.z_planes>1 else '2D SOURCE VIEW'}</figcaption></figure><figure data-prediction></figure></div><div class="sample-body"><label class="fine" for="label-{E(name)}">Segmentation label</label><select id="label-{E(name)}" data-label>{options}</select><p class="prompt" data-prompt></p><div class="status" data-status></div><div class="downloads"><a data-mask-download download hidden>Label file NPZ ↓</a>{csv_link}</div><details class="metadata"><summary>Sources, selection and channel mapping</summary><p><code>{E(str(field.shape))}</code> TCZYX</p><ul>{sources}</ul><p>{E(attribution)}</p><p>{E(item['license'])}</p><p>{E(note)}</p><pre>{E(json.dumps(details,indent=2))}</pre></details></div></article>''')
+        md.extend(['**Sources:**','']+[f'- {url}' for url in urls]+(['- Local PublicData collection; original URL not established.'] if not urls else [])+['',f'**Attribution/license:** {attribution} · {item["license"]}','',note,''])
     counts={state:sum(l['status']==state for s in public for l in s['labels']) for state in ['complete','partial','failed','pending']}
     catalog={'model':'WeVisOne-VL-4B','projection':'Max','date':'2026-10-25','summary':counts,'examples':public}
     write_json(destination/'assets/examples.json',catalog)
     (destination/'examples.md').write_text('\n'.join(md).rstrip()+'\n',encoding='utf-8')
     categories=''.join(f'<option>{E(c)}</option>' for c in sorted({s['category'] for s in public}))
     data_json=json.dumps(catalog,ensure_ascii=False).replace('</','<\\/')
-    intro=f'''<section class="page-head"><div class="eyebrow">Publieke beelden · werkelijke modeluitvoer</div><h1>Biologie in beeld.<br><em>Maskers om te beoordelen.</em></h1><p>27 voorbeelden met structuren van hele coupes tot ultrastructuur. Kies een label om de echte voorspelling, prompt en herkomst te bekijken.</p></section><div class="callout warning"><strong>Een berekend masker is nog geen biologische validatie.</strong> {counts['complete']} labelruns zijn voltooid, {counts['partial']} gedeeltelijk en {counts['failed']} geweigerd. {counts['pending']} zijn nog niet berekend. Roze toont modelvoorspellingen, geen handmatige annotaties. Bij tijdreeksen toont de kaart het eerste berekende tijdpunt; downloads bevatten alle beschikbare tijdpunten.</div><div class="toolbar"><label class="skip" for="search">Zoek voorbeeld of structuur</label><input id="search" type="search" data-search placeholder="Zoek op beeldnaam of Engelse prompt…"><select aria-label="Beeldcategorie" data-category><option value="">Alle categorieën</option>{categories}</select><select aria-label="Resultaatstatus" data-status-filter><option value="">Alle resultaten</option><option value="complete">Voltooid</option><option value="partial">Gedeeltelijk</option><option value="failed">Geweigerd</option><option value="pending">Nog niet berekend</option></select><span class="result-count" data-count></span></div><div class="gallery">{''.join(cards)}</div><script type="application/json" id="gallery-data">{data_json}</script>'''
-    (destination/'examples.html').write_text(page('Voorbeeldgalerij',intro,'examples'),encoding='utf-8')
+    intro=f'''<section class="page-head"><div class="eyebrow">Public images · actual model output</div><h1>Biology in focus.<br><em>Masks to inspect.</em></h1><p>27 examples from whole tissue sections to ultrastructure. Select a label to inspect the actual prediction, prompt and source.</p></section><div class="callout warning"><strong>A computed mask is not biological validation.</strong> {counts['complete']} label runs completed, {counts['partial']} are partial and {counts['failed']} were rejected. {counts['pending']} remain uncomputed. Pink shows model predictions, not manual annotations. Time-series cards show the first computed frame; downloads contain all available frames.</div><div class="toolbar"><label class="skip" for="search">Search examples or structures</label><input id="search" type="search" data-search placeholder="Search by image name or English prompt…"><select aria-label="Image category" data-category><option value="">All categories</option>{categories}</select><select aria-label="Result status" data-status-filter><option value="">All results</option><option value="complete">Computed</option><option value="partial">Partial</option><option value="failed">Rejected</option><option value="pending">Not yet computed</option></select><span class="result-count" data-count></span></div><div class="gallery">{''.join(cards)}</div><script type="application/json" id="gallery-data">{data_json}</script>'''
+    (destination/'examples.html').write_text(page('Example gallery',intro,'examples'),encoding='utf-8')
     build_home(destination,counts)
-    for stem,title in [('workflow','Workflow & gebruik'),('research','Validatie & beperkingen')]:
+    for stem,title in [('workflow','Workflow & usage'),('research','Validation & limitations')]:
         source=destination/(stem+'.md')
-        content=markdown.markdown(source.read_text(encoding='utf-8'),extensions=['fenced_code','tables','toc'])
-        body=f'<header class="page-head"><div class="eyebrow">Documentatie · versie 0.1.0</div><h1>{E(title)}</h1></header><article class="prose">{content}</article>'
+        markdown_text=source.read_text(encoding='utf-8')
+        if markdown_text.startswith('# '):markdown_text=markdown_text.split('\n',1)[1]
+        content=markdown.markdown(markdown_text,extensions=['fenced_code','tables','toc'])
+        body=f'<header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>{E(title)}</h1></header><article class="prose">{content}</article>'
         (destination/(stem+'.html')).write_text(page(title,body,stem),encoding='utf-8')
     (destination/'.nojekyll').write_text('')
     print(json.dumps({'examples':len(public),'labels':counts,'site':str(destination)}),flush=True)
 
 
 def build_home(destination,counts):
-    body=f'''<section class="hero"><div><div class="eyebrow">OME-Zarr · Bilayers · BIOMERO</div><h1>Van tekst naar<br><em>biologische</em><br>structuren.</h1><p>Beschrijf wat je zoekt. CISegWeVisOneVL maakt pixelmaskers met maximaal vier onafhankelijke prompts — voor EM-organellen, weefsel, vaten en meer.</p><div class="actions"><a class="button primary" href="examples.html">Bekijk echte voorbeelden ↗</a><a class="button" href="workflow.html#lokaal-starten">Lokaal starten</a></div><p class="fine">WeVisOne-VL-4B · bestaande foundation-modelgewichten · onderzoekstoepassing</p></div><div class="hero-visual"><div class="image-mosaic"><img src="gallery/public-em-liver-2d-input.webp" alt="FIB-SEM met mitochondriën in leverweefsel"><img src="gallery/public-skin-input.webp" alt="Histologische huidlagen"><img src="gallery/public-lily-stem-input.webp" alt="Vaatbundels in een plantstengel"></div><div class="visual-caption"><span>ANDERE STRUCTUREN. ÉÉN WORKFLOW.</span><span>27 BEELDEN</span></div></div></section>
-<div class="stats"><div><strong>4</strong><span>onafhankelijke prompts per beeld</span></div><div><strong>2D + 3D</strong><span>automatische projectie per tijdpunt</span></div><div><strong>1 CSV</strong><span>shape en intensiteit van elk kanaal</span></div><div><strong>27</strong><span>publieke voorbeelden met echte resultaten</span></div></div>
-<section class="section"><div class="section-head"><div><div class="eyebrow">Van invoer tot resultaat</div><h2>Een kleine, gerichte<br>segmentatieworkflow.</h2></div><p>Gewone beelden, tijdreeksen en HCS-screens volgen dezelfde route. De bronstore blijft intact; resultaten krijgen een eigen OME-Zarr-store en meetbestand.</p></div><div class="steps"><div class="step"><span class="number">01 / INVOER</span><h3>Open OME-Zarr</h3><p>NGFF 0.4 / Zarr v2. Alle velden worden vooraf gecontroleerd. Kanalen zijn één-gebaseerd.</p></div><div class="step"><span class="number">02 / PROJECTIE</span><h3>Max of Mean</h3><p>Bij Z &gt; 1 wordt iedere stack per kanaal en tijdpunt naar 2D geprojecteerd. Max is standaard; Mean schrijft float32.</p></div><div class="step"><span class="number">03 / INFERENTIE</span><h3>Beschrijf de structuur</h3><p>Kies tot vier labels, Engelse prompts en kanaalmapping. Eén 4B-model wordt lokaal geladen en gebruikt de offline modelcache.</p></div><div class="step"><span class="number">04 / UITVOER</span><h3>Beoordeel & meet</h3><p>Onafhankelijke uint32-labelgroepen, overlays, herkomst en één CSV met alle beeldkanalen. Labels mogen elkaar overlappen.</p></div></div></section>
-<section class="section"><div class="section-head"><div><div class="eyebrow">Open resultaten</div><h2>Bekijk wat het model<br>daadwerkelijk doet.</h2></div><p>De galerij bevat zowel bruikbare maskers als fouten. {counts['complete']} labelruns zijn voltooid; geweigerde of gedeeltelijke uitvoer staat apart vermeld. Geen voorspelling is als handmatige waarheid gepresenteerd.</p></div><div class="feature-links"><a class="feature-card" href="examples.html"><small>01 / Galerij</small><h3>Beelden, labels & herkomst ↗</h3><p>EM, histologie, plantstructuren, neurieten en meer. Filter op categorie en bekijk elk label afzonderlijk.</p></a><a class="feature-card" href="workflow.html"><small>02 / Gebruik</small><h3>Van launcher tot CLI ↗</h3><p>Installatie, projecties, kanaalkeuze, parameters, labelbetekenis en de compacte CSV.</p></a><a class="feature-card" href="research.html"><small>03 / Evidence</small><h3>Validatie & beperkingen ↗</h3><p>31 tests, echte GPU-runs, readercontroles en de grenzen van een algemeen VLM voor microscopie.</p></a></div></section>
-<section class="section split"><div><div class="eyebrow">Aan de slag</div><h2>Lokaal beginnen.</h2><p>De Windows-launcher en de headless wrapper gebruiken dezelfde parameters. Modelgewichten en invoerdata blijven buiten Git.</p><a class="button" href="{REPO}">Code op GitHub ↗</a></div><div><pre><code>git clone {REPO}.git\ncd ciseg-wevisonevl\ncreate_env.cmd\n.venv\\Scripts\\python tools\\download_models.py\nlaunch.cmd</code></pre><p class="fine">Python 3.12 via uv · NVIDIA GPU getest op RTX A5000 24 GB. De Docker-recepten zijn voorbereid; een BIOMERO/Slurm-deploy is nog niet uitgevoerd.</p></div></section>'''
-    (destination/'index.html').write_text(page('Biologische segmentatie met tekst',body,'home'),encoding='utf-8')
+    body=f'''<section class="hero"><div><div class="eyebrow">OME-Zarr · Bilayers · BIOMERO</div><h1>From words to<br><em>biological</em><br>structures.</h1><p>Describe what you need. CISegWeVisOneVL creates pixel masks with up to four independent prompts — for EM organelles, tissue, vessels and more.</p><div class="actions"><a class="button primary" href="examples.html">Explore actual results ↗</a><a class="button" href="workflow.html#getting-started">Get started locally</a></div><p class="fine">WeVisOne-VL-4B · existing foundation-model weights · research workflow</p></div><div class="hero-visual"><div class="image-mosaic"><img src="gallery/public-em-liver-2d-input.webp" alt="FIB-SEM showing mitochondria in liver tissue"><img src="gallery/public-skin-input.webp" alt="Histological skin layers"><img src="gallery/public-lily-stem-input.webp" alt="Vascular bundles in a plant stem"></div><div class="visual-caption"><span>DIFFERENT STRUCTURES. ONE WORKFLOW.</span><span>27 IMAGES</span></div></div></section>
+<div class="stats"><div><strong>4</strong><span>independent prompts per image</span></div><div><strong>2D + 3D</strong><span>automatic projection per timepoint</span></div><div><strong>1 CSV</strong><span>shape and intensity for every channel</span></div><div><strong>27</strong><span>public examples with actual predictions</span></div></div>
+<section class="section"><div class="section-head"><div><div class="eyebrow">From input to result</div><h2>A small, focused<br>segmentation workflow.</h2></div><p>Regular images, time series and HCS screens follow the same route. Source stores remain intact; results receive a separate OME-Zarr store and measurement table.</p></div><div class="steps"><div class="step"><span class="number">01 / INPUT</span><h3>Open OME-Zarr</h3><p>NGFF 0.4 / Zarr v2. Every field is checked before inference. Channel numbers are one-based.</p></div><div class="step"><span class="number">02 / PROJECTION</span><h3>Max or Mean</h3><p>For Z &gt; 1, each channel and timepoint is projected to 2D. Max is the default; Mean writes float32.</p></div><div class="step"><span class="number">03 / INFERENCE</span><h3>Describe the structure</h3><p>Select up to four labels, English descriptions and channel mappings. One 4B model uses the offline local cache.</p></div><div class="step"><span class="number">04 / OUTPUT</span><h3>Inspect and measure</h3><p>Independent uint32 labels, overlays, provenance and one CSV covering every channel. Prompt labels may overlap.</p></div></div></section>
+<section class="section"><div class="section-head"><div><div class="eyebrow">Open results</div><h2>See what the model<br>actually predicts.</h2></div><p>The gallery includes useful masks and failures. {counts['complete']} label runs completed; rejected or partial outputs are marked separately. Predictions are never presented as manual ground truth.</p></div><div class="feature-links"><a class="feature-card" href="examples.html"><small>01 / Gallery</small><h3>Images, labels and sources ↗</h3><p>EM, histology, plant structures, neurites and more. Filter by category and inspect each label.</p></a><a class="feature-card" href="workflow.html"><small>02 / Usage</small><h3>From launcher to CLI ↗</h3><p>Setup, projections, channels, parameters, output semantics and compact CSV measurements.</p></a><a class="feature-card" href="research.html"><small>03 / Evidence</small><h3>Validation and limitations ↗</h3><p>31 tests, actual GPU runs, reader checks and the limitations of a general VLM for microscopy.</p></a></div></section>
+<section class="section split"><div><div class="eyebrow">Getting started</div><h2>Begin locally.</h2><p>The Windows launcher and headless wrapper use the same parameters. Models and full input stores stay outside Git.</p><a class="button" href="{REPO}">Code on GitHub ↗</a></div><div><pre><code>git clone {REPO}.git\ncd ciseg-wevisonevl\ncreate_env.cmd\n.venv\\Scripts\\python tools\\download_models.py\nlaunch.cmd</code></pre><p class="fine">Python 3.12 via uv · tested on RTX A5000 24 GB. Docker recipes are prepared; a BIOMERO/Slurm deployment has not been performed.</p></div></section>'''
+    (destination/'index.html').write_text(page('Text-prompted biological segmentation',body,'home'),encoding='utf-8')
 
 
 if __name__=='__main__':

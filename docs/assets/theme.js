@@ -11,7 +11,7 @@
     if (!button) return;
     const update = () => {
       button.setAttribute('aria-pressed', String(theme === 'dark'));
-      button.setAttribute('aria-label', `Thema: ${theme === 'dark' ? 'Dark' : 'Bright'}. Wissel naar ${theme === 'dark' ? 'Bright' : 'Dark'}`);
+      button.setAttribute('aria-label', `Theme: ${theme === 'dark' ? 'Dark' : 'Bright'}. Switch to ${theme === 'dark' ? 'Bright' : 'Dark'}`);
     };
     button.addEventListener('click', () => {
       theme = theme === 'dark' ? 'bright' : 'dark';

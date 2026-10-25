@@ -1,5 +1,8 @@
 # CISegWeVisOneVL working instructions
 
+- Write all Markdown files, repository documentation, GitHub Pages content, descriptors, human-readable Python string literals, docstrings, comments, gallery labels/status messages, and user-facing UI text in English. Preserve proper names and original source titles in attribution. Keep future additions and updates in English. Do not rename established technical parameter keys or file formats solely for translation.
+- GitHub Pages provides a Bright/Dark toggle on every page. Dark is the default; remember the visitor's explicit selection across pages and reloads. Do not recolor or invert scientific images when switching themes.
+
 - Use `.venv/Scripts/python.exe` explicitly on this Windows workstation; Python 3.12 is required by the pinned upstream SciPy stack.
 - Keep `.venv/`, `models/`, `publicdata/`, input/output stores and test results ignored by Git.
 - Segment 2D inputs and automatically project Z>1 inputs per channel/timepoint, with advanced Max (default) or Mean. Process all timepoints and all HCS fields. Never mix the time and Z axes or invent spatial calibration.

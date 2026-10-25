@@ -1,6 +1,6 @@
 citations:
 - name: CISegWeVisOneVL
-  doi: https://github.com/Cellular-Imaging-Amsterdam-UMC/cisegmentation
+  doi: https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl
   license: MIT
   description: CISegWeVisOneVL uses WeVisOne-VL-4B to segment OME-Zarr images with up to four text prompts. 3D images are automatically projected to 2D per timepoint using Max (default) or Mean. Supports time series and HCS screens and writes one CSV with basic shape and per-channel intensity measurements.
 - name: WeVisOne-VL

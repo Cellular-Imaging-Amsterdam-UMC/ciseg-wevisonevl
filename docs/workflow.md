@@ -1,13 +1,13 @@
-# De workflow
+# The workflow
 
-CISegWeVisOneVL segmenteert OME-Zarr-beelden met WeVisOne-VL-4B en maximaal vier
-onafhankelijke tekstprompts. Het gebruikt bestaande modelgewichten. De voorbeelden
-op deze website laten de daadwerkelijke prestaties en fouten zien.
+CISegWeVisOneVL segments OME-Zarr images with WeVisOne-VL-4B and up to four
+independent text prompts. It uses existing weights. The [gallery](examples.html)
+shows actual predictions, including failures.
 
-## Lokaal starten
+## Getting started
 
-Installeer Git en [uv](https://docs.astral.sh/uv/getting-started/installation/).
-Gebruik vervolgens op Windows:
+Install Git and [uv](https://docs.astral.sh/uv/getting-started/installation/), then
+run these commands on Windows:
 
 ```powershell
 git clone https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl.git
@@ -17,66 +17,61 @@ create_env.cmd
 launch.cmd
 ```
 
-De omgeving gebruikt Python 3.12, PyTorch 2.11/CUDA 12.6 en Transformers 5.12.1.
-De vastgezette 4B-snapshot neemt circa 19,37 GB in beslag en bevat de vereiste
-pixeldecoder. Inferentie gebruikt uitsluitend de lokale cache. CPU-uitvoering
-is beschikbaar; de GPU-runs zijn uitgevoerd op een RTX A5000 met 24 GB VRAM.
+The environment uses Python 3.12, PyTorch 2.11/CUDA 12.6 and Transformers 5.12.1.
+The pinned 4B snapshot takes approximately 19.37 GB, including the pixel decoder.
+Inference uses only the local cache. GPU runs were tested on an RTX A5000 with
+24 GB VRAM; CPU execution is also available.
 
-Kies in de launcher een voorbeeld of invoermap. Gebruik **Check input** en daarna
-**Run local Python**. Een leeg promptveld schakelt de betreffende stap uit.
-Bestaande resultaten worden niet overschreven: gebruik voor elke nieuwe run een
-nieuwe uitvoermap.
+Select an example or input directory, use **Check input**, then **Run local
+Python**. Blank prompts disable their slots. Completed results are never
+overwritten: choose a new output directory for each run.
 
-## Beelden en kanalen
+## Images and channels
 
-- Invoer: NGFF 0.4 / Zarr v2, met expliciete asmetadata.
-- Gewone beelden, tijdreeksen en alle velden van een HCS-screen worden verwerkt.
-- `1` geeft één kanaal als grijswaardeweergave aan het model.
-- `1,2,3` wijst drie beeldkanalen toe aan rood, groen en blauw.
-- Voor uint8-RGB-histologie houdt **Original uint8 RGB** de kleuren intact.
-- Percentielcontrast maakt een aparte modelweergave; de intensiteitsmetingen
-  gebruiken de oorspronkelijke pixels of projectie.
+- Input: NGFF 0.4/Zarr v2 with explicit axes.
+- Regular images, time series and all HCS screen fields are processed.
+- `1` supplies a single channel as a grayscale RGB view.
+- `1,2,3` maps three channels to red, green and blue.
+- **Original uint8 RGB** retains histology colors.
+- Percentile contrast changes only the model view. Measurements use original
+  2D pixels or the projection before normalization.
 
-Een veld mag maximaal 16 megapixels per XY-vlak bevatten. De modelweergave wordt
-standaard naar maximaal 1024 pixels aan de langste zijde verkleind, instelbaar
-van 128 tot 2048. Maskers komen terug op de oorspronkelijke XY-coördinaten.
-Automatische tegels met objectfusie zijn niet geïmplementeerd.
+Each XY plane is limited to 16 megapixels. The model view has a maximum side of
+1024 pixels by default, configurable from 128 to 2048. Masks return to native XY
+coordinates. Automatic tiling with object fusion is not implemented.
 
-## Automatische 3D-projectie
+## Automatic 3D projection
 
-Bij meer dan één Z-vlak maakt de workflow automatisch een projectie per kanaal
-en **per tijdpunt**. De geavanceerde Bilayers-optie biedt:
+Z stacks are automatically projected for **each channel and timepoint**. The
+advanced Bilayers option provides:
 
-| Optie | Gedrag | Pixeltype |
+| Option | Operation over Z | Output pixel type |
 | --- | --- | --- |
-| **Max** — standaard | Hoogste pixelwaarde over Z | Oorspronkelijk pixeltype |
-| **Mean** | Gemiddelde pixelwaarde over Z | float32 |
+| **Max** — default | Highest value at each pixel | Original dtype |
+| **Mean** | Average value at each pixel | float32 |
 
-De tijdas wordt nooit samengevoegd. Reeds 2D-invoer behoudt haar pixelwaarden.
-De uitvoer gebruikt voor OMERO de TCZYX-indeling met één Z-vlak, terwijl de
-bronvolume onaangeraakt blijft. XY- en tijdkalibratie blijven behouden.
-Input-label-ID's uit een 3D-volume worden niet numeriek geprojecteerd.
+Timepoints are never merged. Existing 2D inputs keep their values. Output uses
+TCZYX with Z=1 for OMERO compatibility; source volumes remain untouched. XY/time
+calibration is retained. Input volume label IDs are not projected numerically.
 
-Bij EM kunnen projecties verschillende membranen en organellen op elkaar leggen.
-De galerij bevat daarom ook expliciete 2D-doorsneden uit de EM-volumes.
+EM projections can superimpose membranes and organelles. The gallery therefore
+also contains explicit 2D sections from the EM volumes.
 
-## Vier onafhankelijke labels
+## Four independent labels
 
-Elke actieve stap heeft een unieke labelnaam, een Engelse beschrijving en een
-kanaalkeuze. Mogelijke voorbeelden zijn `tissue`, `vessels`, `mitochondria` en
-`dab_positive`. Verschillende promptgroepen kunnen overlappen.
+Each slot has a unique label name, English description and channel selection.
+Examples include `tissue`, `vessels`, `mitochondria` and `dab_positive`. Prompt
+groups may overlap, such as vessels inside a tissue region.
 
-**Instances** bewaart één ID per door het model voorspeld object. Binnen één
-groep wint bij overlap de hoogste pixelwaarschijnlijkheid; de eerste voorspelling
-wint exacte ties. **Semantic** voegt alle objecten binnen één prompt samen tot
-een binair masker. De standaard waarschijnlijkheidsdrempel is 0,5.
+**Instances** retains one ID per predicted object. Highest pixel probability owns
+overlap within a prompt; the first prediction wins ties. **Semantic** merges a
+prompt into a binary mask. The default probability threshold is 0.5.
 
-Een afwezige structuur kan een leeg masker opleveren. Dat is een modelvoorspelling,
-geen bewijs van afwezigheid. Een ongeldige objectrespons of afgebroken generatie
-wordt geweigerd en als mislukte run bewaard. De workflow repareert geen coördinaten
-en koppelt geen maskers aan de verkeerde objecttokens.
+Empty predictions are not proof of absence. Invalid object coordinates or
+truncated generation are rejected and retained for diagnosis. The adapter never
+invents coordinates or silently decodes misaligned objects.
 
-## Commandoregel
+## Command line
 
 ```powershell
 .venv\Scripts\python wrapper.py `
@@ -87,44 +82,43 @@ en koppelt geen maskers aan de verkeerde objecttokens.
   --normalization dtype --projection Max --device cuda:0
 ```
 
-Gebruik `--preflight-only` om alle veldmetadata te controleren zonder modelladen
-of uitvoer te schrijven. De parameters staan in `config.yaml`, de Bilayers-descriptor.
+`--preflight-only` checks all field metadata without loading a model or writing
+results. `config.yaml` is the Bilayers descriptor for the same parameters.
 
-## Uitvoer en CSV-metingen
+## Outputs and measurements
 
-Per invoer ontstaat `<bron>__wevisonevl.ome.zarr`, met per beeld of screenveld
-`labels/wevisone_<labelnaam>/`. Labelpiramides gebruiken nearest-neighbour;
-projectiepiramides gebruiken area-gemiddelden. De runrapportage bewaart prompts,
-contrastgrenzen, modelrevisie, coördinaten, tellingen en looptijden.
+Each input creates `<source>__wevisonevl.ome.zarr`, with native groups under
+`labels/wevisone_<name>/`. Label pyramids use nearest-neighbor reduction;
+projection pyramids use area averaging. Run reports retain prompts, channels,
+contrast limits, model revisions, coordinates, counts and timings.
 
-Eén **measurements.csv** in de uitvoermap bevat alle beelden, velden, tijdpunten
-en promptgroepen van de volledige run. Elke rij beschrijft één label-ID.
+One **measurements.csv** covers every image, field, timepoint and prompt in the
+run. Each row describes one label ID.
 
-| Groep | Kolommen |
+| Group | Fields |
 | --- | --- |
-| Identificatie | Bron, uitvoer, veld, well, tijdpunt, prompt en label-ID |
-| Oppervlakte en positie | Pixeloppervlakte, centroid, bounding box met exclusief maximum |
-| Vorm | Omtrek, equivalente diameter, hoofd-/nevenas, eccentriciteit, soliditeit, extent en oriëntatie |
-| Fysieke oppervlakte | µm², alleen bij bekende positieve NGFF-XY-kalibratie |
-| Ieder beeldkanaal | Geldige pixels, minimum, maximum, gemiddelde en totale intensiteit |
+| Identification | Source, output, field, well, timepoint, prompt and label ID |
+| Area and position | Pixel area, centroid, bounding box with exclusive maximum |
+| Shape | Perimeter, equivalent diameter, major/minor axes, eccentricity, solidity, extent and orientation |
+| Physical area | µm² only with positive NGFF XY calibration and known units |
+| Every image channel | Valid pixel count, minimum, maximum, mean and total intensity |
 
-Ook kanalen buiten de modelinvoer worden gemeten. Bij 3D-invoer meten we op de
-projectie, vóór RGB-normalisatie. NaN/Inf-pixels tellen niet mee; het geldige
-pixelaantal maakt dit zichtbaar. Een volledig lege run schrijft alleen de
-CSV-kolomkoppen. Een mislukte run bewaart `measurements.partial-*` en publiceert
-geen voltooide CSV.
+Channels outside the model input are measured too. For 3D input, measurements use
+the projection before normalization. NaN/Inf pixels are excluded and reflected in
+the valid count. Empty runs write headers. Failed runs retain `measurements.partial-*`
+instead of a completed CSV. Semantic label 1 describes the full merged region.
 
-## Bilayers en BIOMERO
+## Bilayers and BIOMERO
 
-De zichtbare naam is **CISegWeVisOneVL**; de configuratiesleutel kan
-`cisegwevisonevl` zijn. De descriptor declareert de CSV als measurement-uitvoer
-met formaat CSV en één bestand. De geïnstalleerde BIOMERO-parser is hierop getest.
+The display name is **CISegWeVisOneVL**; the configuration key can be
+`cisegwevisonevl`. The CSV is declared as one measurement output with CSV format;
+the installed BIOMERO parser was tested with this declaration.
 
-De Docker-recepten voor de headless workflow en aparte interne modelcache zijn
-voorbereid. Er is nog geen nieuwe image gebouwd of in Slurm/BIOMERO geïnstalleerd.
-Een daadwerkelijke attachment-import hoort bij die volgende validatiefase.
+Headless workflow and internal model-cache Docker recipes are prepared. No new
+image has been built or installed in Slurm/BIOMERO. A live attachment-import
+test remains part of that later validation phase.
 
-## Voorbeelden reproduceren
+## Reproducing the examples
 
 ```powershell
 .venv\Scripts\python tools\prepare_publicdata.py --organoids
@@ -132,9 +126,9 @@ Een daadwerkelijke attachment-import hoort bij die volgende validatiefase.
 .venv\Scripts\python -m pytest -q
 ```
 
-De aanvullende voorbeelden gebruiken de optionele `requirements_publicdata.txt`
-en de curatiescripts. Een deel komt uit de oorspronkelijke lokale PublicData-
-collectie. De publieke galerij vermeldt oorspronkelijke URLs waar die bekend
-zijn, selectiegrenzen, resoluties en licentie-informatie. De modelgewichten en
-volledige brondata zijn niet in Git opgeslagen. Downloadbare galerijlabels zijn
-afgeleide modelresultaten, geen handmatige referentiemaskers.
+Additional examples use `requirements_publicdata.txt` and curation scripts.
+Some originate from the original local PublicData collection. The gallery records
+known URLs, selections, resolutions and licenses. Full source stores and models
+are excluded from Git. Downloaded gallery labels are model-derived results,
+not manual ground truth. NPZ files contain uint32 `labels`, `time_indices` and
+the axis string `tczyx`; previews show the first timepoint.
