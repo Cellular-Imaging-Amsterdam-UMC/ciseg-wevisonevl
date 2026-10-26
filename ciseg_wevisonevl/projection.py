@@ -7,6 +7,7 @@ import numpy as np
 import zarr
 from numcodecs import Blosc
 from .io import canonical_axes, canonical_transforms, inspect_store
+from .streaming import blocks, read_window, build_pyramid_level
 
 
 def area_downsample(plane):
@@ -42,7 +43,7 @@ def update_xml(output, method):
             tree.write(file,encoding="utf-8",xml_declaration=True)
 
 
-def prepare_output(source, output, fields, prompts, method, input_labels='keep'):
+def prepare_output(source, output, fields, prompts, method, input_labels='keep', *, allow_large=False):
     if input_labels not in ('keep', 'remove'):
         raise ValueError('Choose keep or remove for existing input labels')
     projected=[f for f in fields if f.z_planes>1]
@@ -100,11 +101,12 @@ def prepare_output(source, output, fields, prompts, method, input_labels='keep')
             factor*=2
         for time_index in range(field.timepoints):
             for channel in range(1,sizes.get("c",1)+1):
-                plane=field.pixels([channel],time_index,method)[channel-1]
-                for level in range(len(levels)):
-                    group[str(level)][time_index,channel-1,0]=plane
-                    if level<len(levels)-1:
-                        plane=area_downsample(plane)
+                for window in blocks(field.cyx_shape[1:]):
+                    y,x,y1,x1=window
+                    plane=read_window(field,[channel],time_index,method,window)[channel-1]
+                    group['0'][time_index,channel-1,0,y:y1,x:x1]=plane
+                for level in range(1,len(levels)):
+                    build_pyramid_level(group[str(level-1)],group[str(level)],time_index,channel-1)
         ms=deepcopy(field.multiscale)
         ms.update(axes=axes,datasets=levels)
         if "coordinateTransformations" in ms:
@@ -121,4 +123,4 @@ def prepare_output(source, output, fields, prompts, method, input_labels='keep')
                                                    "existing_volume_labels":"omitted from projected output; retained in source"}
     if projected:
         update_xml(output,method)
-    return {field.path:field for field in inspect_store(output,prompts)}
+    return {field.path:field for field in inspect_store(output,prompts,allow_large=allow_large)}

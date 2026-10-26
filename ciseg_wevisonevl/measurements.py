@@ -16,7 +16,7 @@ BASE_COLUMNS=["input_store","output_store","field_path","well_path","field_id","
               "bbox_min_y_um","bbox_min_x_um","bbox_max_y_um_exclusive","bbox_max_x_um_exclusive",
               "perimeter_px","perimeter_um","perimeter_um_method","equivalent_diameter_px","equivalent_diameter_um",
               "major_axis_length_px","major_axis_length_um","minor_axis_length_px","minor_axis_length_um",
-              "eccentricity","eccentricity_px","solidity","extent","orientation_rad","orientation_px_rad","shape_basis"]
+              "eccentricity","eccentricity_px","solidity","extent","orientation_rad","orientation_px_rad","shape_basis","measurement_method"]
 
 
 def physical_calibration(field):

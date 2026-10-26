@@ -41,6 +41,12 @@ class Settings:
     projection: str = "Max"
     overwrite: int = 0
     input_labels: str = "keep"
+    processing_mode: str = "whole"
+    tile_size: int = 2048
+    tile_overlap: int = 256
+    tile_match_threshold: float = 0.5
+    skip_blank_tiles: int = 0
+    release_gpu_cache: int = 1
 
     def validate(self, prompts):
         if not 1 <= len(prompts) <= 4:
@@ -69,6 +75,16 @@ class Settings:
             raise ValueError("Choose Max or Mean for the automatic Z projection")
         if self.overwrite not in (0, 1):
             raise ValueError("Choose 0 to keep existing results or 1 to replace them")
+        if self.processing_mode not in ('whole', 'tiled'):
+            raise ValueError('Choose whole or tiled processing')
+        if not 256 <= self.tile_size <= 4096 or not 0 <= self.tile_overlap < self.tile_size/2:
+            raise ValueError('Tile size must be 256-4096 and overlap must be less than half the tile size')
+        if not math.isfinite(self.tile_match_threshold) or not 0 < self.tile_match_threshold <= 1:
+            raise ValueError('Tile match threshold must be in (0,1]')
+        if self.skip_blank_tiles not in (0,1):
+            raise ValueError('Choose 0 or 1 for blank tile skipping')
+        if self.release_gpu_cache not in (0,1):
+            raise ValueError('Choose 0 or 1 for releasing unused GPU cache')
         if self.input_labels not in ('keep', 'remove'):
             raise ValueError('Choose keep or remove for existing input labels')
 

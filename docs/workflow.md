@@ -99,9 +99,13 @@ launcher remains available through `launch.cmd`.
 - Rendering changes only the model view. Measurements include every source
   channel and use original 2D pixels or the projection before normalization.
 
-Each XY plane is limited to 16 megapixels. The model view has a maximum side of
-1024 pixels by default, configurable from 128 to 2048. Masks return to native XY
-coordinates. Automatic tiling with object fusion is not implemented.
+Whole-image mode is limited to 16 megapixels per XY plane. The unreleased Python
+development version also offers **Image processing → Tile by tile (large scans)**
+under Advanced, or `--processing-mode tiled`. Defaults are 2048-pixel source
+tiles and 256-pixel overlap. The model view remains independently limited to
+1024 pixels by default, configurable up to 2048. Masks return to native XY
+coordinates. See [large-image controls and measurements](tiling.html).
+The released v0.1.0 container does not include this tiled route.
 
 ## Automatic 3D projection
 
@@ -218,7 +222,8 @@ mode to find phase contrast, EM, fluorescence and immunohistochemistry examples.
 EM examples are native 2D sections without Z projections. This is positive
 demonstration selection, not a representative accuracy benchmark.
 
-The [large-image study](tiling.html) benchmarks tile sizes and object fusion and
-proposes advanced user controls. A bounded research prototype works on controlled
-fields, but production gigapixel streaming is not enabled. The 16-megapixel guard
-continues to apply to input/projection and measurement processing.
+The [large-image guide](tiling.html) describes disk-backed stitching and streamed
+measurements in the development Python workflow, alongside the earlier organoid
+experiment. The whole-image limit remains. Large scans require explicit tiled
+mode; labels remain independent per prompt, field and timepoint. Per-tile
+anatomical predictions need review even when processing and stitching succeed.

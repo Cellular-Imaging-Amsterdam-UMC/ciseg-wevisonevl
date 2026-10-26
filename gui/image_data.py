@@ -6,15 +6,28 @@ import zarr
 
 from ciseg_wevisonevl.inference import render_rgb
 from ciseg_wevisonevl.io import safe_path
+from ciseg_wevisonevl.streaming import overview_field, sampled_overview, read_window
 
 
-def _section(array, names, time_index, z_index):
-    indices = {'t': time_index, 'c': 0, 'z': z_index, 'y': slice(None), 'x': slice(None)}
+def _section(array, names, time_index, z_index, step_yx=(1,1), shape=None):
+    indices = {'t': time_index, 'c': 0, 'z': z_index,
+               'y': slice(0,shape[0]*step_yx[0] if shape else None,step_yx[0]),
+               'x': slice(0,shape[1]*step_yx[1] if shape else None,step_yx[1])}
     if len(names) != array.ndim or len(set(names)) != len(names) or not {'x', 'y'} <= set(names) or not set(names) <= set(indices):
         raise ValueError('Unsupported label axes')
     selection = tuple(indices[a] if a in 'xy' or size > 1 else 0 for a, size in zip(names, array.shape))
     plane = np.asarray(array[selection])
     return plane.T if [a for a in names if a in 'xy'] == ['x', 'y'] else plane
+
+
+def xy_scale(multiscale, dataset):
+    names = [a['name'] if isinstance(a,dict) else a for a in multiscale['axes']]
+    scale = {'y':1.,'x':1.}
+    for tr in dataset.get('coordinateTransformations',[]) + multiscale.get('coordinateTransformations',[]):
+        if tr['type'] == 'scale':
+            for axis,value in zip(names,tr['scale']):
+                if axis in scale:scale[axis] *= value
+    return np.array([scale['y'],scale['x']])
 
 
 def load_frame(field, time_index, channels, normalization, projection, z_index=None):
@@ -24,17 +37,16 @@ def load_frame(field, time_index, channels, normalization, projection, z_index=N
         raise ValueError(f'Choose one channel or three RGB channels between 1 and {field.cyx_shape[0]}')
     root = zarr.open_group(str(field.store), mode='r')
     group = root[field.path] if field.path else root
-    if z_index is None:
-        planes = field.pixels(channels, time_index, projection)
+    if z_index is not None and not 0 <= z_index < field.z_planes:
+        raise ValueError('Z section is outside the image')
+    displayed = overview_field(field,2048)
+    if displayed:
+        planes = read_window(displayed,channels,time_index,projection,z_index=z_index)
+        scale = xy_scale(displayed.multiscale,displayed.multiscale['datasets'][0])/xy_scale(field.multiscale,field.multiscale['datasets'][0])
     else:
-        if not 0 <= z_index < field.z_planes:
-            raise ValueError('Z section is outside the image')
-        array = group[field.dataset]
-        planes = {}
-        for channel in set(channels):
-            selection = {'t': time_index, 'c': channel-1, 'z': z_index, 'y': slice(None), 'x': slice(None)}
-            plane = np.asarray(array[tuple(selection[a] for a in field.names)])
-            planes[channel-1] = plane.T if [a for a in field.names if a in 'xy'] == ['x', 'y'] else plane
+        # Single-resolution scans still load in bounded blocks. Section selection is preserved.
+        planes,step = sampled_overview(field,channels,time_index,projection,max_side=2048,z_index=z_index)
+        scale = np.array([step,step])
     # Completed Mean projections retain their unsigned source range in provenance.
     origin = group.attrs.get('ciseg_wevisonevl_projection', {})
     if normalization == 'dtype' and group[field.dataset].dtype.kind == 'f' and origin.get('method') == 'Mean':
@@ -43,6 +55,8 @@ def load_frame(field, time_index, channels, normalization, projection, z_index=N
         options = field.render_options(normalization, channels)
     image, limits = render_rgb(planes, channels, normalization, **options)
     labels, notes = {}, []
+    if np.any(scale > 1):
+        notes.append(f'Overview: {scale[1]:g} x {scale[0]:g} native pixels per display pixel; small labels may be invisible; 1:1 shows overview pixels')
     if 'labels' in group:
         container = group['labels']
         for name in container.attrs.get('labels', []):
@@ -53,15 +67,30 @@ def load_frame(field, time_index, channels, normalization, projection, z_index=N
             ms = scales[0]
             names = [a['name'] if isinstance(a, dict) else a for a in ms.get('axes', [])]
             array = label[safe_path(ms['datasets'][0]['path'])]
+            native_shape = tuple(array.shape[names.index(a)] for a in ('y','x'))
+            if native_shape != field.cyx_shape[1:]:
+                notes.append(f'{name}: native label dimensions do not match this image')
+                continue
             if 'z' in names and array.shape[names.index('z')] > 1 and z_index is None:
                 notes.append(f'{name}: volume labels require Z section view')
                 continue
-            plane = _section(array, names, time_index, z_index or 0)
+            chosen = ms['datasets'][0]
+            relative = np.ones(2)
+            for ds in ms['datasets']:
+                candidate = xy_scale(ms,ds)/xy_scale(ms,ms['datasets'][0])
+                if np.all(candidate <= scale+1e-8):
+                    chosen,relative = ds,candidate
+            stride = scale/relative
+            if not np.allclose(stride,np.rint(stride)):
+                notes.append(f'{name}: pyramid sampling cannot align with the image overview')
+                continue
+            array = label[safe_path(chosen['path'])]
+            plane = _section(array, names, time_index, z_index or 0,tuple(np.rint(stride).astype(int)),(image.height,image.width))
             if plane.shape != (image.height, image.width) or plane.dtype.kind not in 'ui':
                 notes.append(f'{name}: label dimensions or pixel type do not match this image')
                 continue
             labels[name] = plane
-    return {'rgb': np.asarray(image), 'labels': labels, 'limits': limits, 'notes': notes,
+    return {'rgb': np.asarray(image), 'labels': labels, 'limits': limits, 'notes': notes, 'native_scale_yx':tuple(scale),
             'title': f'{Path(field.store).name} · {field.path or "image"} · T {time_index+1}/{field.timepoints}',
             'view': f'Z section {z_index+1}/{field.z_planes}' if z_index is not None else f'{projection} Z projection' if field.z_planes > 1 else '2D image'}
 

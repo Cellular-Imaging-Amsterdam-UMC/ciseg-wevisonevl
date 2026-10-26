@@ -110,13 +110,14 @@ def discover(source):
     source = Path(source).resolve()
     if not source.is_dir():
         raise ValueError(f"Input folder does not exist: {source}")
-    stores = [source] if source.name.endswith(".ome.zarr") else sorted(source.glob("*.ome.zarr"))
+    stores = [source] if source.name.endswith(".zarr") else sorted(source.glob("*.zarr"))
+    stores = list(dict.fromkeys(path.resolve() for path in stores))
     if not stores:
         raise ValueError("No top-level .ome.zarr stores found")
     return stores
 
 
-def inspect_store(store, prompts, *, check_label_names=True):
+def inspect_store(store, prompts, *, check_label_names=True, allow_large=False):
     # Only the already supported BIOMERO combination; never reinterpret v3 as v2.
     if not (store / ".zgroup").is_file():
         raise ValueError(f"Expected Zarr v2 store: {store}")
@@ -148,14 +149,16 @@ def inspect_store(store, prompts, *, check_label_names=True):
         sizes = dict(zip(names, array.shape))
         if any(size < 1 for size in sizes.values()):
             raise ValueError("Every image axis must contain at least one element")
-        if sizes["x"] * sizes["y"] > 16_777_216:
-            raise ValueError("2D field exceeds 16 megapixels; prepare an explicit ROI first (no implicit tiling)")
+        if sizes["x"] * sizes["y"] > 16_777_216 and not allow_large:
+            raise ValueError("2D field exceeds 16 megapixels; select Tile by tile processing or prepare an explicit ROI")
         if any(c > sizes.get("c", 1) for p in prompts for c in p.channels):
             raise ValueError(f"{store.name}/{path}: requested channel does not exist (C={sizes.get('c',1)})")
         if array.dtype.kind not in "uif":
             raise ValueError(f"Unsupported pixel type: {array.dtype}")
         for ds in ms["datasets"]:
             arr = group[safe_path(ds["path"])]
+            if int(np.prod(arr.chunks))*arr.dtype.itemsize > 256*1024*1024:
+                raise ValueError('Source chunks exceed 256 MiB; rechunk the store before bounded processing')
             if arr.ndim != len(names):
                 raise ValueError("Pyramid axis rank mismatch")
             for transform in ds.get("coordinateTransformations", []) + ms.get("coordinateTransformations", []):

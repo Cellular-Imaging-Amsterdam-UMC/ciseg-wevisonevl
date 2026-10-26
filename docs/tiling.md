@@ -1,138 +1,142 @@
-# Large images and object fusion
+# Large scans: tile by tile
 
-## Research result and current implementation status
+## Availability
 
-**Yes: tile-by-tile VLM inference is possible, and the prototype fuses instance
-IDs across tile overlaps. It is not yet production support for arbitrarily large
-tilescans.** The production workflow still enforces the 16-megapixel XY limit.
-The research stitcher also enforces this limit rather than allocating an
-unbounded whole-image array.
+The development Python workflow supports explicit tiled processing through the
+GUI, launcher and CLI. The published v0.1.0 container retains its original
+whole-image implementation; use its tagged descriptor with that image. The
+development descriptor's `dev` image is a local build target, not a published
+release. No new image or live BIOMERO configuration is implied by these changes.
 
-A tile loop alone is insufficient: the current source/projection reader,
-instance canvas and region-property measurements can still materialize complete
-planes. Those stages must become bounded before enabling gigapixel processing.
-The prototype and its tests are in `tools/experimental_tiling.py`; the controlled
-GPU experiment is in `tools/benchmark_tiling.py`.
+## Controls
 
-For scale, the retained native CMU-1 scan is approximately 46000 × 32914 pixels.
-A 768/192 grid would require about **4560 model calls** before tissue gating.
-Even a hypothetical 2 seconds per tile would exceed 2.5 hours; 20 seconds would
-exceed 25 hours, excluding IO and measurements. Cost depends strongly on generated
-object tokens. This illustrates the need for an overview/ROI stage and explicit
-user choice; it is not a runtime prediction for that slide.
+Open **Advanced parameters → Image processing → Tile by tile (large scans)**.
 
-## Measured tile-size comparison
-
-The native 1408 × 1040 organoid example was compared against its independent
-microSAM consensus instance annotations: **87 reference instances**. Model
-weights, query (`organoids`), threshold (0.5) and the same full-field contrast
-transform were held fixed. Tile runs used deterministic decoding with a 4096
-token budget and sequential inference on the local RTX A5000.
-
-| Method | Full tile size | Nominal overlap | Tiles | Foreground Dice | Instance F1 at IoU ≥ 0.5 | Matched / predicted instances | Inference + fusion |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Existing whole-image run | View reduced to maximum side 1024 | — | 1 | 0.881 | 0.906 | 77 / 83 | Approximately 45 s in the earlier run |
-| Tiled prototype | 512 | 128 | 12 | 0.876 | 0.888 | 79 / 91 | 108.9 s |
-| Tiled prototype | **768** | **192** | 6 | **0.917** | **0.939** | **84 / 92** | **130.3 s** |
-| Tiled prototype | 1024 | 256 | 4 | 0.911 | 0.926 | 81 / 88 | 155.0 s |
-
-The 768/192 configuration was the best of these three settings on this image,
-both for foreground and instance F1. This is a **starting point, not a universal
-optimum**. The whole-image timing comes from an earlier run and is not a
-controlled runtime comparison. Object size, image scale, density and prompt
-context can change the best setting.
-
-The final windows are aligned to the image boundary, so **actual edge overlaps
-can exceed the nominal value**. Ranges were 128–384, 192–704 and 640–1008 pixels
-respectively. The example is only slightly taller than 1024, producing substantial
-duplicate context in that configuration. This experiment does not identify an
-independently optimal overlap percentage for a very wide tilescan.
-
-## Recommended controls
-
-A user option is necessary: local tiles change context, especially for prompts
-such as “the entire section”, “leftmost object” or “the largest structure”.
-Those referring expressions are not invariant when each tile becomes a new image.
-
-The proposed advanced interface is:
-
-| Control | Proposed starting value | Meaning |
+| Control | Default | Meaning |
 | --- | --- | --- |
-| Processing mode | Whole image initially; explicit experimental Tiled | Preserve existing behavior until all streaming stages are validated |
-| Tile size | 768 px | **Full inference window**, including context |
-| Tile overlap | 192 px | Shared width between adjacent windows; nominal stride 576 px |
-| Instance match threshold | 0.5 | IoU measured only within valid shared pixels |
-| Minimum shared foreground | 8 px in this experiment | Avoid matching instances on accidental tiny contacts; tune for small objects |
+| Processing mode | Whole image | Explicit Tiled is required above 16 megapixels |
+| Source tile side | 2048 native pixels | Full window including shared context; maximum 4096 |
+| Overlap | 256 native pixels | Nominal stride 1792; must be less than half the tile side |
+| Maximum model input side | 1024 pixels | Each source tile is downsampled to this model-view bound; maximum 2048 |
+| Seam match IoU | 0.5 | Intersection/union in shared, already processed pixels |
+| Skip blank RGB tiles | Disabled | Optional histology heuristic, described below |
 
-1024 px is a reasonable alternative when objects need more context. Overlap
-must contain enough of an expected object for matching; very large structures
-may require an overview-guided semantic workflow instead of instance fusion.
-A future Auto mode should use tested memory/context rules, not merely bypass
-the existing size guard. These are **design recommendations**; the advanced
-production controls have not been added to the launcher or descriptor yet.
-
-The tile-size convention differs from cisegmentation, whose documented default
-is a 1024-pixel **core** plus 96 pixels of halo per side. That creates a larger
-inference window; copying the number without its convention would be misleading.
-WeVisOne-VL also has its own visual-token budget and 1024-pixel decoder canvas.
-
-## Instance matching and seam ownership
-
-The experimental implementation:
-
-1. Assigns fresh IDs to each tile's predicted instances.
-2. Compares only their actual shared image pixels, not full-object IoU outside
-   the overlap and not bounding-box contact alone.
-3. Accepts an unambiguous one-to-one match above the overlap threshold, with
-   a minimum shared area. Ambiguous one-to-many/many-to-one candidates are flagged.
-4. Uses a union-find map so an instance can retain one final ID across several
-   neighbors and four-tile junctions.
-5. Assigns overlap pixels to the prediction with more distance from its tile edge.
-   This is deterministic center ownership, not probability averaging.
-
-Tests cover odd image edges, one object crossing four tiles, adjacent touching
-objects that must stay separate, ambiguous splits and the memory-allocation guard.
-The real experiment matched 103, 150 and 201 overlap pairs without an ambiguity
-flag for those particular outputs. Zero flags is not proof that every match is correct;
-the independent instance comparison is the stronger check.
-
-For a semantic class such as all tissue, weighted probability blending followed
-by one global threshold is a useful separate design. It does not provide instance
-identities and should not be presented as instance fusion. A seam cannot repair
-an object that neither tile recognized or distinguish unrelated objects when
-the underlying predictions are wrong.
-
-## Requirements before production tilescan support
-
-- **Bounded input and projection:** read OME-Zarr chunks/regions and perform
-  Z reduction per tile and timepoint. Do not load a complete giant plane first.
-- **Stable contrast:** reuse recorded per-channel full-field limits, computed
-  with bounded integer histograms or documented deterministic float sampling.
-  Independent tile normalization can create biological/contrast seams.
-- **Disk-backed labels:** store provisional IDs in Zarr, maintain small overlap
-  state and a union table, then remap final IDs in a bounded pass.
-- **Bounded measurements:** aggregate area, centroids, moments and intensities
-  per chunk. Perimeter needs neighbor halos; convex-hull features need a bounded
-  algorithm. One image-sized `regionprops` call would defeat tiled inference.
-- **Bounded pyramids and provenance:** build pyramids in chunks, preserve
-  calibration/translations and record grid, overlap, matching and unresolved seams.
-- **Validation at scale:** test genuine large tissue scans, edge-touching objects,
-  different object sizes and calibration, missing chunks and failed-tile recovery.
-
-For a whole histological section, a useful future pattern is to identify tissue
-at an existing low-resolution overview and process relevant native-resolution
-regions next. The overview selection and its uncertainty must remain explicit.
-
-## Sources and reproduction
+Example in PowerShell:
 
 ```powershell
-.venv\Scripts\python tools\benchmark_tiling.py
-.venv\Scripts\python tools\evaluate_tile_instances.py
-.venv\Scripts\python -m pytest tests\test_experimental_tiling.py -q
+.venv\Scripts\python.exe wrapper.py `
+  --infolder inputfolder\scan.ome.zarr --outfolder outputfolder\scan `
+  --processing-mode tiled --tile-size 2048 --tile-overlap 256 `
+  --max-side 2048 --normalization dtype --device cuda:0 `
+  --prompt-1 "all separate tissue fragments, excluding the empty glass background" `
+  --name-1 tissue --channels-1 1,2,3 `
+  --prompt-2 "DAB staining" --name-2 DAB_staining --channels-2 1,2,3
 ```
 
-- [Official WeVisOne-VL pixel-level cookbook](https://github.com/Tencent/WeVisOne-VL/blob/main/tutorials/03_segmentation_matting_pipeline.ipynb)
-- [Official model implementation and decoder](https://github.com/Tencent/WeVisOne-VL)
-- [cisegmentation large-input conventions](https://github.com/Cellular-Imaging-Amsterdam-UMC/cisegmentation/blob/main/docs/large-inputs.md)
-- [Cellpose API and its separate tile conventions](https://cellpose.readthedocs.io/en/latest/api.html)
-- [Independent microSAM organoid data](https://zenodo.org/records/14036957)
+These are example queries, not validated annotations. The DAB test missed visible
+brown staining with an earlier query; prompt choice must be reviewed. Prompt
+groups remain independent and may overlap. Each timepoint and HCS field has its
+own grid and object identities. Existing input-label keep/remove and staged
+overwrite behavior also apply in tiled mode.
+
+## Memory, IO and contrast
+
+Source reads and Z reductions use bounded XY regions. Noncanonical axes and Z
+projections are rewritten in blocks; source stores remain untouched. Canonical
+2D sources are copied without changing pixels. Provisional uint32 labels and
+tile ownership live in Zarr on disk, with SQLite object equivalences. Final IDs,
+label pyramids and measurement aggregates are streamed in bounded passes.
+Source chunks larger than 256 MiB are rejected; rechunk those inputs first.
+
+Percentile limits are computed once per prompt/timepoint from a bounded existing
+overview, or deterministic native sampling when no overview is available. The
+same recorded limits apply to every tile. They can differ from exact full-image
+percentiles. Dtype and metadata scaling retain their normal meaning and original
+measurement intensities. Model memory is controlled by the separate model-view
+limit, decoder batch, tokens and object count, not by source tile size alone. A 4096-pixel source tile viewed
+at 2048 pixels approached the workstation GPU's total capacity during the large
+histology trial; it was stopped and retained for diagnostics. The default is now
+2048-pixel source tiles with a 1024-pixel model view.
+
+**GPU memory between calls** defaults to releasing unused CUDA cache after every
+prediction, including failures. CPU result masks are retained; model weights stay
+loaded. Tile traces distinguish allocated tensor bytes from reserved allocator
+bytes before prediction, after prediction and after cleanup. Reusing the cache
+is an advanced speed option for a dedicated GPU. Releasing cache cannot free
+live model tensors and does not reduce the peak during an individual prediction.
+
+Allow disk space for a source copy, each prompt's uint32 pyramid and temporary
+uint32 IDs/uint16 ownership arrays plus SQLite files. Failed partial runs retain
+their diagnostics and can consume additional disk space. There is no automatic
+resume of a failed grid. The source image and earlier completed outputs remain
+unchanged if a new run fails.
+
+## Seams, IDs and review
+
+Final windows are anchored to the image boundary, so actual overlap can exceed
+the nominal value. Tiles run in row-major order. Predicted instances match only
+if their overlap IoU reaches the threshold and they share at least eight pixels.
+Only reciprocal one-to-one candidates merge; ambiguous splits/merges stay
+separate and are counted. An iterative disk-backed union map carries identities
+across multiple neighbors and four-tile junctions.
+
+Within a model tile, highest probability owns a pixel and the first prediction
+wins ties. Between tiles, the context farthest from a tile edge owns each pixel;
+earlier tiles win equal-distance ties. This ownership includes background and is
+not probability blending. Minimum area is applied after seam resolution to
+complete objects. Semantic mode produces one binary class per prompt.
+
+Tile traces (`wevisone_previews/*_tiles.jsonl`) retain bounds, model-view sizes,
+responses, boxes, timings and skip reasons. The run report retains seam counts,
+normalization limits and the active tile on failure. Invalid or truncated model
+responses fail the run; they are not silently converted into background.
+
+**Local context changes predictions.** A tile without the requested anatomy can
+still produce false positives. Initial human-esophagus trials detected some
+surface epithelium but also mislabeled muscle/background. Zero ambiguous seam
+matches does not establish biological accuracy. A cancer-related prompt is a
+model proposal, not a diagnosis or a validated tumor annotation. Inspect the
+whole overlay and representative native regions before using measurements.
+
+The optional blank-tile heuristic skips a tile when at most 0.1% of its scaled
+RGB pixels fall outside near-white (all components at least 220) or near-black
+(all at most 15). It is recorded per tile and can miss faint tissue. It is not
+a general-purpose tissue detector and is disabled by default.
+
+## Streamed measurements and viewer
+
+Tiled CSV rows contain exact pixel counts, bounding boxes, centroids, coordinate
+moments, covariance-based axes/eccentricity/orientation, equivalent diameters and
+per-channel valid counts, min/max/mean/total. Ordered calibration transforms,
+anisotropic spacing and origins are preserved. Intensities use original pixels
+or the selected Z projection, including channels excluded from the model view.
+
+Perimeter counts exposed pixel edges, including holes and image boundaries. Each
+horizontal edge uses X spacing and each vertical edge uses Y spacing. This differs
+from the whole-image estimator and is explicitly marked `streamed_pixel_edges`.
+Solidity is blank; no giant convex-hull mask is allocated. `measurement_method`
+records these distinctions. Missing calibration leaves physical columns blank.
+
+The GUI opens existing overviews before reading large images/labels and reports
+native pixels per display pixel. Hover coordinates map to native pixels. Visible
+instance counts can exclude objects too small for the overview; 1:1 shows display
+pixels and does not load native detail on zoom. Stored labels remain native-sized.
+
+## Earlier organoid experiment
+
+The original in-memory research prototype remains in `tools/experimental_tiling.py`
+and keeps its own 16-megapixel guard. On one native 1408 × 1040 organoid image,
+87 independent microSAM consensus instances were used for comparison:
+
+| Method | Tile/overlap | Tiles | Foreground Dice | Instance F1 at IoU >= 0.5 | Predicted instances |
+| --- | --- | --- | --- | --- | --- |
+| Earlier whole image | View side 1024 | 1 | 0.881 | 0.906 | 83 |
+| Prototype | 512/128 | 12 | 0.876 | 0.888 | 91 |
+| Prototype | 768/192 | 6 | 0.917 | 0.939 | 92 |
+| Prototype | 1024/256 | 4 | 0.911 | 0.926 | 88 |
+
+These results do not establish a universal tile size or accuracy on histological
+scans. The 2048/256 default is a large-scan starting point, not an accuracy optimum.
+
+Sources: [official WeVisOne-VL implementation](https://github.com/Tencent/WeVisOne-VL),
+[independent microSAM organoid data](https://zenodo.org/records/14036957).

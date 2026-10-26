@@ -228,7 +228,7 @@ class Window(LauncherWindow):
         if not path:return
         self.viewer.clear_frame(); self.layer_list.clear()
         try:
-            self.fields = inspect_store(Path(path), [])
+            self.fields = inspect_store(Path(path), [], allow_large=True)
         except Exception as exc:
             self.fields = []; self.view_status.setText(str(exc)); return
         self.selected_store = Path(path)
@@ -280,12 +280,13 @@ class Window(LauncherWindow):
             self.image_title.setText(f'{self.selected_store.name if self.selected_store else "Image"} · view unavailable')
             self.view_status.setText(error); return
         self.viewer.set_frame(frame['rgb'], frame['labels'])
+        self.display_scale = frame.get('native_scale_yx', (1.,1.))
         previous = self.layer_list.currentItem()
         selected_name = previous.data(Qt.ItemDataRole.UserRole) if previous else None
         self.layer_list.blockSignals(True); self.layer_list.clear()
         for name, plane in frame['labels'].items():
             count = len(np.unique(plane[plane > 0]))
-            item = QListWidgetItem(f'{name.removeprefix("wevisone_")} · {count} '+('object' if count == 1 else 'objects'))
+            item = QListWidgetItem(f'{name.removeprefix("wevisone_")} · {count} '+('visible object' if count == 1 else 'visible objects'))
             item.setData(Qt.ItemDataRole.UserRole, name)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Checked if self.layer_checks.get(name, True) else Qt.CheckState.Unchecked)
@@ -392,7 +393,8 @@ class Window(LauncherWindow):
         pixmap = self.viewer.image_item.pixmap()
         if not 0 <= x < pixmap.width() or not 0 <= y < pixmap.height():return
         ids = [f'{name.removeprefix("wevisone_")}: {plane[y,x]}' for name, plane in self.viewer.label_arrays.items() if plane[y,x] > 0 and self.layer_checks.get(name, True) and self.show_labels.isChecked()]
-        self.status.setText(f'X {x}, Y {y}' + (' · '+' · '.join(ids) if ids else ' · background'))
+        dy, dx = getattr(self, 'display_scale', (1.,1.))
+        self.status.setText(f'X {int(x*dx)}, Y {int(y*dy)}' + (' · '+' · '.join(ids) if ids else ' · background'))
 
     def start(self, preflight):
         self.preflight_run = preflight

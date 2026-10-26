@@ -54,7 +54,11 @@ no additional GUI dependencies are required.
    available color.
 
 Use the mouse wheel to zoom, drag to pan, **Fit** for the complete image and
-**1:1** for native pixel display. The run's Max/Mean setting controls projected
+**1:1** for display-pixel size. Large scans use an existing overview before
+reading pixels, or bounded native sampling if none exists. The status reports
+native pixels per display pixel, and hover coordinates refer to native pixels.
+The label list counts **visible** objects; small labels can disappear in an
+overview. The viewer does not load native detail as you zoom in. The run's Max/Mean setting controls projected
 previews. **Z section** inspects a native input plane; volume instance labels are
 shown only in section view, never projected as IDs. Computed outputs have Z=1.
 
@@ -65,6 +69,13 @@ The original input pixels and measurement intensities are preserved. A colored
 prediction is not a validated biological annotation.
 
 GUI parameter settings are kept in ignored `.last_gui_settings.json`, separately
-from the original launcher's settings. Advanced parameters are initially collapsed.
+from the original launcher's settings. Advanced parameters are initially collapsed. For large tilescans, choose
+**Image processing → Tile by tile (large scans)**, **Source tile side: 2048** and
+**Tile overlap: 256**. **Maximum model input side** is a separate model-view
+limit (1024 by default, up to 2048); it is not the source tile size. Blank-tile
+skipping is optional and disabled by default because it can miss faint tissue.
+See the [large-image guide](../docs/tiling.md) for seam handling and the tiled
+measurement estimator. These options belong to the development Python workflow;
+they are not present in the released v0.1.0 container.
 Label colors, per-prompt color modes, visibility and opacity are saved there on
 closing the GUI and restored on reopening, without changing saved run parameters.

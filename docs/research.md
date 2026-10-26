@@ -178,11 +178,13 @@ F1 0.939 at IoU ≥ 0.5, compared with 0.881/0.906 for the earlier whole-image r
 Actual edge overlap exceeds nominal overlap. These results do not establish
 general large-tilescan support or universal optimal settings.
 
-There are now **39 passing tests: 34 workflow tests and 5 experimental stitching
-tests**. They cover crossing objects, four-tile junctions, touching neighbors,
-ambiguous matches, odd edges and the prototype memory guard. The production
-16-megapixel limit remains until the full IO/projection/storage/measurement
-pipeline becomes bounded. No new Docker image or BIOMERO deployment was built.
+That earlier study had 39 passing tests, including five prototype stitching
+tests. The development Python workflow now adds a separate disk-backed tiled
+route, with streamed projection, label pyramids and measurements. The whole-image
+16-megapixel guard remains. Additional regression tests cover seam identity,
+touching neighbors, ambiguity, global area filtering, calibration, every channel,
+Z/time axis order, HCS fields, failed-run rollback and bounded GUI overviews.
+The existing v0.1.0 Docker image remains unchanged.
 
 ## Whole/part modality follow-up and simpler controls
 

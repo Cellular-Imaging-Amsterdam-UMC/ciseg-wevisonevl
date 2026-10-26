@@ -106,10 +106,20 @@ physical plane position; XY/time calibration and origins remain intact. Existing
 volume labels are omitted from the new projection output instead of numerically
 projecting instance IDs. They remain in the original source store.
 
-At most 16 megapixels are accepted per XY plane. Projection streams planes rather
-than loading the full T/C/Z stack. Model views have a maximum side of 1024 pixels
-by default, configurable from 128 to 2048. Masks return to native XY coordinates.
-Automatic tiling with object fusion and tracking are not included.
+Whole-image mode retains the 16-megapixel XY limit. For larger scans, explicitly
+select **Advanced parameters → Image processing → Tile by tile (large scans)**
+or `--processing-mode tiled`. The defaults are **2048 × 2048 source pixels** with
+**256 pixels overlap**. The model view is independently limited to 1024 pixels
+per side by default, configurable up to 2048; a 4096-pixel tile is therefore
+downsampled for the model. Labels return to native coordinates. Input/projection,
+stitching, label pyramids and measurements use bounded blocks and disk-backed
+state. See [large-image usage and limitations](docs/tiling.md). Tracking and
+native 3D segmentation are not included.
+
+These controls belong to the **unreleased Python development version**. The
+published v0.1.0 container retains its original whole-image behavior. Use its
+tagged descriptor with that image. The development descriptor targets an
+unpublished `dev` image; publishing a matching container is a separate step.
 
 ## Label outputs
 
@@ -157,8 +167,13 @@ independently; shape axes and eccentricity use physical spacing instead of an
 average pixel size. `shape_basis` records whether shape ratios/angles use physical
 or pixel geometry. Isotropic perimeter scales the pixel estimator; anisotropic
 perimeter uses scaled closed contours, recorded in `perimeter_um_method`.
-Intensities retain their original units, ratios remain dimensionless and angles
-remain radians. Physical columns are blank when calibration is unavailable.
+Tiled mode uses streamed moments and an exposed pixel-edge perimeter estimator,
+recorded in `measurement_method` and `perimeter_um_method`. It includes holes and
+image edges and differs from the whole-image estimator. Solidity is blank in
+tiled mode; no giant convex-hull mask is allocated. Areas, centroids, bounding
+boxes, covariance-based axes, eccentricity, orientation and channel statistics
+remain available. Intensities retain their original units, ratios remain
+dimensionless and angles remain radians. Physical columns are blank when calibration is unavailable.
 
 The final CSV is published only after the whole run succeeds. Failed runs retain
 `measurements.partial-*`. The Bilayers descriptor declares one measurement output
@@ -220,11 +235,12 @@ prototype scored foreground Dice 0.917 and instance F1 0.939, versus 0.881 and
 0.906 for the earlier whole-image run. This is one controlled example, not a
 universal tile-size optimum. Edge alignment increases actual overlap.
 
-The prototype fuses unambiguous instance IDs across overlaps and flags ambiguous
-matches. Production gigapixel support is **not enabled**: input/projection,
-label storage, pyramids and measurements still need bounded streaming. The
-16-megapixel production guard remains. Proposed advanced user controls are
-documented; no unsupported production tiling option has been added to the launcher.
+The current Python workflow adds a separate disk-backed tiled route for large
+scans. The earlier prototype remains a small-image research reference. The
+whole-image guard remains; only explicit tiled mode permits larger fields.
+Local histology tests distinguish completed processing from anatomical accuracy:
+tile context can produce false positives and missed staining. Inspect overlays
+and seam traces; an unambiguous stitch does not establish a correct prediction.
 
 ## Documentation and publication
 

@@ -87,6 +87,8 @@ class Predictor:
             device = "cuda:0" if torch.cuda.is_available() else "cpu"
         if device.startswith("cuda") and not torch.cuda.is_available():
             raise RuntimeError("CUDA requested but unavailable in this Python environment")
+        self.cuda_device = device if device.startswith('cuda') else None
+        self.last_gpu_memory = None
         self.engine = WeVisOneVL(str(folder), backend="transformers", device=device,
                                 dtype="bfloat16", max_pixels=settings.max_side ** 2,
                                 decoder_batch_size=settings.decoder_batch_size)
@@ -116,6 +118,31 @@ class Predictor:
         self.engine.decode_masks = checked_decode
 
     def predict(self, image, text):
+        """Return CPU masks, then release unused CUDA cache between requests."""
+        import gc
+        import torch
+        before = self.gpu_memory()
+        try:
+            return self._predict(image,text)
+        finally:
+            after_prediction = self.gpu_memory()
+            if self.settings.release_gpu_cache and self.cuda_device:
+                gc.collect()
+                with torch.cuda.device(self.cuda_device):
+                    torch.cuda.synchronize()
+                    torch.cuda.empty_cache()
+            self.last_gpu_memory = {'before':before,'after_prediction':after_prediction,
+                                    'after_cleanup':self.gpu_memory(),
+                                    'release_unused_cache':bool(self.settings.release_gpu_cache)}
+
+    def gpu_memory(self):
+        if not self.cuda_device:
+            return None
+        import torch
+        return {'allocated_bytes':torch.cuda.memory_allocated(self.cuda_device),
+                'reserved_bytes':torch.cuda.memory_reserved(self.cuda_device)}
+
+    def _predict(self, image, text):
         result = self.engine.predict(image, task="segmentation", query=text,
                                      temperature=0., max_new_tokens=self.settings.max_new_tokens)
         # Never silently accept a response cut off at the token budget.

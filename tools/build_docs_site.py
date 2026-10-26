@@ -8,6 +8,7 @@ import zarr
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from ciseg_wevisonevl.settings import ROOT
+from ciseg_wevisonevl import __version__
 from ciseg_wevisonevl.io import inspect_store,write_json
 from ciseg_wevisonevl.inference import render_rgb
 
@@ -19,7 +20,7 @@ E=html.escape
 def page(title,body,current=''):
     icon='<svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg>'
     nav=''.join(f'<a href="{url}"'+(' aria-current="page"' if current==name else '')+f'>{label}</a>' for name,url,label in [('home','index.html','Overview'),('workflow','workflow.html','Workflow'),('examples','examples.html','Examples'),('tiling','tiling.html','Large images'),('research','research.html','Validation')])
-    return f'''<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>{E(title)} · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html">{icon} CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation">{nav}<button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="{REPO}">GitHub ↗</a></nav></div></header><main class="shell" id="main">{body}</main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.1.0 · Results from 25 October 2026</span><a href="{REPO}/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>'''
+    return f'''<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>{E(title)} · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html">{icon} CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation">{nav}<button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="{REPO}">GitHub ↗</a></nav></div></header><main class="shell" id="main">{body}</main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version {E(__version__)} · Public gallery from 25 October 2026</span><a href="{REPO}/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>'''
 
 
 def source_links(record):
@@ -184,22 +185,26 @@ def export_site(destination,inference):
     intro=intro.replace('<div class="toolbar">','<p><a href="imaging-modes.html">Whole structures and their parts: modality comparisons and sources ↗</a></p><div class="toolbar">')
     (destination/'examples.html').write_text(page('Curated example gallery' if curated else 'Example gallery',intro,'examples'),encoding='utf-8')
     build_home(destination,counts,len(public),curated)
+    build_guides(destination)
+    (destination/'.nojekyll').write_text('')
+    print(json.dumps({'examples':len(public),'labels':counts,'site':str(destination)}),flush=True)
+
+
+def build_guides(destination):
     for stem,title in [('workflow','Workflow & usage'),('deployment','Docker, BIOMERO & GPU requirements'),('tiling','Large images & object fusion'),('prompt-study','Prompt comparison & selection'),('imaging-modes','Whole structures and their parts'),('research','Validation & limitations')]:
         source=destination/(stem+'.md')
         markdown_text=source.read_text(encoding='utf-8')
         if markdown_text.startswith('# '):markdown_text=markdown_text.split('\n',1)[1]
         content=markdown.markdown(markdown_text,extensions=['fenced_code','tables','toc'])
-        body=f'<header class="page-head"><div class="eyebrow">Documentation · version 0.1.0</div><h1>{E(title)}</h1></header><article class="prose">{content}</article>'
+        body=f'<header class="page-head"><div class="eyebrow">Documentation · version {E(__version__)}</div><h1>{E(title)}</h1></header><article class="prose">{content}</article>'
         (destination/(stem+'.html')).write_text(page(title,body,stem),encoding='utf-8')
-    (destination/'.nojekyll').write_text('')
-    print(json.dumps({'examples':len(public),'labels':counts,'site':str(destination)}),flush=True)
 
 
 def build_home(destination,counts,example_count=27,curated=False):
     body=f'''<section class="hero"><div><div class="eyebrow">OME-Zarr · Bilayers · BIOMERO</div><h1>From words to<br><em>biological</em><br>structures.</h1><p>Describe what you need. CISegWeVisOneVL creates pixel masks with up to four independent prompts — for EM organelles, tissue, vessels and more.</p><div class="actions"><a class="button primary" href="examples.html">Explore actual results ↗</a><a class="button" href="workflow.html#getting-started">Get started locally</a></div><p class="fine">WeVisOne-VL-4B · existing foundation-model weights · research workflow</p></div><div class="hero-visual"><div class="image-mosaic"><img src="gallery/public-em-liver-2d-input.webp" alt="FIB-SEM showing mitochondria in liver tissue"><img src="gallery/public-skin-input.webp" alt="Histological skin layers"><img src="gallery/public-lily-stem-input.webp" alt="Vascular bundles in a plant stem"></div><div class="visual-caption"><span>DIFFERENT STRUCTURES. ONE WORKFLOW.</span><span>27 IMAGES</span></div></div></section>
 <div class="stats"><div><strong>4</strong><span>independent prompts per image</span></div><div><strong>2D + 3D</strong><span>automatic projection per timepoint</span></div><div><strong>1 CSV</strong><span>shape and intensity for every channel</span></div><div><strong>27</strong><span>public examples with actual predictions</span></div></div>
 <section class="section"><div class="section-head"><div><div class="eyebrow">From input to result</div><h2>A small, focused<br>segmentation workflow.</h2></div><p>Regular images, time series and HCS screens follow the same route. Source stores remain intact; results receive a separate OME-Zarr store and measurement table.</p></div><div class="steps"><div class="step"><span class="number">01 / INPUT</span><h3>Open OME-Zarr</h3><p>NGFF 0.4 / Zarr v2. Every field is checked before inference. Channel numbers are one-based.</p></div><div class="step"><span class="number">02 / PROJECTION</span><h3>Max or Mean</h3><p>For Z &gt; 1, each channel and timepoint is projected to 2D. Max is the default; Mean writes float32.</p></div><div class="step"><span class="number">03 / INFERENCE</span><h3>Describe the structure</h3><p>Select up to four labels, English descriptions and channel mappings. One 4B model uses the offline local cache.</p></div><div class="step"><span class="number">04 / OUTPUT</span><h3>Inspect and measure</h3><p>Independent uint32 labels, overlays, provenance and one CSV covering every channel. Prompt labels may overlap.</p></div></div></section>
-<section class="section"><div class="section-head"><div><div class="eyebrow">Open results</div><h2>See what the model<br>actually predicts.</h2></div><p>The gallery includes useful masks and failures. {counts['complete']} label runs completed; rejected or partial outputs are marked separately. Predictions are never presented as manual ground truth.</p></div><div class="feature-links"><a class="feature-card" href="examples.html"><small>01 / Gallery</small><h3>Images, labels and sources ↗</h3><p>EM, histology, plant structures, neurites and more. Filter by category and inspect each label.</p></a><a class="feature-card" href="workflow.html"><small>02 / Usage</small><h3>From launcher to CLI ↗</h3><p>Setup, projections, channels, parameters, output semantics and compact CSV measurements.</p></a><a class="feature-card" href="research.html"><small>03 / Evidence</small><h3>Validation and limitations ↗</h3><p>39 tests, actual GPU runs, reader checks and the limitations of a general VLM for microscopy.</p></a></div></section>
+<section class="section"><div class="section-head"><div><div class="eyebrow">Open results</div><h2>See what the model<br>actually predicts.</h2></div><p>The gallery includes useful masks and failures. {counts['complete']} label runs completed; rejected or partial outputs are marked separately. Predictions are never presented as manual ground truth.</p></div><div class="feature-links"><a class="feature-card" href="examples.html"><small>01 / Gallery</small><h3>Images, labels and sources ↗</h3><p>EM, histology, plant structures, neurites and more. Filter by category and inspect each label.</p></a><a class="feature-card" href="workflow.html"><small>02 / Usage</small><h3>From launcher to CLI ↗</h3><p>Setup, projections, channels, parameters, output semantics and compact CSV measurements.</p></a><a class="feature-card" href="research.html"><small>03 / Evidence</small><h3>Validation and limitations ↗</h3><p>Regression tests, actual GPU runs, reader checks and the limitations of a general VLM for microscopy.</p></a></div></section>
 <section class="section split"><div><div class="eyebrow">Getting started</div><h2>Begin locally.</h2><p>The Windows launcher and headless wrapper use the same parameters. Models and full input stores stay outside Git.</p><a class="button" href="{REPO}">Code on GitHub ↗</a></div><div><pre><code>git clone {REPO}.git\ncd ciseg-wevisonevl\ncreate_env.cmd\n.venv\\Scripts\\python tools\\download_models.py\nlaunch.cmd</code></pre><p class="fine">Python 3.12 via uv · tested on RTX A5000 24 GB. <a href="deployment.html">Docker v0.1.0 and BIOMERO setup · one 24 GB GPU per job</a>.</p></div></section>'''
     if curated:
         body=body.replace('27 IMAGES',f'{example_count} SELECTED IMAGES').replace('<strong>27</strong>',f'<strong>{example_count}</strong>')
@@ -216,8 +221,12 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,default=ROOT/'docs')
     parser.add_argument('--inference',type=Path)
+    parser.add_argument('--guides-only',action='store_true',help='Rebuild text guides without reading or regenerating gallery images')
     args=parser.parse_args()
     selection_path=ROOT/'gallery_selection.json'
     selected=json.loads(selection_path.read_text()) if selection_path.exists() else {}
     inference=args.inference or ROOT/selected.get('inference_directory','test-results/published-gallery')
-    export_site(args.output,inference)
+    if args.guides_only:
+        build_guides(args.output)
+    else:
+        export_site(args.output,inference)

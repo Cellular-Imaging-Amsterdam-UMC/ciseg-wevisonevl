@@ -1,5 +1,20 @@
 # BIOMERO, Docker and Slurm deployment
 
+The current Python development checkout adds tiled processing. **The published
+v0.1.0 image does not contain this feature.** Use the v0.1.0 tagged descriptor
+with that image; the development descriptor targets an unpublished local `dev`
+build. Updating a running BIOMERO workflow requires a separately validated image
+and matching descriptor, not merely changing its parameters.
+
+For development tiled runs, 4096-pixel source tiles and a 2048-pixel model view
+have been tested locally on an RTX A5000 24 GB. The 12.9-megapixel IHC test used
+12.10 GiB peak allocated GPU memory, 14.10 GiB reserved and 24.16 GiB process RSS.
+Reserve one 24 GB GPU and start with 32 GB host RAM and four CPU cores. Tiling
+bounds image memory but does not reduce the model's baseline allocation. Tile
+size, model view size, prompt length and object count still affect resources.
+Disk space must cover a source copy, each prompt's uint32 label pyramid and
+temporary ID/ownership canvases. Compression depends on the actual data.
+
 Release **v0.1.0** provides the headless `linux/amd64` image
 [`cellularimagingcf/w_cisegwevisonevl:v0.1.0`](https://hub.docker.com/r/cellularimagingcf/w_cisegwevisonevl/tags?name=v0.1.0).
 Use the versioned image and the matching

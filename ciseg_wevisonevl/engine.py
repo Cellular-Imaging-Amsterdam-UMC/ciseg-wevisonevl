@@ -31,14 +31,14 @@ def preflight(input_dir, output_dir, settings, prompts):
         store = store.resolve()
         if store == output_dir or store in output_dir.parents or output_dir in store.parents:
             raise ValueError("Input and output stores must be separate; output cannot contain or be inside a source")
-        output = output_dir / (store.name.removesuffix(".ome.zarr") + "__wevisonevl.ome.zarr")
+        output = output_dir / (store.name.removesuffix(".zarr").removesuffix(".ome") + "__wevisonevl.ome.zarr")
         if output.exists() and not settings.overwrite:
             raise FileExistsError(f"Output already exists; choose an empty output folder: {output}")
         if settings.overwrite and (output.is_symlink() or output.is_junction()):
             raise ValueError(f'Refusing to replace a linked output store: {output}')
         if settings.overwrite and output.exists() and (not output.is_dir() or not (output/'wevisone-run.json').is_file()):
             raise ValueError(f'Refusing to replace a folder without a CISegWeVisOneVL run report: {output}')
-        fields = inspect_store(store, prompts, check_label_names=settings.input_labels == 'keep')
+        fields = inspect_store(store, prompts, check_label_names=settings.input_labels == 'keep', allow_large=settings.processing_mode == 'tiled')
         selected_channels = {c for prompt in prompts for c in prompt.channels}
         for field in fields:
             field.render_options(settings.normalization, selected_channels)
@@ -84,7 +84,7 @@ def _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
         report['measurements_file']='../measurements.csv'
         try:
             print(f"Preparing images and per-timepoint Z projections: {store.name}", flush=True)
-            prepared = prepare_output(store, partial, fields, prompts, settings.projection, settings.input_labels)
+            prepared = prepare_output(store, partial, fields, prompts, settings.projection, settings.input_labels, allow_large=settings.processing_mode == 'tiled')
             report["input_fields"] = [{"field":f.path,"timepoints":f.timepoints,"source_z_planes":f.z_planes,
                                        "projection":settings.projection if f.z_planes>1 else "none",
                                        "source_axes":f.names,"output_axes":prepared[f.path].names} for f in fields]
@@ -117,6 +117,9 @@ def _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
 
 
 def _segment_frame(predictor, settings, prompts, source_field, field, output, index, time_index, report, measurements, output_name):
+    if settings.processing_mode == 'tiled':
+        from .tiled import segment_frame
+        return segment_frame(predictor,settings,prompts,source_field,field,output,index,time_index,report,measurements,output_name)
     print(f"  Timepoint {time_index+1}/{field.timepoints}",flush=True)
     planes=field.pixels([c for p in prompts for c in p.channels],time_index)
     for slot,prompt in enumerate(prompts,1):

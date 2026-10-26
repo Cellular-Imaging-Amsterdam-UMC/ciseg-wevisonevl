@@ -17,7 +17,7 @@ FROM ${MODELS_IMAGE} AS model_cache
 FROM runtime AS final
 COPY --from=model_cache /models/ /models/
 RUN python /app/tools/validate_container.py --inventory-only
-ARG VERSION=0.1.0
+ARG VERSION=0.2.0.dev0
 ARG VCS_REF=unknown
 LABEL org.opencontainers.image.title="CISegWeVisOneVL" \
       org.opencontainers.image.description="Offline WeVisOne-VL-4B microscopy segmentation for BIOMERO; includes pinned model weights" \

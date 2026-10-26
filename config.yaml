@@ -10,7 +10,7 @@ citations:
 docker_image:
   org: cellularimagingcf
   name: w_cisegwevisonevl
-  tag: v0.1.0
+  tag: dev
   platform: linux/amd64
 algorithm_folder_name: CISegWeVisOneVL
 exec_function:
@@ -73,6 +73,42 @@ outputs:
   mode: beginner
 display_only: []
 parameters:
+- name: release_gpu_cache
+  type: dropdown
+  label: GPU memory between calls
+  description: Release unused GPU cache after each model call, including failures. Model weights stay loaded. Reusing the cache can be faster on a dedicated GPU but keeps more memory reserved. Per-tile traces record allocated and reserved bytes before and after cleanup.
+  options: [{label: Release unused cache (shared GPU), value: 1}, {label: Reuse cache (dedicated GPU), value: 0}]
+  default: 1
+  cli_tag: --release-gpu-cache
+  cli_order: 45
+  optional: true
+  section_id: advanced
+  mode: advanced
+- name: processing_mode
+  type: dropdown
+  label: Image processing
+  description: Whole image downsamples one field and is limited to 16 megapixels. Tile by tile reads native tiles, stitches objects across overlap and streams labels, pyramids and measurements to disk. Inspect seams and tile traces; predictions depend on local context.
+  options: [{label: Whole image, value: whole}, {label: Tile by tile (large scans), value: tiled}]
+  default: whole
+  cli_tag: --processing-mode
+  cli_order: 40
+  optional: true
+  section_id: advanced
+  mode: advanced
+- {name: tile_size, type: integer, label: Source tile side (native pixels), description: Model view size is controlled separately by Maximum model input side., default: 2048, minimum: 256, maximum: 4096, cli_tag: --tile-size, cli_order: 41, optional: true, section_id: advanced, mode: advanced}
+- {name: tile_overlap, type: integer, label: Tile overlap (native pixels), description: Must be less than half the tile side. Last tiles are anchored to the image boundary and can overlap more., default: 256, minimum: 0, maximum: 2047, cli_tag: --tile-overlap, cli_order: 42, optional: true, section_id: advanced, mode: advanced}
+- {name: tile_match_threshold, type: float, label: Seam object match IoU, description: Match reciprocal unambiguous instances in shared tile regions. Ambiguous matches remain separate and are counted for review., default: 0.5, minimum: 0.01, maximum: 1.0, cli_tag: --tile-match-threshold, cli_order: 43, optional: true, section_id: advanced, mode: advanced}
+- name: skip_blank_tiles
+  type: dropdown
+  label: Skip blank RGB tiles
+  description: Optional histology heuristic. Skip tiles with at most 0.1% pixels outside near-white (all RGB at least 220) or near-black (all RGB at most 15). Can miss faint tissue. Applied after intensity scaling; recorded in tile traces. Disabled by default.
+  options: [{label: Disabled, value: 0}, {label: Skip near-white or near-black tiles, value: 1}]
+  default: 0
+  cli_tag: --skip-blank-tiles
+  cli_order: 44
+  optional: true
+  section_id: advanced
+  mode: advanced
 - name: overwrite
   type: dropdown
   label: Existing results
@@ -141,7 +177,7 @@ parameters:
   section_id: advanced
   mode: advanced
 - {name: threshold, type: float, label: Mask probability threshold, default: 0.5, minimum: 0.01, maximum: 0.99, cli_tag: --threshold, cli_order: 32, optional: true, section_id: advanced, mode: advanced}
-- {name: max_side, type: integer, label: Maximum model input side (pixels), description: Large inputs are explicitly downsampled for inference and masks mapped to original coordinates. No automatic tiling., default: 1024, minimum: 128, maximum: 2048, cli_tag: --max-side, cli_order: 33, optional: true, section_id: advanced, mode: advanced}
+- {name: max_side, type: integer, label: Maximum model input side (pixels), description: Maximum model view side for the whole image or each source tile. Each source tile is downsampled to this size when larger; increasing this value increases GPU use. Masks are mapped back to native coordinates., default: 1024, minimum: 128, maximum: 2048, cli_tag: --max-side, cli_order: 33, optional: true, section_id: advanced, mode: advanced}
 - {name: max_new_tokens, type: integer, label: Maximum generated tokens, description: Truncated output fails the run instead of silently saving partial masks., default: 2048, minimum: 32, maximum: 8192, cli_tag: --max-new-tokens, cli_order: 34, optional: true, section_id: advanced, mode: advanced}
 - {name: min_area, type: integer, label: Minimum object area (native pixels), default: 0, minimum: 0, maximum: 16777216, cli_tag: --min-area, cli_order: 35, optional: true, section_id: advanced, mode: advanced}
 - name: device
