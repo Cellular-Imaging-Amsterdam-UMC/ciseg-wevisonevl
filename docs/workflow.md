@@ -99,7 +99,7 @@ launcher remains available through `launch.cmd`.
 - Rendering changes only the model view. Measurements include every source
   channel and use the working pyramid overview before normalization.
 
-The development workflow uses one whole-field pyramid overview per prompt with a default maximum side of 4096 pixels. It chooses the closest level at or above the limit, then area-resizes. Native labels use smooth per-instance distance interpolation; measurements, including integrated intensities, are scaled from the working overview. Tile inference has been removed. See [large-image details](tiling.html). Published v0.1.0 retains its original behavior.
+Release v0.2.0 uses one whole-field pyramid overview per prompt with a default maximum side of 4096 pixels. It chooses the closest level at or above the limit, then area-resizes. Native labels use smooth per-instance distance interpolation; measurements, including integrated intensities, are scaled from the working overview. Tile inference has been removed. See [large-image details](tiling.html). Published v0.1.0 retains its original behavior.
 
 ## Automatic 3D projection
 

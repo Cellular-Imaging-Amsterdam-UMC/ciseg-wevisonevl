@@ -1,203 +1,156 @@
-<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Docker, BIOMERO &amp; GPU requirements · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.2.0.dev0</div><h1>Docker, BIOMERO &amp; GPU requirements</h1></header><article class="prose"><p>The development checkout replaces tile inference with whole-field pyramid overview prediction, default maximum side 4096. The released v0.1.0 image retains its original behavior; always use the descriptor matching the source-pinned container. See <a href="tiling.html">large-image selection, smooth labels and measurement scaling</a>.</p>
-<p>Large views need more working memory. Query-chunked exact attention retains full-image keys while bounding temporary workspace in both the vision and language backbones. Mask decoding also avoids unused full-sequence vocabulary logits. Actual peak still depends on dimensions, aspect ratio, prompt length and object count. Validate the requested view on the target partition; a long narrow image is not equivalent to a square 4096-pixel image. Current local validation results are recorded separately below when available.</p>
-<p>Disk must cover the source image copy, independent native uint32 label pyramids for every prompt, and staged replacement results. Label writing is bounded; shape/intensity measurement uses only the working overview. Historical tile performance measurements do not establish the resource needs of this new route.</p>
-<p>Release <strong>v0.1.0</strong> provides the headless <code>linux/amd64</code> image
-<a href="https://hub.docker.com/r/cellularimagingcf/w_cisegwevisonevl/tags?name=v0.1.0"><code>cellularimagingcf/w_cisegwevisonevl:v0.1.0</code></a>.
-Use the versioned image and the matching
-<a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/v0.1.0/config.yaml">GitHub descriptor</a>.
-The image includes the pinned WeVisOne-VL-4B weights and pixel decoder, approximately
-19.37 GB of model files. Inference runs offline; no model download or Hugging Face
-token is required on the compute node. The desktop GUI is distributed in the
-source release and is not installed in this headless image.</p>
-<h2 id="overview-development-validation-and-helios-profiles">Overview development validation and Helios profiles</h2>
-<p>The local RTX A5000 24 GB processed the complete esophagus overview at 4096 × 1910 for all four prompts. Each prediction took approximately 15 seconds. Maximum PyTorch allocated memory was <strong>12.10 GiB</strong>, reserved <strong>13.37 GiB</strong>; after cleanup the loaded model retained about <strong>9.10 GiB allocated</strong>. These measurements describe the overview GPU phase, not complete export/import runtime or every possible image. Automatic mode conservatively uses a 3072-pixel ceiling for 24 GB; a separate 3072 overview probe took about 6.2 seconds with 11.56 GiB allocated and 12.27 GiB reserved. The 47 GB profile defaults to 4096 and still requires validation on the real device. 12 GB is not a supported profile.</p>
-<p>Helios exposes GPU types through Slurm GRES. The <a href="https://hg-aumc.gitlab.io/hpc-aumc/user-wiki/job_management/gpu_basics/">official GPU guide</a> lists <code>2g.24gb</code> and <code>4g.47gb</code>; verify currently available types with <code>sinfo</code>. These are GPU/MIG resource types within the GPU partition. Host RAM is requested separately. For example:</p>
-<pre><code class="language-bash"># 24 GB GPU profile, normally a 3072-pixel overview ceiling
-sbatch --partition=gpu --gres=gpu:2g.24gb:1 --cpus-per-task=8 --mem=52G job.sh
-# 47 GB GPU profile, normally a 4096-pixel overview ceiling
-sbatch --partition=gpu --gres=gpu:4g.47gb:1 --cpus-per-task=18 --mem=100G job.sh
-</code></pre>
-<p>These site-specific examples follow the published profile allocations; they do not replace the portable defaults or the local A5000 Slurm configuration. The application inspects its assigned CUDA device and free VRAM after model loading. A smaller overview is retried after CUDA out-of-memory; actual dimensions and measurement scale are retained in reports and CSV. Use Apptainer <code>--nv</code> as documented by Helios.</p>
-<p>The release guidance below describes v0.1.0; use the separately pinned overview descriptor and local development image for the new route.</p>
-<h2 id="gpu-partition-requirements">GPU partition requirements</h2>
-<p><strong>Reserve one NVIDIA GPU with at least 24 GB VRAM per job.</strong> An RTX A5000 with
-24 GB is the tested deployment profile, using BF16, a maximum model-input side
-of 1024, 2048 generated tokens and decoder batch size 1. Smaller GPUs have not
-been validated. Multiple smaller GPUs do not combine their VRAM for this adapter.
-Prompts, fields and timepoints are processed serially using the same model.</p>
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Docker, BIOMERO &amp; GPU requirements · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.2.0</div><h1>Docker, BIOMERO &amp; GPU requirements</h1></header><article class="prose"><p>Release <strong>v0.2.0</strong> uses the existing offline WeVisOne-VL-4B weights to process
+OME-Zarr input from BIOMERO and return native-size labels and measurements to
+OMERO. Match the container and descriptor versions:</p>
+<ul>
+<li><a href="https://hub.docker.com/r/cellularimagingcf/w_cisegwevisonevl/tags?name=v0.2.0">Container v0.2.0</a>: <code>cellularimagingcf/w_cisegwevisonevl:v0.2.0</code>, <code>linux/amd64</code></li>
+<li><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/v0.2.0/config.yaml">Tagged descriptor</a></li>
+<li><a href="release-v0.2.0-validation.json">Validation record</a></li>
+</ul>
+<p>The image includes approximately 19.37 GB of pinned model files. Inference stays
+offline; compute nodes do not need a Hugging Face token or a model download.
+The Windows GUI is an optional source interface and is not installed in this
+headless workflow image.</p>
+<h2 id="gpu-and-host-resources">GPU and host resources</h2>
+<p>Reserve <strong>one NVIDIA GPU in the 24 GB class or larger</strong>, with BF16 support.
+Start with <strong>4 CPU cores and 32 GB host RAM</strong>. Slurm host memory settings do not
+reserve GPU VRAM. Multiple smaller GPUs do not combine their memory for this
+single-device adapter. GPU passthrough requires NVIDIA Container Toolkit for
+Docker, or Apptainer <code>--nv</code>.</p>
+<p>Automatic resolution inspects the assigned CUDA device/MIG slice and currently
+free memory after the model loads. A 24 GB device starts at a longest-side limit
+of 3072; a 47 GB device starts at 4096. The ceiling is 4096. A reserve is kept,
+busy devices can choose a smaller overview, and CUDA out-of-memory triggers a
+smaller complete-field retry. The 47 GB profile requires validation on the real
+device; 12 GB is not supported.</p>
+<p>On the local RTX A5000, a full large-scan job with a <strong>3072 × 1433</strong> working
+overview, four prompts and native <strong>53912 × 25139</strong> labels completed with:</p>
 <table>
 <thead>
 <tr>
 <th>Resource</th>
-<th>Deployment guidance</th>
+<th>Measured</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>GPU</td>
-<td>One CUDA-capable NVIDIA GPU with BF16 support; 24 GB VRAM or more</td>
+<td>Peak allocated GPU memory</td>
+<td>11.56 GiB</td>
 </tr>
 <tr>
-<td>Host RAM</td>
-<td>Start with 32 GB per job; measured process RSS peaked at 25.42 GiB on the release fixtures</td>
+<td>Peak reserved GPU memory</td>
+<td>12.34 GiB</td>
 </tr>
 <tr>
-<td>CPU</td>
-<td>Start with 4 cores per job</td>
+<td>Peak process RAM</td>
+<td>25.85 GiB</td>
 </tr>
 <tr>
-<td>Image storage</td>
-<td>Allow at least 80 GB free for image download, Apptainer conversion and cache, plus input/output space</td>
+<td>Allocated CPU cores</td>
+<td>4</td>
 </tr>
 <tr>
-<td>Runtime</td>
-<td>Linux x86-64; NVIDIA Container Toolkit for Docker, or Apptainer with <code>--nv</code></td>
+<td>Average / peak sampled CPU use</td>
+<td>0.80 / 1.87 cores</td>
 </tr>
 <tr>
-<td>Software in image</td>
-<td>Python 3.12, PyTorch 2.11.0 / CUDA 12.6, Transformers 5.12.1</td>
+<td>Model job, including native output writing</td>
+<td>7 min 8 s</td>
 </tr>
 </tbody>
 </table>
-<p>Measured GPU memory is <strong>not</strong> a guaranteed maximum for all inputs. Windows
-real-model validation reached 11.37 GiB of PyTorch allocated GPU memory.
-The Linux container validation reached <strong>11.37 GiB allocated</strong> and
-<strong>12.42 GiB reserved</strong> by PyTorch on the same 24 GB GPU.
-Allocator reservations and driver/runtime overhead also need VRAM. Larger model
-views, longer generated output and larger decoder batches can increase usage;
-validate those settings on your partition before offering them to users.</p>
-<p>Host RAM must also cover model loading and image/measurement processing. The
-32 GB starting allocation is based on these fixtures, not a maximum for large
-images or dense masks. The node must advertise enough RAM in Slurm for the
-requested allocation; a node configured with only 16 GB cannot schedule this
-32 GB job until its configuration/resources are adjusted by its administrator.</p>
-<p>Slurm <code>--mem=...</code> and <code>--mem-per-gpu=...</code> reserve <strong>host RAM</strong>, not GPU VRAM.
-Select a partition or GPU type that actually provides a 24 GB GPU; a generic
-<code>--gres=gpu:1</code> alone does not guarantee its memory capacity. GPU type and
-constraint names are defined by the cluster administrator. See the
-<a href="https://slurm.schedmd.com/gres.html">Slurm GPU resource documentation</a>.</p>
-<p>The container supplies CUDA user-space libraries, while the host supplies the
-NVIDIA driver. CUDA 12.x has a driver compatibility floor of 525 with feature/PTX
-limitations; this release was tested with driver 595.79 on Windows/Docker Desktop.
-Use a current driver supported by your site and validate the actual node. See
-<a href="https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html">NVIDIA CUDA compatibility</a>.</p>
-<h2 id="test-docker-before-registering-the-workflow">Test Docker before registering the workflow</h2>
-<p>On a Linux GPU host, create separate input and output folders. Input must be
-NGFF 0.4 / Zarr v2 with explicit axes. The wrapper accepts an input store or a
-folder containing stores. For example:</p>
-<pre><code class="language-bash">docker pull cellularimagingcf/w_cisegwevisonevl:v0.1.0
-mkdir -p &quot;$PWD/results&quot;
-docker run --rm --gpus all --network none \
-  --mount &quot;type=bind,source=$PWD/inputs,target=/data/in,readonly&quot; \
-  --mount &quot;type=bind,source=$PWD/results,target=/data/out&quot; \
-  cellularimagingcf/w_cisegwevisonevl:v0.1.0 \
+<p>These are fixture measurements, not guaranteed maxima. Aspect ratio, object
+count, prompt length and decoder settings can change memory use. A square
+4096-pixel image is larger than the tested narrow overview. Host RAM must cover
+model loading as well as image processing. Storage must cover the input copy,
+independent uint32 label pyramids and any staged replacements. Large input
+archiving, file transport and OMERO import can dominate the total runtime.</p>
+<p>The runtime uses Python 3.12, PyTorch 2.11.0/CUDA 12.6 and Transformers 5.12.1.
+Use a compatible site-supported NVIDIA driver. The container supplies CUDA
+user-space libraries; the host supplies the driver. See the
+<a href="https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html">NVIDIA compatibility guide</a>.</p>
+<h2 id="pull-and-test-the-container">Pull and test the container</h2>
+<pre><code class="language-bash">apptainer pull w_cisegwevisonevl_v0.2.0.sif \
+  docker://cellularimagingcf/w_cisegwevisonevl:v0.2.0
+</code></pre>
+<p>Pull once where registry access, storage and conversion resources are available.
+Inference can then stay offline. For a Docker smoke test, use separate input
+and output folders:</p>
+<pre><code class="language-bash">docker run --rm --gpus all --network none \
+  --mount &quot;type=bind,source=$INPUT,target=/data/in,readonly&quot; \
+  --mount &quot;type=bind,source=$OUTPUT,target=/data/out&quot; \
+  cellularimagingcf/w_cisegwevisonevl:v0.2.0 \
   --infolder /data/in --outfolder /data/out --device cuda:0 \
-  --prompt-1 &quot;cell&quot; --name-1 cell --channels-1 1
+  --auto-resolution 1 --prompt-1 &quot;cell nuclei&quot; --name-1 nuclei --channels-1 1
 </code></pre>
-<p>Choose prompts and channel maps for your own images. One channel creates a
-grayscale RGB view; three channels map to R,G,B in the entered order. Blank
-prompts disable their slots. Results contain independent native label groups,
-provenance, previews and one <code>measurements.csv</code>. Original inputs remain unchanged.
-CLI replacement requires <code>--overwrite 1</code>; the Bilayers form defaults to replacing
-previous results only after a successful complete run.</p>
-<h2 id="pull-an-apptainer-image">Pull an Apptainer image</h2>
-<p>Pull once on a node with registry access, sufficient disk space and adequate
-RAM/time for image conversion. Inference nodes can then stay offline:</p>
-<pre><code class="language-bash">apptainer pull w_cisegwevisonevl_v0.1.0.sif \
-  docker://cellularimagingcf/w_cisegwevisonevl:v0.1.0
-</code></pre>
-<p>An example Slurm job follows. Change <code>gpu</code> and the GPU resource selector to match
-the cluster's 24 GB-or-larger GPU nodes. <code>--mem</code> is independent of GPU memory.</p>
-<pre><code class="language-bash">#!/bin/bash
-#SBATCH --job-name=cisegwevisonevl
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=32G
-#SBATCH --time=01:00:00
-set -euo pipefail
-mkdir -p &quot;$OUTPUT&quot;
-apptainer exec --nv \
-  --bind &quot;$INPUT:/data/in:ro&quot; --bind &quot;$OUTPUT:/data/out&quot; \
-  &quot;$IMAGE_DIR/w_cisegwevisonevl_v0.1.0.sif&quot; \
-  python /app/wrapper.py \
-  --infolder /data/in --outfolder /data/out --device cuda:0 \
-  --prompt-1 &quot;cell&quot; --name-1 cell --channels-1 1
-</code></pre>
-<p>Set <code>INPUT</code>, <code>OUTPUT</code> and <code>IMAGE_DIR</code> to absolute host paths before submission.
-The time limit is a starting point, not an estimate for every dataset. Jobs with
-many fields/timepoints require longer limits. A large image pull/conversion may
-also need its own Slurm job according to local cluster policy.</p>
-<h2 id="register-in-biomero">Register in BIOMERO</h2>
-<p>The Bilayers descriptor and command substitutions were checked against installed
-BIOMERO <strong>2.9.0b11</strong>. Merge the following workflow settings into the deployment's
-existing configuration; keep its SSH, storage and other workflow settings.
-The <code>_job</code> entry must precede the <code>_job_*</code> entries for this BIOMERO parser.</p>
+<p>Set <code>INPUT</code> and <code>OUTPUT</code> to absolute host paths; input must be NGFF 0.4/Zarr v2
+with explicit axes. A directory can contain multiple input stores or HCS plates.</p>
+<h2 id="register-with-biomero">Register with BIOMERO</h2>
+<p>Merge these settings into the site's canonical <code>slurm-config.ini</code>, preserving
+its existing connection/storage configuration. The <code>_job</code> entry must precede
+the <code>_job_*</code> resource settings for the tested parser. Change the partition and
+GPU selector to match the site's actual GPU types and memory capacities.</p>
 <pre><code class="language-ini">[WORKFLOWS]
 cisegwevisonevl = cisegwevisonevl
-cisegwevisonevl_repo = https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/tree/v0.1.0
-cisegwevisonevl_job = cisegwevisonevl.sh
+cisegwevisonevl_repo = https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/tree/v0.2.0
 cisegwevisonevl_use_gpu = true
+cisegwevisonevl_job = jobs/cisegwevisonevl.sh
 cisegwevisonevl_job_partition = gpu
 cisegwevisonevl_job_gres = gpu:1
 cisegwevisonevl_job_cpus-per-task = 4
 cisegwevisonevl_job_mem = 32G
-cisegwevisonevl_job_time = 01:00:00
+cisegwevisonevl_job_time = 04:00:00
 </code></pre>
-<p>Enable or retain the deployment's GPU passthrough (<code>--nv</code>). In BIOMERO versions
-with <code>inject_gpu_flag</code>, <code>[SLURM] inject_gpu_flag = true</code> supplies <code>--nv</code> for
-GPU workflows; the example's per-workflow partition and GPU request take
-precedence over generic defaults. Adapt this through the deployment's normal
-configuration process rather than replacing the complete configuration file.</p>
-<p>Refresh BIOMERO workflow metadata/job scripts and pull the image using the site's
-normal administrator procedure, then select version <strong>v0.1.0</strong>. The image filename
-expected by the tested client is <code>w_cisegwevisonevl_v0.1.0.sif</code> under the configured
-workflow image directory. The Bilayers adapter reads the repository/image name;
-select the version explicitly rather than relying solely on <code>docker_image.tag</code>.
-Input and output folder arguments are generated from <code>config.yaml</code> and the
-measurement output is declared as a single CSV.</p>
-<p>Release checks ran real GPU inference in the Linux container with networking disabled,
-including the public cell and organoid inputs and a derived two-field, two-timepoint
-Z-stack fixture using both Max and Mean projections. Source bytes and output pixels
-were checked. The derived fixture verifies processing behavior, not biological 3D
-accuracy. See <a href="release-v0.1.0-validation.json">the release validation record</a>.
-The organoid fixture produced 84 model instances and foreground Dice 0.880
-against the microSAM consensus reference. This measures foreground agreement,
-not instance accuracy. The earlier Windows run gave 83 instances and Dice 0.881;
-results are not assumed to be bit-identical across runtime backends. All 97
-regression tests and the static website checks passed. Exact installed Linux
-packages are recorded in
-<a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/v0.1.0/requirements-lock.linux.txt"><code>requirements-lock.linux.txt</code></a>.</p>
-<p>An OMERO end-to-end image/label/CSV reimport test remains a deployment acceptance
-step. Container inference and descriptor parsing do not by themselves validate
-OMERO attachment import or every Slurm installation.</p>
-<h2 id="scope-and-limitations">Scope and limitations</h2>
-<p>This is the first research release. Successful execution does not establish
-biological accuracy. Inspect masks for your images and prompts. The reviewed
-gallery is positively selected, not a representative benchmark. In the earlier
-Windows validation, <code>organoids_im9</code> generated inconsistent object/box counts and
-was correctly rejected; some nuclei prompts produced poor masks despite a
-successful run. Diagnostics are retained for failed runs.</p>
-<p>Production inputs are limited to 16 megapixels per XY plane. Z stacks are
-projected per channel and timepoint (Max or Mean); volume instance IDs are never
-projected. Native 3D segmentation, automatic production tiling and tracking are
-not included. See <a href="workflow.html">the workflow guide</a> and
-<a href="research.html">validation notes</a>.</p>
-<p>The adapter is MIT licensed. The image includes upstream model weights/code and
-third-party packages with their own licenses; see
-<a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/v0.1.0/NOTICE.md">NOTICE.md</a>
-and <code>/models/WeVisOne-VL-4B/LICENSE</code> inside the image.</p>
-<h2 id="rebuild-the-release-image">Rebuild the release image</h2>
-<p>Download the pinned model inventory with <code>tools/download_models.py</code>, then build
-the internal model cache and the final image:</p>
+<p>Refresh workflow metadata and job scripts through the deployment's normal
+administrator procedure. Cache the image as <code>w_cisegwevisonevl_v0.2.0.sif</code> in
+the configured workflow image directory and select <strong>v0.2.0</strong> explicitly.
+Retain the deployment's GPU-flag injection so Apptainer receives <code>--nv</code>.</p>
+<p>For an existing v0.1.0 installation, a separate key such as
+<code>cisegwevisonevl_overview</code> can preserve the older workflow. Point that key to
+<code>tree/v0.2.0/config-overview.yaml</code> and use its own job/image directory. Do not
+offer old images through the new descriptor: their supported parameters differ.</p>
+<p>In BIOMERO, enable <strong>Upload result CSVs as OMERO tables</strong> for the measurement
+table. Optional ROI conversion is a separate deployment feature; native label
+images are returned independently. Validate the full return path on your site.</p>
+<h2 id="helios-gpumig-examples">Helios GPU/MIG examples</h2>
+<p>The <a href="https://hg-aumc.gitlab.io/hpc-aumc/user-wiki/job_management/gpu_basics/">official Helios GPU guide</a>
+lists <code>2g.24gb</code> and <code>4g.47gb</code> resource types within the GPU partition. Inspect
+currently available resources with <code>sinfo</code> before submitting. The published
+profile allocations give these site-specific examples:</p>
+<pre><code class="language-bash">sbatch --partition=gpu --gres=gpu:2g.24gb:1 --cpus-per-task=8 --mem=52G job.sh
+sbatch --partition=gpu --gres=gpu:4g.47gb:1 --cpus-per-task=18 --mem=100G job.sh
+</code></pre>
+<p>Choose the GPU type in Slurm; the application then detects the assigned capacity.
+The local demonstration's four-CPU/32G allocation is separate from these Helios
+profiles. Do not copy the Helios host-memory request onto a smaller local node.
+These examples are configuration guidance, not evidence of a completed Helios
+hardware test.</p>
+<h2 id="labels-measurements-and-validation-scope">Labels, measurements and validation scope</h2>
+<p>Prediction uses one complete-field pyramid overview per prompt. Native labels
+are streamed with per-instance distance interpolation and discrete uint32 IDs.
+Measurements use only the working overview: geometry transforms per axis, while
+area, finite counts and integrated intensity multiply by Y×X. Mean/min/max
+retain unnormalized overview values. These are estimates; native interpolated
+pixel area can differ. See the <a href="tiling.html">large-image guide</a>.</p>
+<p>105 tests passed. A full local BIOMERO/Slurm run returned one RGB image, four
+native label images and a measurement table to OMERO. Retained pyramid bytes
+and all working-overview areas/channel statistics were independently checked.
+Complete native-pixel and every-table-cell roundtrip comparisons were not
+completed. The tested stack also logged incomplete storage-provenance annotations;
+this deployment-specific issue does not establish complete metadata provenance.</p>
+<p>Layer proposals overlapped broadly in the large histology case. Successful
+execution is not evidence of anatomical or diagnostic accuracy. The gallery is
+positively selected. Historical v0.1.0 evidence remains in its
+<a href="release-v0.1.0-validation.json">validation record</a>.</p>
+<h2 id="rebuild">Rebuild</h2>
+<p>Prepare the pinned models with <code>tools/download_models.py</code>, then:</p>
 <pre><code class="language-bash">docker build --platform linux/amd64 -f Dockerfile.models \
   -t w_cisegwevisonevl-model-cache:local .
-docker build --platform linux/amd64 --build-arg VERSION=0.1.0 \
+docker build --platform linux/amd64 --build-arg VERSION=0.2.0 \
   --build-arg VCS_REF=&quot;$(git rev-parse HEAD)&quot; \
-  -t cellularimagingcf/w_cisegwevisonevl:v0.1.0 .
+  -t cellularimagingcf/w_cisegwevisonevl:v0.2.0 .
 </code></pre>
-<p>The internal cache is a build artifact; only the final headless workflow image
-is published. Public images and local output stores are excluded from the
-container build context. The release validation report records the tested
-runtime and memory measurements; downloaded model file sizes and pinned snapshot
-revision are verified during the final build.</p></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.2.0.dev0 · Public gallery from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>
+<p>The model cache is an internal build artifact; publish the final workflow image.
+Models, private inputs and output stores are excluded from the code build
+context. The final build verifies the pinned model inventory. See
+<a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/v0.2.0/NOTICE.md">NOTICE.md</a>
+for adapter, dependency and upstream model licensing.</p></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.2.0 · Public gallery from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>

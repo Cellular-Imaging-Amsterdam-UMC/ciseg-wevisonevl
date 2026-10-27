@@ -8,7 +8,7 @@ RUN python -m pip install --no-cache-dir torch==2.11.0 torchvision==0.26.0 --ind
     && python -m pip install --no-cache-dir --no-deps "wevisone-vl @ git+https://github.com/Tencent/WeVisOne-VL.git@40f735b8daed437ece982db9718e9c9856f52a79" \
     && python -m pip check
 COPY ciseg_wevisonevl/ ciseg_wevisonevl/
-COPY wrapper.py config.yaml bilayers_cli.py LICENSE NOTICE.md version.txt ./
+COPY wrapper.py config.yaml config-overview.yaml bilayers_cli.py LICENSE NOTICE.md version.txt ./
 COPY tools/validate_container.py tools/validate_container.py
 ENV CISEGWEVISONEVL_MODELS=/models HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/matplotlib
 ENTRYPOINT ["python", "/app/wrapper.py"]
@@ -17,7 +17,7 @@ FROM ${MODELS_IMAGE} AS model_cache
 FROM runtime AS final
 COPY --from=model_cache /models/ /models/
 RUN python /app/tools/validate_container.py --inventory-only
-ARG VERSION=0.2.0.dev0
+ARG VERSION=0.2.0
 ARG VCS_REF=unknown
 LABEL org.opencontainers.image.title="CISegWeVisOneVL" \
       org.opencontainers.image.description="Offline WeVisOne-VL-4B microscopy segmentation for BIOMERO; includes pinned model weights" \

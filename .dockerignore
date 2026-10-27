@@ -4,6 +4,7 @@
 !ciseg_wevisonevl/**
 !wrapper.py
 !config.yaml
+!config-overview.yaml
 !bilayers_cli.py
 !LICENSE
 !NOTICE.md

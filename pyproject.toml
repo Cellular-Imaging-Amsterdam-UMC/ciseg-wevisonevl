@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ciseg-wevisonevl"
-version = "0.2.0.dev0"
+version = "0.2.0"
 description = "CISegWeVisOneVL: four-prompt OME-Zarr segmentation with automatic Max/Mean Z projection, time series and HCS screens"
 requires-python = ">=3.12,<3.13"
 

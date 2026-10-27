@@ -1,0 +1,63 @@
+{
+  "version": "0.2.0",
+  "date": "2026-10-27",
+  "primary_interface": "BIOMERO workflow for OMERO and Slurm",
+  "functional_source_commit_tested": "12dd8380d008b7b9b792044cf1c7bc76d7804723",
+  "model_revision": "4a7bed92750ac9d8b8a124cede14759036932dc2",
+  "model_bytes": 19372591679,
+  "offline_model_inventory_verified": true,
+  "tests_passed": 105,
+  "automatic_profile_longest_side": {
+    "24GB": 3072,
+    "47GB": 4096
+  },
+  "maximum_side": 4096,
+  "actual_47GB_hardware_test": false,
+  "12GB_profile_supported": false,
+  "large_scan": {
+    "native_shape_yx": [
+      25139,
+      53912
+    ],
+    "source_pyramid_shape_yx": [
+      1571,
+      3369
+    ],
+    "working_shape_yx": [
+      1433,
+      3072
+    ],
+    "prompts": 4,
+    "slurm_completed": true,
+    "slurm_exit_code": "0:0",
+    "omero_returned_rgb_images": 1,
+    "omero_returned_uint32_label_images": 4,
+    "omero_table_created": true,
+    "measurements_rows": 4,
+    "measurements_columns": 69,
+    "working_pyramid_bytes_equal_source": true,
+    "all_working_overview_channel_statistics_verified": true,
+    "area_count_and_total_intensity_scale_factor": 307.8690556670156,
+    "all_native_pixel_roundtrip_verified": false,
+    "every_omero_table_cell_verified": false,
+    "model_process_resource_usage": {
+      "model_process_seconds": 423.7933377549052,
+      "whole_workflow_seconds": 3311.304484,
+      "peak_process_ram_gib": 25.851879119873047,
+      "peak_allocated_gpu_gib": 11.56289529800415,
+      "peak_reserved_gpu_gib": 12.341796875,
+      "average_cpu_cores": 0.8040722200925062,
+      "peak_sampled_cpu_cores": 1.8671770768192537,
+      "allocated_cpu_cores": 4,
+      "allocated_host_ram_gib": 32
+    }
+  },
+  "measurement_basis": "Unnormalized working pyramid overview. Per-axis geometry scales to native pixels; area, valid counts and total intensity multiply by sy*sx. Means/min/max retain overview values. Native smooth raster area can differ slightly.",
+  "limitations": [
+    "The 47 GB profile has not been tested on actual Helios hardware.",
+    "Full native-pixel and every-table-cell roundtrip comparisons were not completed.",
+    "Anatomical-layer proposals overlapped broadly; successful execution is not biological validation.",
+    "The tested BIOMERO deployment reported incomplete storage-provenance annotations; image import and independently checked CSV values succeeded.",
+    "Host/GPU memory depends on view shape, prompt and object count; measured values are not guaranteed maxima."
+  ]
+}

@@ -1,11 +1,15 @@
 # Changelog
 
-## Unreleased — 2026-10-27
+## v0.2.0 — 2026-10-27
 
-- Replace tile inference with whole-field pyramid overview prediction, default side 4096, smooth per-instance native label restoration and bounded writes.
+- Replace tile inference with whole-field pyramid overview prediction, automatic 3072-pixel limit on 24 GB GPUs and 4096 on larger supported GPUs, smooth per-instance native label restoration and bounded writes.
 - Measure shapes and intensities on the working overview; scale area, counts, total intensities and geometry to native coordinates with explicit provenance.
 - Remove obsolete tile controls, stitching code and development descriptor; provide the overview BIOMERO descriptor.
-- Avoid unused full-sequence vocabulary logits during mask decoding.
+- Bound full-image vision/language attention workspace and avoid unused full-sequence vocabulary logits during mask decoding.
+- Detect assigned GPU/MIG capacity and free memory, keep a safety reserve, and retry a smaller complete overview after CUDA out-of-memory.
+- Keep BIOMERO as the primary documented interface; local Python and the GUI remain optional.
+- Validate a full large-scan BIOMERO/Slurm/OMERO run and independently verify scaled overview areas and channel statistics, including total intensity. Full native-pixel roundtrip and every-table-cell checks were not completed.
+- The 47 GB profile requires hardware validation. Layer prompts can overlap broadly; this release does not establish anatomical accuracy.
 
 
 ## v0.1.0 — 2026-10-25
