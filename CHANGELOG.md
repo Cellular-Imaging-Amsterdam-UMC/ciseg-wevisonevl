@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — 2026-10-27
+
+- Replace tile inference with whole-field pyramid overview prediction, default side 4096, smooth per-instance native label restoration and bounded writes.
+- Measure shapes and intensities on the working overview; scale area, counts, total intensities and geometry to native coordinates with explicit provenance.
+- Remove obsolete tile controls, stitching code and development descriptor; provide the overview BIOMERO descriptor.
+- Avoid unused full-sequence vocabulary logits during mask decoding.
+
+
 ## v0.1.0 — 2026-10-25
 
 First research release of the CISegWeVisOneVL inference adapter, using the

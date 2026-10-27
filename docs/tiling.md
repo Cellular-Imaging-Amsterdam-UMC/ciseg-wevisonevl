@@ -1,142 +1,47 @@
-# Large scans: tile by tile
+# Large scans: whole-field pyramid overview
 
-## Availability
+Tile-by-tile inference was removed on 27 October 2026: small tissue fragments in individual tiles lost anatomical context and produced a patchwork on a large histology scan. Each prompt now sees one overview of the entire field, independently for every timepoint and HCS field.
 
-The development Python workflow supports explicit tiled processing through the
-GUI, launcher and CLI. The published v0.1.0 container retains its original
-whole-image implementation; use its tagged descriptor with that image. The
-development descriptor's `dev` image is a local build target, not a published
-release. No new image or live BIOMERO configuration is implied by these changes.
+## Image selection
 
-## Controls
+The maximum overview side is **4096 pixels** (Advanced ceiling, configurable from 128 to 4096). Automatic GPU profiles are enabled by default: **3072** for the 24 GB class and **4096** for larger supported GPUs, subject to the configured ceiling and free memory. Devices below the 24 GB class, including 12 GB MIG, are not supported. The detected capacity is that of the CUDA device assigned to the job, including a MIG slice, not the sum of physical GPUs. Select the smallest existing pyramid level whose longest side is at least this limit, then area-resize it with its aspect ratio preserved. The longest output side is exactly the limit, with the other side rounded to the nearest pixel. Small images retain native dimensions. If no lower pyramid exists, bounded source reads construct the overview without loading a giant native plane.
 
-Open **Advanced parameters → Image processing → Tile by tile (large scans)**.
+For a 53912 × 25139 scan with a 6739 × 3142 pyramid level, inference uses a **4096 × 1910** overview. The next smaller 3369 × 1571 level is deliberately not selected. Existing pyramid pixels define the sampled intensities; model contrast scaling is applied afterwards. All image channels, including channels absent from prompts, are measured on the same working overview. Z projections remain independent per timepoint and channel.
 
-| Control | Default | Meaning |
-| --- | --- | --- |
-| Processing mode | Whole image | Explicit Tiled is required above 16 megapixels |
-| Source tile side | 2048 native pixels | Full window including shared context; maximum 4096 |
-| Overlap | 256 native pixels | Nominal stride 1792; must be less than half the tile side |
-| Maximum model input side | 1024 pixels | Each source tile is downsampled to this model-view bound; maximum 2048 |
-| Seam match IoU | 0.5 | Intersection/union in shared, already processed pixels |
-| Skip blank RGB tiles | Disabled | Optional histology heuristic, described below |
+## Automatic resolution and memory fallback
 
-Example in PowerShell:
+The planner keeps a reserve of at least 2 GiB or 15% of assigned device memory and uses a conservative workspace estimate after the model is loaded. Busy devices can select a smaller overview. This estimate is not a guarantee for every prompt. CUDA out-of-memory triggers a new whole-field overview at approximately 75% of the previous side (rounded down to 128-pixel steps), down to 128. A non-memory error fails the run. No failed prediction is published as a completed label; retries and actual dimensions are recorded. Per-prompt scales may differ after a retry. Configured-limit mode bypasses profile selection but retains the out-of-memory fallback.
 
-```powershell
-.venv\Scripts\python.exe wrapper.py `
-  --infolder inputfolder\scan.ome.zarr --outfolder outputfolder\scan `
-  --processing-mode tiled --tile-size 2048 --tile-overlap 256 `
-  --max-side 2048 --normalization dtype --device cuda:0 `
-  --prompt-1 "all separate tissue fragments, excluding the empty glass background" `
-  --name-1 tissue --channels-1 1,2,3 `
-  --prompt-2 "DAB staining" --name-2 DAB_staining --channels-2 1,2,3
-```
+The 24 GB profile starts at 3072; the 47 GB profile starts at 4096. The 47 GB profile has not been validated on actual Helios hardware. The user stopped the exploratory 12 GB investigation; this is not a supported profile. A larger GPU does not establish better segmentation accuracy.
 
-These are example queries, not validated annotations. The DAB test missed visible
-brown staining with an earlier query; prompt choice must be reviewed. Prompt
-groups remain independent and may overlap. Each timepoint and HCS field has its
-own grid and object identities. Existing input-label keep/remove and staged
-overwrite behavior also apply in tiled mode.
+## Native labels and smooth edges
 
-## Memory, IO and contrast
+Native-resolution uint32 labels and calibrated OME-Zarr pyramids are written in bounded blocks. Each instance's signed distance is interpolated bilinearly; the largest positive distance owns a pixel and lower IDs win exact ties. Integer IDs themselves are never interpolated. Different prompts remain independent and may overlap. This smooths low-resolution pixel staircases but cannot recover biological detail absent from the overview. Distance smoothing may change the native raster's pixel area slightly; measurements intentionally describe the scaled overview, not a remeasurement of that raster.
 
-Source reads and Z reductions use bounded XY regions. Noncanonical axes and Z
-projections are rewritten in blocks; source stores remain untouched. Canonical
-2D sources are copied without changing pixels. Provisional uint32 labels and
-tile ownership live in Zarr on disk, with SQLite object equivalences. Final IDs,
-label pyramids and measurement aggregates are streamed in bounded passes.
-Source chunks larger than 256 MiB are rejected; rechunk those inputs first.
+## Measurements and scale
 
-Percentile limits are computed once per prompt/timepoint from a bounded existing
-overview, or deterministic native sampling when no overview is available. The
-same recorded limits apply to every tile. They can differ from exact full-image
-percentiles. Dtype and metadata scaling retain their normal meaning and original
-measurement intensities. Model memory is controlled by the separate model-view
-limit, decoder batch, tokens and object count, not by source tile size alone. A 4096-pixel source tile viewed
-at 2048 pixels approached the workstation GPU's total capacity during the large
-histology trial; it was stopped and retained for diagnostics. The default is now
-2048-pixel source tiles with a 1024-pixel model view.
+Let `sy = native_height / overview_height` and `sx = native_width / overview_width`. Both are recorded, including differences caused by rounding odd dimensions.
 
-**GPU memory between calls** defaults to releasing unused CUDA cache after every
-prediction, including failures. CPU result masks are retained; model weights stay
-loaded. Tile traces distinguish allocated tensor bytes from reserved allocator
-bytes before prediction, after prediction and after cleanup. Reusing the cache
-is an advanced speed option for a dedicated GPU. Releasing cache cannot free
-live model tensors and does not reduce the peak during an individual prediction.
+| Quantity | Conversion from working overview |
+| --- | --- |
+| Area, valid pixel count, total intensity | Multiply by `sy * sx` |
+| Minimum, maximum, mean intensity | Retain measured overview value, before contrast scaling |
+| Bounding-box edges | Multiply Y by `sy`, X by `sx` |
+| Centroid | Pixel-center mapping: `(y + 0.5) * sy - 0.5`, and likewise for X |
+| Equivalent diameter | Multiply by `sqrt(sy * sx)` |
+| Major/minor axes, eccentricity, orientation | Transform overview moments with separate Y/X spacing |
+| Perimeter | Scale the pixel estimator for equal spacing; use scaled closed marching-square contours for unequal spacing |
+| Physical coordinates and shapes | Apply native NGFF spacing, ordered transforms and origins after overview scaling |
+| Solidity, extent | Retain dimensionless overview ratios |
 
-Allow disk space for a source copy, each prompt's uint32 pyramid and temporary
-uint32 IDs/uint16 ownership arrays plus SQLite files. Failed partial runs retain
-their diagnostics and can consume additional disk space. There is no automatic
-resume of a failed grid. The source image and earlier completed outputs remain
-unchanged if a new run fails.
+`measurement_method`, `measurement_height_px`, `measurement_width_px`, `measurement_scale_y/x`, `measurement_area_px` and effective measurement pixel spacings document the basis. Pixel counts and areas can be fractional after scaling. Integrated intensity is an **estimated native-pixel sum**, not an exact sum of original native pixels. Extremes may differ from native extrema because of pyramid averaging. No physical units are invented when calibration is absent. `min_area` is specified in native pixels and converted to the overview area before filtering.
 
-## Seams, IDs and review
+The original 2D image pixels are preserved in the output. The overview does not replace the native source. For volumes the output image is the documented Z projection; the input volume remains untouched. Staged overwrite and input-label keep/remove apply as before.
 
-Final windows are anchored to the image boundary, so actual overlap can exceed
-the nominal value. Tiles run in row-major order. Predicted instances match only
-if their overlap IoU reaches the threshold and they share at least eight pixels.
-Only reciprocal one-to-one candidates merge; ambiguous splits/merges stay
-separate and are counted. An iterative disk-backed union map carries identities
-across multiple neighbors and four-tile junctions.
+## GPU and local workflow
 
-Within a model tile, highest probability owns a pixel and the first prediction
-wins ties. Between tiles, the context farthest from a tile edge owns each pixel;
-earlier tiles win equal-distance ties. This ownership includes background and is
-not probability blending. Minimum area is applied after seam resolution to
-complete objects. Semantic mode produces one binary class per prompt.
+The 4B model remains loaded between prompts; unused CUDA cache is released after each call by default. Exact query-chunked global attention bounds temporary workspace in both backbones, while retaining all keys for every query. BF16 kernel rounding can change probabilities slightly. Mask decoding avoids constructing unused vocabulary logits for every image token, while retaining the complete hidden states needed for masks. Actual peak memory depends on view dimensions, aspect ratio and generated object count. See the deployment validation report for measured hardware requirements; a 4096-square view is larger than a 4096 × 1910 example and must not be assumed to have the same peak.
 
-Tile traces (`wevisone_previews/*_tiles.jsonl`) retain bounds, model-view sizes,
-responses, boxes, timings and skip reasons. The run report retains seam counts,
-normalization limits and the active tile on failure. Invalid or truncated model
-responses fail the run; they are not silently converted into background.
+`config-overview.yaml` is the separate development BIOMERO descriptor. Use a locally built, source-pinned overview container. Published v0.1.0 retains its original behavior and must keep its matching tagged descriptor. Historical tile results and failed predictions remain available locally; obsolete tile inference code and controls have been removed.
 
-**Local context changes predictions.** A tile without the requested anatomy can
-still produce false positives. Initial human-esophagus trials detected some
-surface epithelium but also mislabeled muscle/background. Zero ambiguous seam
-matches does not establish biological accuracy. A cancer-related prompt is a
-model proposal, not a diagnosis or a validated tumor annotation. Inspect the
-whole overlay and representative native regions before using measurements.
-
-The optional blank-tile heuristic skips a tile when at most 0.1% of its scaled
-RGB pixels fall outside near-white (all components at least 220) or near-black
-(all at most 15). It is recorded per tile and can miss faint tissue. It is not
-a general-purpose tissue detector and is disabled by default.
-
-## Streamed measurements and viewer
-
-Tiled CSV rows contain exact pixel counts, bounding boxes, centroids, coordinate
-moments, covariance-based axes/eccentricity/orientation, equivalent diameters and
-per-channel valid counts, min/max/mean/total. Ordered calibration transforms,
-anisotropic spacing and origins are preserved. Intensities use original pixels
-or the selected Z projection, including channels excluded from the model view.
-
-Perimeter counts exposed pixel edges, including holes and image boundaries. Each
-horizontal edge uses X spacing and each vertical edge uses Y spacing. This differs
-from the whole-image estimator and is explicitly marked `streamed_pixel_edges`.
-Solidity is blank; no giant convex-hull mask is allocated. `measurement_method`
-records these distinctions. Missing calibration leaves physical columns blank.
-
-The GUI opens existing overviews before reading large images/labels and reports
-native pixels per display pixel. Hover coordinates map to native pixels. Visible
-instance counts can exclude objects too small for the overview; 1:1 shows display
-pixels and does not load native detail on zoom. Stored labels remain native-sized.
-
-## Earlier organoid experiment
-
-The original in-memory research prototype remains in `tools/experimental_tiling.py`
-and keeps its own 16-megapixel guard. On one native 1408 × 1040 organoid image,
-87 independent microSAM consensus instances were used for comparison:
-
-| Method | Tile/overlap | Tiles | Foreground Dice | Instance F1 at IoU >= 0.5 | Predicted instances |
-| --- | --- | --- | --- | --- | --- |
-| Earlier whole image | View side 1024 | 1 | 0.881 | 0.906 | 83 |
-| Prototype | 512/128 | 12 | 0.876 | 0.888 | 91 |
-| Prototype | 768/192 | 6 | 0.917 | 0.939 | 92 |
-| Prototype | 1024/256 | 4 | 0.911 | 0.926 | 88 |
-
-These results do not establish a universal tile size or accuracy on histological
-scans. The 2048/256 default is a large-scan starting point, not an accuracy optimum.
-
-Sources: [official WeVisOne-VL implementation](https://github.com/Tencent/WeVisOne-VL),
-[independent microSAM organoid data](https://zenodo.org/records/14036957).
+Successful execution does not validate anatomical or tumor accuracy. Review every prompt overlay against the image; no diagnostic claim is made.

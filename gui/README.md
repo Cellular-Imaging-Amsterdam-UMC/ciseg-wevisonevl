@@ -69,13 +69,4 @@ The original input pixels and measurement intensities are preserved. A colored
 prediction is not a validated biological annotation.
 
 GUI parameter settings are kept in ignored `.last_gui_settings.json`, separately
-from the original launcher's settings. Advanced parameters are initially collapsed. For large tilescans, choose
-**Image processing → Tile by tile (large scans)**, **Source tile side: 2048** and
-**Tile overlap: 256**. **Maximum model input side** is a separate model-view
-limit (1024 by default, up to 2048); it is not the source tile size. Blank-tile
-skipping is optional and disabled by default because it can miss faint tissue.
-See the [large-image guide](../docs/tiling.md) for seam handling and the tiled
-measurement estimator. These options belong to the development Python workflow;
-they are not present in the released v0.1.0 container.
-Label colors, per-prompt color modes, visibility and opacity are saved there on
-closing the GUI and restored on reopening, without changing saved run parameters.
+from the original launcher's settings. Advanced parameters are initially collapsed. Large tilescans automatically use a whole-field pyramid overview, with automatic GPU profiles (3072 for 24 GB, 4096 for 47 GB), a configurable ceiling up to 4096, and memory fallback. Labels are smoothly restored to native dimensions. Measurements are computed on the overview and scaled, including total intensity and area. See the [large-image guide](../docs/tiling.md). Tile inference and its controls have been removed.

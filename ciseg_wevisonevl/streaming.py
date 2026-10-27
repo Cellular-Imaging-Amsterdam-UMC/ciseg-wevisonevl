@@ -1,4 +1,4 @@
-"""Bounded XY reads and pyramid construction shared by tiled processing."""
+"""Bounded XY reads and pyramid construction shared by overview processing and viewing."""
 from copy import deepcopy
 import numpy as np
 import zarr

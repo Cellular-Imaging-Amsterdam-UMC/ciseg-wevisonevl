@@ -172,42 +172,7 @@ nuclei” distinguishes positive brown nuclei from blue negatives. The white
 filament query demonstrates network foreground rather than complete axon tracing.
 Fluorescence/DAB improvements are qualitative because no manual masks were supplied.
 
-The [tile study](tiling.html) reports real 512/768/1024-pixel GPU runs against
-87 consensus organoid instances. Nominal 768/192 gave Dice 0.917 and instance
-F1 0.939 at IoU ≥ 0.5, compared with 0.881/0.906 for the earlier whole-image run.
-Actual edge overlap exceeds nominal overlap. These results do not establish
-general large-tilescan support or universal optimal settings.
-
-That earlier study had 39 passing tests, including five prototype stitching
-tests. The development Python workflow now adds a separate disk-backed tiled
-route, with streamed projection, label pyramids and measurements. The whole-image
-16-megapixel guard remains. Additional regression tests cover seam identity,
-touching neighbors, ambiguity, global area filtering, calibration, every channel,
-Z/time axis order, HCS fields, failed-run rollback and bounded GUI overviews.
-The existing v0.1.0 Docker image remains unchanged.
-
-## Whole/part modality follow-up and simpler controls
-
-The [modality comparison](imaging-modes.html) adds 37 candidate descriptions
-on nine prepared 2D views. Seven new views and eleven labels were retained:
-two phase-contrast Paramecium panels, chloroplast TEM, endothelial fluorescence,
-a native kidney optical section, and two insulin IHC views. The current gallery
-contains **22 positively selected examples and 29 labels** after 89 candidate
-queries across the two studies. These new views have no manual reference masks.
-IHC cell-level and several kidney substructure queries remain unreliable and
-are excluded rather than presented as validated segmentations.
-
-Final retained masks were rerun through the actual workflow with descriptive
-label names. All eleven new labels preserved source pixels exactly and produced
-46 CSV rows; calibrated areas were checked against pixel counts and XY spacing.
-Raw arrays, all experiments and publication source images remain local.
-
-Fresh descriptor/CLI defaults now use blank prompts and `target1` through
-`target4`. The launcher honors advanced descriptor flags and collapses that panel
-initially. Channel inputs select one grayscale channel or three explicit RGB
-channels for each target; the renamed intensity-scaling control changes only
-their contrast. The 39-test suite also checks the generic defaults and advanced
-panel visibility/value retention.
+Tile inference was removed after a large histology scan showed loss of anatomical context. The current [large-image workflow](tiling.html) uses a whole-field pyramid overview and scales its labels and measurements. Historical organoid tile benchmarks do not establish anatomical performance on histology.
 
 ## Primary sources
 

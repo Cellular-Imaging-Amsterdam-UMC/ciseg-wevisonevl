@@ -16,7 +16,9 @@ BASE_COLUMNS=["input_store","output_store","field_path","well_path","field_id","
               "bbox_min_y_um","bbox_min_x_um","bbox_max_y_um_exclusive","bbox_max_x_um_exclusive",
               "perimeter_px","perimeter_um","perimeter_um_method","equivalent_diameter_px","equivalent_diameter_um",
               "major_axis_length_px","major_axis_length_um","minor_axis_length_px","minor_axis_length_um",
-              "eccentricity","eccentricity_px","solidity","extent","orientation_rad","orientation_px_rad","shape_basis","measurement_method"]
+              "eccentricity","eccentricity_px","solidity","extent","orientation_rad","orientation_px_rad","shape_basis","measurement_method",
+              "measurement_height_px","measurement_width_px","measurement_scale_y","measurement_scale_x",
+              "measurement_area_px","measurement_pixel_size_y_um","measurement_pixel_size_x_um"]
 
 
 def physical_calibration(field):
@@ -83,20 +85,30 @@ class MeasurementCSV:
             self.partial.rename(self.path)
             print(f'MEASUREMENTS: {self.path} ({self.rows} rows)',flush=True)
 
-    def add(self,labels,field,prompt,source_field,time_index,settings,output_name,plane_cache=None):
+    def add(self,labels,field,prompt,source_field,time_index,settings,output_name,plane_cache=None,*,scale_yx=(1.,1.)):
+        sy,sx=map(float,scale_yx)
+        if not all(math.isfinite(v) and v>=1 for v in (sy,sx)):
+            raise ValueError('Measurement scales must be finite and at least one')
+        area_factor=sy*sx
+        def number(value):
+            return int(value) if float(value).is_integer() else float(value)
         props=regionprops(labels)
         if not props:
             return 0
         dy,dx,oy,ox=physical_calibration(field)
         calibrated=dy is not None and dx is not None
-        metric={r.label:r for r in regionprops(labels,spacing=(dy,dx))} if calibrated else {}
+        metric={r.label:r for r in regionprops(labels,spacing=(dy*sy,dx*sx))} if calibrated else {}
+        native={r.label:r for r in regionprops(labels,spacing=(sy,sx))}
         field_parts=field.path.split('/') if field.path else []
         rows=[]
         for region in props:
             physical=metric.get(region.label)
-            ymin,xmin,ymax,xmax=region.bbox
-            area=int(region.area)
-            perimeter,method=physical_perimeter(region,dy,dx) if calibrated else ('','')
+            scaled=native[region.label]
+            ymin,xmin,ymax,xmax=[number(v*f) for v,f in zip(region.bbox,(sy,sx,sy,sx))]
+            cy,cx=(float(region.centroid[0])+.5)*sy-.5,(float(region.centroid[1])+.5)*sx-.5
+            area=number(region.area*area_factor)
+            perimeter_px,_=physical_perimeter(region,sy,sx)
+            perimeter,method=physical_perimeter(region,dy*sy,dx*sx) if calibrated else ('','')
             rows.append({'input_store':source_field.store.name,'output_store':output_name,'field_path':field.path,
                          'well_path':'/'.join(field_parts[:-1]) if field_parts else '', 'field_id':field_parts[-1] if field_parts else '',
                          'time_index':time_index,'prompt_name':prompt.name,'prompt_text':prompt.text,'label_mode':settings.label_mode,
@@ -104,25 +116,32 @@ class MeasurementCSV:
                          'source_z_planes':source_field.z_planes,'area_px':area,'area_um2':area*dx*dy if dx is not None and dy is not None else '',
                          'pixel_size_y_um':dy if dy is not None else '', 'pixel_size_x_um':dx if dx is not None else '',
                          'origin_y_um':oy if oy is not None else '', 'origin_x_um':ox if ox is not None else '',
-                         'centroid_y_px':float(region.centroid[0]),'centroid_x_px':float(region.centroid[1]),
-                         'centroid_y_um':float(region.centroid[0])*dy+oy if dy is not None else '',
-                         'centroid_x_um':float(region.centroid[1])*dx+ox if dx is not None else '',
+                         'centroid_y_px':cy,'centroid_x_px':cx,
+                         'centroid_y_um':cy*dy+oy if dy is not None else '',
+                         'centroid_x_um':cx*dx+ox if dx is not None else '',
                          'bbox_min_y_px':ymin,'bbox_min_x_px':xmin,'bbox_max_y_px_exclusive':ymax,'bbox_max_x_px_exclusive':xmax,
                          'bbox_min_y_um':ymin*dy+oy if dy is not None else '', 'bbox_min_x_um':xmin*dx+ox if dx is not None else '',
                          'bbox_max_y_um_exclusive':ymax*dy+oy if dy is not None else '', 'bbox_max_x_um_exclusive':xmax*dx+ox if dx is not None else '',
-                         'perimeter_px':float(region.perimeter),'equivalent_diameter_px':float(region.equivalent_diameter_area),
+                         'perimeter_px':float(perimeter_px),'equivalent_diameter_px':float(scaled.equivalent_diameter_area),
                          'perimeter_um':perimeter,'perimeter_um_method':method,
                          'equivalent_diameter_um':float(physical.equivalent_diameter_area) if physical is not None else '',
-                         'major_axis_length_px':float(region.axis_major_length),'minor_axis_length_px':float(region.axis_minor_length),
+                         'major_axis_length_px':float(scaled.axis_major_length),'minor_axis_length_px':float(scaled.axis_minor_length),
                          'major_axis_length_um':float(physical.axis_major_length) if physical is not None else '',
                          'minor_axis_length_um':float(physical.axis_minor_length) if physical is not None else '',
-                         'eccentricity':float(physical.eccentricity if physical is not None else region.eccentricity),
-                         'eccentricity_px':float(region.eccentricity),'solidity':float(region.solidity),'extent':float(region.extent),
-                         'orientation_rad':float(physical.orientation if physical is not None else region.orientation),
-                         'orientation_px_rad':float(region.orientation),'shape_basis':'physical_um' if calibrated else 'pixels'})
+                         'eccentricity':float(physical.eccentricity if physical is not None else scaled.eccentricity),
+                         'eccentricity_px':float(scaled.eccentricity),'solidity':float(region.solidity),'extent':float(region.extent),
+                         'orientation_rad':float(physical.orientation if physical is not None else scaled.orientation),
+                         'orientation_px_rad':float(scaled.orientation),'shape_basis':'physical_um' if calibrated else 'pixels',
+                         'measurement_method':'overview_scaled' if area_factor!=1 else 'native_regionprops',
+                         'measurement_height_px':labels.shape[0],'measurement_width_px':labels.shape[1],
+                         'measurement_scale_y':sy,'measurement_scale_x':sx,'measurement_area_px':int(region.area),
+                         'measurement_pixel_size_y_um':dy*sy if dy is not None else '',
+                         'measurement_pixel_size_x_um':dx*sx if dx is not None else ''})
         indices=[int(p.label) for p in props]
         for channel in range(1,field.cyx_shape[0]+1):
             pixels=plane_cache.get(channel-1) if plane_cache is not None else None
+            if pixels is None and area_factor!=1:
+                raise ValueError('Overview measurements require every channel at overview resolution')
             if pixels is None:
                 pixels=field.pixels([channel],time_index)[channel-1]
             finite=np.isfinite(pixels)
@@ -134,9 +153,9 @@ class MeasurementCSV:
             for i,row in enumerate(rows):
                 prefix=f'channel_{channel}_'
                 count=int(counts[i])
-                row.update({prefix+'valid_pixels':count,prefix+'min':float(minima[i]) if count else '',
+                row.update({prefix+'valid_pixels':number(count*area_factor),prefix+'min':float(minima[i]) if count else '',
                             prefix+'max':float(maxima[i]) if count else '',prefix+'mean':float(totals[i]/count) if count else '',
-                            prefix+'total':float(totals[i]) if count else ''})
+                            prefix+'total':float(totals[i])*area_factor if count else ''})
         self.writer.writerows(rows)
         self.stream.flush()
         self.rows+=len(rows)

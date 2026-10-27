@@ -92,6 +92,8 @@ class Predictor:
         self.engine = WeVisOneVL(str(folder), backend="transformers", device=device,
                                 dtype="bfloat16", max_pixels=settings.max_side ** 2,
                                 decoder_batch_size=settings.decoder_batch_size)
+        from .attention import install_bounded_attention
+        install_bounded_attention(self.engine.model)
         original_generate = self.engine.model.generate
 
         def checked_generate(*args, **kwargs):
@@ -113,7 +115,19 @@ class Predictor:
             if len(parsed) != count:
                 result = SimpleNamespace(response=response, prompt=prompt, boxes=parsed, masks=[])
                 raise PredictionError(f"Model generated {count} object tokens but {len(parsed)} valid boxes. Refusing misaligned mask decoding; try a more specific prompt or an explicit smaller ROI.", result)
-            return original_decode(image, prompt, response, boxes=parsed)
+            # Decoding captures all last hidden states; vocabulary logits are unused.
+            # Limit the LM head to one token without truncating captured states.
+            from functools import wraps
+            forward = self.engine.model.forward
+            @wraps(forward)
+            def decode_forward(*args, **kwargs):
+                kwargs['logits_to_keep'] = 1
+                return forward(*args, **kwargs)
+            self.engine.model.forward = decode_forward
+            try:
+                return original_decode(image, prompt, response, boxes=parsed)
+            finally:
+                self.engine.model.forward = forward
 
         self.engine.decode_masks = checked_decode
 

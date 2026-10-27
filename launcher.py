@@ -195,6 +195,8 @@ class Window(QMainWindow):
         self.input_path.setText(state.get("input", self.input_path.text()))
         self.output_path.setText(state.get("output", self.output_path.text()))
         for name, value in state.get("values", {}).items():
+            if name == 'max_side' and state.get('image_strategy') != 'pyramid_overview_v1':
+                continue
             widget = self.widgets.get(name)
             if isinstance(widget, QComboBox):
                 index = widget.findData(str(value))
@@ -207,7 +209,7 @@ class Window(QMainWindow):
 
     def start(self, preflight):
         command = build_local_command(self.values(), self.input_path.text(), self.output_path.text(), preflight)
-        self.state_path.write_text(json.dumps({"input": self.input_path.text(), "output": self.output_path.text(), "values": self.values()}, indent=2))
+        self.state_path.write_text(json.dumps({"image_strategy": "pyramid_overview_v1", "input": self.input_path.text(), "output": self.output_path.text(), "values": self.values()}, indent=2))
         self.log.clear()
         self.status.setText("Checking input…" if preflight else "Running segmentation…")
         self.run_button.setEnabled(False)

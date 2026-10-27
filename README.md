@@ -106,15 +106,7 @@ physical plane position; XY/time calibration and origins remain intact. Existing
 volume labels are omitted from the new projection output instead of numerically
 projecting instance IDs. They remain in the original source store.
 
-Whole-image mode retains the 16-megapixel XY limit. For larger scans, explicitly
-select **Advanced parameters → Image processing → Tile by tile (large scans)**
-or `--processing-mode tiled`. The defaults are **2048 × 2048 source pixels** with
-**256 pixels overlap**. The model view is independently limited to 1024 pixels
-per side by default, configurable up to 2048; a 4096-pixel tile is therefore
-downsampled for the model. Labels return to native coordinates. Input/projection,
-stitching, label pyramids and measurements use bounded blocks and disk-backed
-state. See [large-image usage and limitations](docs/tiling.md). Tracking and
-native 3D segmentation are not included.
+The workflow predicts once per prompt on a whole-field pyramid overview, with an automatic maximum side of **3072 pixels on 24 GB** or **4096 on 47 GB**, within the configurable 4096-pixel ceiling. It selects the closest pyramid level at or above this limit and area-resizes it. Labels are smoothly restored to native dimensions without interpolating integer IDs. Tile-by-tile inference has been removed. See [large images and measurement scaling](docs/tiling.md). Tracking and native 3D segmentation are not included.
 
 These controls belong to the **unreleased Python development version**. The
 published v0.1.0 container retains its original whole-image behavior. Use its
@@ -157,7 +149,7 @@ describes a label ID within its source, field, timepoint and prompt.
 - Valid pixel count and min/max/mean/total intensity for every image channel,
   including channels not supplied to the model.
 
-Intensities use original 2D pixels or the projection before model normalization.
+Intensities use the unnormalized working pyramid overview (or its Z projection).
 NaN/Inf pixels are excluded and reflected in the valid count. Empty masks create
 no object rows; empty runs still write headers. Semantic label 1 describes the
 entire merged region for that prompt.
@@ -167,13 +159,7 @@ independently; shape axes and eccentricity use physical spacing instead of an
 average pixel size. `shape_basis` records whether shape ratios/angles use physical
 or pixel geometry. Isotropic perimeter scales the pixel estimator; anisotropic
 perimeter uses scaled closed contours, recorded in `perimeter_um_method`.
-Tiled mode uses streamed moments and an exposed pixel-edge perimeter estimator,
-recorded in `measurement_method` and `perimeter_um_method`. It includes holes and
-image edges and differs from the whole-image estimator. Solidity is blank in
-tiled mode; no giant convex-hull mask is allocated. Areas, centroids, bounding
-boxes, covariance-based axes, eccentricity, orientation and channel statistics
-remain available. Intensities retain their original units, ratios remain
-dimensionless and angles remain radians. Physical columns are blank when calibration is unavailable.
+Measurements are calculated on the working overview, before model contrast scaling, and converted to native coordinates. Area, valid counts and total intensity multiply by scale Y × scale X; mean/min/max do not. Shape lengths and moments use the separate axis scales, then physical calibration. These are estimates, not native-resolution remeasurements. Solidity and extent are available on the bounded overview. Method, working dimensions and scale factors are exported. Physical columns remain blank when calibration is unavailable.
 
 The final CSV is published only after the whole run succeeds. Failed runs retain
 `measurements.partial-*`. The Bilayers descriptor declares one measurement output
@@ -227,20 +213,9 @@ and curation tools preserve all original images and unselected experiments.
 Regenerating curated results requires the retained inputs/comparison records;
 the committed site can be viewed without downloading any models or source stores.
 
-## Large-image research
+## Large-image processing
 
-[The tile study](docs/tiling.md) compares 512/128, 768/192 and 1024/256 windows
-and nominal overlaps against 87 consensus organoid instances. The 768/192
-prototype scored foreground Dice 0.917 and instance F1 0.939, versus 0.881 and
-0.906 for the earlier whole-image run. This is one controlled example, not a
-universal tile-size optimum. Edge alignment increases actual overlap.
-
-The current Python workflow adds a separate disk-backed tiled route for large
-scans. The earlier prototype remains a small-image research reference. The
-whole-image guard remains; only explicit tiled mode permits larger fields.
-Local histology tests distinguish completed processing from anatomical accuracy:
-tile context can produce false positives and missed staining. Inspect overlays
-and seam traces; an unambiguous stitch does not establish a correct prediction.
+[The large-image guide](docs/tiling.md) describes whole-field pyramid selection, smooth native label restoration and scaled overview measurements. Tile inference lost anatomical context on the large histology scan and has been removed. Historical experiments are not evidence of anatomical accuracy.
 
 ## Documentation and publication
 

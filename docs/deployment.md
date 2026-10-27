@@ -1,19 +1,10 @@
 # BIOMERO, Docker and Slurm deployment
 
-The current Python development checkout adds tiled processing. **The published
-v0.1.0 image does not contain this feature.** Use the v0.1.0 tagged descriptor
-with that image; the development descriptor targets an unpublished local `dev`
-build. Updating a running BIOMERO workflow requires a separately validated image
-and matching descriptor, not merely changing its parameters.
+The development checkout replaces tile inference with whole-field pyramid overview prediction, default maximum side 4096. The released v0.1.0 image retains its original behavior; always use the descriptor matching the source-pinned container. See [large-image selection, smooth labels and measurement scaling](tiling.html).
 
-For development tiled runs, 4096-pixel source tiles and a 2048-pixel model view
-have been tested locally on an RTX A5000 24 GB. The 12.9-megapixel IHC test used
-12.10 GiB peak allocated GPU memory, 14.10 GiB reserved and 24.16 GiB process RSS.
-Reserve one 24 GB GPU and start with 32 GB host RAM and four CPU cores. Tiling
-bounds image memory but does not reduce the model's baseline allocation. Tile
-size, model view size, prompt length and object count still affect resources.
-Disk space must cover a source copy, each prompt's uint32 label pyramid and
-temporary ID/ownership canvases. Compression depends on the actual data.
+Large views need more working memory. Query-chunked exact attention retains full-image keys while bounding temporary workspace in both the vision and language backbones. Mask decoding also avoids unused full-sequence vocabulary logits. Actual peak still depends on dimensions, aspect ratio, prompt length and object count. Validate the requested view on the target partition; a long narrow image is not equivalent to a square 4096-pixel image. Current local validation results are recorded separately below when available.
+
+Disk must cover the source image copy, independent native uint32 label pyramids for every prompt, and staged replacement results. Label writing is bounded; shape/intensity measurement uses only the working overview. Historical tile performance measurements do not establish the resource needs of this new route.
 
 Release **v0.1.0** provides the headless `linux/amd64` image
 [`cellularimagingcf/w_cisegwevisonevl:v0.1.0`](https://hub.docker.com/r/cellularimagingcf/w_cisegwevisonevl/tags?name=v0.1.0).
@@ -23,6 +14,23 @@ The image includes the pinned WeVisOne-VL-4B weights and pixel decoder, approxim
 19.37 GB of model files. Inference runs offline; no model download or Hugging Face
 token is required on the compute node. The desktop GUI is distributed in the
 source release and is not installed in this headless image.
+
+## Overview development validation and Helios profiles
+
+The local RTX A5000 24 GB processed the complete esophagus overview at 4096 × 1910 for all four prompts. Each prediction took approximately 15 seconds. Maximum PyTorch allocated memory was **12.10 GiB**, reserved **13.37 GiB**; after cleanup the loaded model retained about **9.10 GiB allocated**. These measurements describe the overview GPU phase, not complete export/import runtime or every possible image. Automatic mode conservatively uses a 3072-pixel ceiling for 24 GB; a separate 3072 overview probe took about 6.2 seconds with 11.56 GiB allocated and 12.27 GiB reserved. The 47 GB profile defaults to 4096 and still requires validation on the real device. 12 GB is not a supported profile.
+
+Helios exposes GPU types through Slurm GRES. The [official GPU guide](https://hg-aumc.gitlab.io/hpc-aumc/user-wiki/job_management/gpu_basics/) lists `2g.24gb` and `4g.47gb`; verify currently available types with `sinfo`. These are GPU/MIG resource types within the GPU partition. Host RAM is requested separately. For example:
+
+```bash
+# 24 GB GPU profile, normally a 3072-pixel overview ceiling
+sbatch --partition=gpu --gres=gpu:2g.24gb:1 --cpus-per-task=8 --mem=52G job.sh
+# 47 GB GPU profile, normally a 4096-pixel overview ceiling
+sbatch --partition=gpu --gres=gpu:4g.47gb:1 --cpus-per-task=18 --mem=100G job.sh
+```
+
+These site-specific examples follow the published profile allocations; they do not replace the portable defaults or the local A5000 Slurm configuration. The application inspects its assigned CUDA device and free VRAM after model loading. A smaller overview is retried after CUDA out-of-memory; actual dimensions and measurement scale are retained in reports and CSV. Use Apptainer `--nv` as documented by Helios.
+
+The release guidance below describes v0.1.0; use the separately pinned overview descriptor and local development image for the new route.
 
 ## GPU partition requirements
 

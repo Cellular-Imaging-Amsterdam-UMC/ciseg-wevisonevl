@@ -1,16 +1,13 @@
 from dataclasses import asdict
 from pathlib import Path
-import json
 import time
 from uuid import uuid4
-import numpy as np
-from PIL import Image
 import zarr
 
 from . import __version__
 from .settings import UPSTREAM_COMMIT
-from .io import discover, inspect_store, write_labels, write_json, publish_store
-from .inference import Predictor, render_rgb, combine_masks
+from .io import discover, inspect_store, write_json, publish_store
+from .inference import Predictor
 from .projection import prepare_output
 from .measurements import MeasurementCSV
 from .outputs import replace_completed_run
@@ -38,7 +35,7 @@ def preflight(input_dir, output_dir, settings, prompts):
             raise ValueError(f'Refusing to replace a linked output store: {output}')
         if settings.overwrite and output.exists() and (not output.is_dir() or not (output/'wevisone-run.json').is_file()):
             raise ValueError(f'Refusing to replace a folder without a CISegWeVisOneVL run report: {output}')
-        fields = inspect_store(store, prompts, check_label_names=settings.input_labels == 'keep', allow_large=settings.processing_mode == 'tiled')
+        fields = inspect_store(store, prompts, check_label_names=settings.input_labels == 'keep', allow_large=True)
         selected_channels = {c for prompt in prompts for c in prompt.channels}
         for field in fields:
             field.render_options(settings.normalization, selected_channels)
@@ -84,7 +81,7 @@ def _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
         report['measurements_file']='../measurements.csv'
         try:
             print(f"Preparing images and per-timepoint Z projections: {store.name}", flush=True)
-            prepared = prepare_output(store, partial, fields, prompts, settings.projection, settings.input_labels, allow_large=settings.processing_mode == 'tiled')
+            prepared = prepare_output(store, partial, fields, prompts, settings.projection, settings.input_labels, allow_large=True)
             report["input_fields"] = [{"field":f.path,"timepoints":f.timepoints,"source_z_planes":f.z_planes,
                                        "projection":settings.projection if f.z_planes>1 else "none",
                                        "source_axes":f.names,"output_axes":prepared[f.path].names} for f in fields]
@@ -116,46 +113,5 @@ def _run_jobs(jobs,settings,prompts,predictor,started,model_loaded,measurements)
     return outputs
 
 
-def _segment_frame(predictor, settings, prompts, source_field, field, output, index, time_index, report, measurements, output_name):
-    if settings.processing_mode == 'tiled':
-        from .tiled import segment_frame
-        return segment_frame(predictor,settings,prompts,source_field,field,output,index,time_index,report,measurements,output_name)
-    print(f"  Timepoint {time_index+1}/{field.timepoints}",flush=True)
-    planes=field.pixels([c for p in prompts for c in p.channels],time_index)
-    for slot,prompt in enumerate(prompts,1):
-        rgb,limits=render_rgb(planes,prompt.channels,settings.normalization,
-                              **source_field.render_options(settings.normalization,prompt.channels))
-        native_shape=(rgb.height,rgb.width)
-        rgb.thumbnail((settings.max_side,settings.max_side),Image.Resampling.LANCZOS)
-        tick=time.perf_counter()
-        prediction=predictor.predict(rgb,prompt.text)
-        labels,count=combine_masks(prediction.masks,native_shape,settings.threshold,settings.min_area,settings.label_mode)
-        coverage=float(np.count_nonzero(labels)/labels.size)
-        entry={"field":field.path,"time_index":time_index,"slot":slot,"name":prompt.name,"query":prompt.text,
-               "projection":settings.projection if source_field.z_planes>1 else "none","source_z_planes":source_field.z_planes,
-               "channels":list(prompt.channels),"normalization_limits":limits,
-               "model_input_size_xy":list(rgb.size),"native_size_yx":list(native_shape),
-               "response":prediction.response,"generated_prompt":prediction.prompt,
-               "boxes_normalized_xyxy":prediction.boxes,"predicted_instances":len(prediction.masks),
-               "retained_instances":count,"foreground_pixels":int(np.count_nonzero(labels)),"foreground_fraction":coverage,
-               "seconds":time.perf_counter()-tick,"overlap_policy":"highest probability; first prediction wins ties",
-               "label_mode":settings.label_mode,"threshold":settings.threshold,"model":settings.model,
-               "model_revision":predictor.manifest.get("revision")}
-        if coverage>.8:
-            entry["review_note"]=f"Mask covers {coverage:.1%} of the field. Inspect the overlay for foreground/background confusion."
-            print("  REVIEW: "+entry["review_note"],flush=True)
-        write_labels(output,field,prompt,labels,entry,time_index)
-        measurement_started=time.perf_counter()
-        entry['measurement_rows']=measurements.add(labels,field,prompt,source_field,time_index,settings,output_name,planes)
-        entry['measurement_seconds']=time.perf_counter()-measurement_started
-        prefix=f"field{index+1:04d}_t{time_index:04d}_{prompt.name}"
-        preview_path=output/"wevisone_previews"
-        rgb.save(preview_path/(prefix+"_input.png"))
-        preview_labels=np.asarray(Image.fromarray(labels.astype(np.int32)).resize(rgb.size,Image.Resampling.NEAREST))
-        overlay=np.asarray(rgb).copy()
-        foreground=preview_labels>0
-        overlay[foreground]=(.55*overlay[foreground]+.45*np.array([255,70,180])).astype(np.uint8)
-        Image.fromarray(overlay).save(preview_path/(prefix+"_overlay.png"))
-        report["fields"].append(entry)
-        print(f"  {prompt.name}: {count} retained / {len(prediction.masks)} predicted instances, {entry['seconds']:.1f}s",flush=True)
-        write_json(output/"wevisone-run.json",report)
+
+from .overview import segment_frame as _segment_frame

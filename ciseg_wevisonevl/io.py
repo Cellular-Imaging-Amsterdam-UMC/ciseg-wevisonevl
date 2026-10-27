@@ -150,7 +150,7 @@ def inspect_store(store, prompts, *, check_label_names=True, allow_large=False):
         if any(size < 1 for size in sizes.values()):
             raise ValueError("Every image axis must contain at least one element")
         if sizes["x"] * sizes["y"] > 16_777_216 and not allow_large:
-            raise ValueError("2D field exceeds 16 megapixels; select Tile by tile processing or prepare an explicit ROI")
+            raise ValueError("2D field exceeds 16 megapixels; use bounded pyramid-overview processing")
         if any(c > sizes.get("c", 1) for p in prompts for c in p.channels):
             raise ValueError(f"{store.name}/{path}: requested channel does not exist (C={sizes.get('c',1)})")
         if array.dtype.kind not in "uif":

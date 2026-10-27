@@ -1,185 +1,63 @@
-<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Large images &amp; object fusion · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html" aria-current="page">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.2.0.dev0</div><h1>Large images &amp; object fusion</h1></header><article class="prose"><h2 id="availability">Availability</h2>
-<p>The development Python workflow supports explicit tiled processing through the
-GUI, launcher and CLI. The published v0.1.0 container retains its original
-whole-image implementation; use its tagged descriptor with that image. The
-development descriptor's <code>dev</code> image is a local build target, not a published
-release. No new image or live BIOMERO configuration is implied by these changes.</p>
-<h2 id="controls">Controls</h2>
-<p>Open <strong>Advanced parameters → Image processing → Tile by tile (large scans)</strong>.</p>
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CISegWeVisOneVL: text-prompted biological segmentation for OME-Zarr, automatic 3D projection and actual public example results."><title>Large images &amp; scaled measurements · CISegWeVisOneVL</title><script src="assets/theme.js"></script><link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/themes.css"><script src="assets/site.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="topbar"><div class="shell nav"><a class="brand" href="index.html"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" stroke="currentColor"/><rect x="9" y="9" width="9" height="9" rx="2" fill="#a83469"/><rect x="22" y="9" width="9" height="9" rx="2" fill="#d1a9b8"/><rect x="9" y="22" width="9" height="9" rx="2" fill="#9bc8b5"/><rect x="22" y="22" width="9" height="9" rx="2" fill="currentColor"/></svg> CISegWeVisOneVL</a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Overview</a><a href="workflow.html">Workflow</a><a href="examples.html">Examples</a><a href="tiling.html" aria-current="page">Large images</a><a href="research.html">Validation</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Theme: Dark. Switch to Bright" aria-pressed="true"><span class="theme-bright">Bright</span><span class="theme-dark">Dark</span></button><a class="repo" href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl">GitHub ↗</a></nav></div></header><main class="shell" id="main"><header class="page-head"><div class="eyebrow">Documentation · version 0.2.0.dev0</div><h1>Large images &amp; scaled measurements</h1></header><article class="prose"><p>Tile-by-tile inference was removed on 27 October 2026: small tissue fragments in individual tiles lost anatomical context and produced a patchwork on a large histology scan. Each prompt now sees one overview of the entire field, independently for every timepoint and HCS field.</p>
+<h2 id="image-selection">Image selection</h2>
+<p>The maximum overview side is <strong>4096 pixels</strong> (Advanced ceiling, configurable from 128 to 4096). Automatic GPU profiles are enabled by default: <strong>3072</strong> for the 24 GB class and <strong>4096</strong> for larger supported GPUs, subject to the configured ceiling and free memory. Devices below the 24 GB class, including 12 GB MIG, are not supported. The detected capacity is that of the CUDA device assigned to the job, including a MIG slice, not the sum of physical GPUs. Select the smallest existing pyramid level whose longest side is at least this limit, then area-resize it with its aspect ratio preserved. The longest output side is exactly the limit, with the other side rounded to the nearest pixel. Small images retain native dimensions. If no lower pyramid exists, bounded source reads construct the overview without loading a giant native plane.</p>
+<p>For a 53912 × 25139 scan with a 6739 × 3142 pyramid level, inference uses a <strong>4096 × 1910</strong> overview. The next smaller 3369 × 1571 level is deliberately not selected. Existing pyramid pixels define the sampled intensities; model contrast scaling is applied afterwards. All image channels, including channels absent from prompts, are measured on the same working overview. Z projections remain independent per timepoint and channel.</p>
+<h2 id="automatic-resolution-and-memory-fallback">Automatic resolution and memory fallback</h2>
+<p>The planner keeps a reserve of at least 2 GiB or 15% of assigned device memory and uses a conservative workspace estimate after the model is loaded. Busy devices can select a smaller overview. This estimate is not a guarantee for every prompt. CUDA out-of-memory triggers a new whole-field overview at approximately 75% of the previous side (rounded down to 128-pixel steps), down to 128. A non-memory error fails the run. No failed prediction is published as a completed label; retries and actual dimensions are recorded. Per-prompt scales may differ after a retry. Configured-limit mode bypasses profile selection but retains the out-of-memory fallback.</p>
+<p>The 24 GB profile starts at 3072; the 47 GB profile starts at 4096. The 47 GB profile has not been validated on actual Helios hardware. The user stopped the exploratory 12 GB investigation; this is not a supported profile. A larger GPU does not establish better segmentation accuracy.</p>
+<h2 id="native-labels-and-smooth-edges">Native labels and smooth edges</h2>
+<p>Native-resolution uint32 labels and calibrated OME-Zarr pyramids are written in bounded blocks. Each instance's signed distance is interpolated bilinearly; the largest positive distance owns a pixel and lower IDs win exact ties. Integer IDs themselves are never interpolated. Different prompts remain independent and may overlap. This smooths low-resolution pixel staircases but cannot recover biological detail absent from the overview. Distance smoothing may change the native raster's pixel area slightly; measurements intentionally describe the scaled overview, not a remeasurement of that raster.</p>
+<h2 id="measurements-and-scale">Measurements and scale</h2>
+<p>Let <code>sy = native_height / overview_height</code> and <code>sx = native_width / overview_width</code>. Both are recorded, including differences caused by rounding odd dimensions.</p>
 <table>
 <thead>
 <tr>
-<th>Control</th>
-<th>Default</th>
-<th>Meaning</th>
+<th>Quantity</th>
+<th>Conversion from working overview</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Processing mode</td>
-<td>Whole image</td>
-<td>Explicit Tiled is required above 16 megapixels</td>
+<td>Area, valid pixel count, total intensity</td>
+<td>Multiply by <code>sy * sx</code></td>
 </tr>
 <tr>
-<td>Source tile side</td>
-<td>2048 native pixels</td>
-<td>Full window including shared context; maximum 4096</td>
+<td>Minimum, maximum, mean intensity</td>
+<td>Retain measured overview value, before contrast scaling</td>
 </tr>
 <tr>
-<td>Overlap</td>
-<td>256 native pixels</td>
-<td>Nominal stride 1792; must be less than half the tile side</td>
+<td>Bounding-box edges</td>
+<td>Multiply Y by <code>sy</code>, X by <code>sx</code></td>
 </tr>
 <tr>
-<td>Maximum model input side</td>
-<td>1024 pixels</td>
-<td>Each source tile is downsampled to this model-view bound; maximum 2048</td>
+<td>Centroid</td>
+<td>Pixel-center mapping: <code>(y + 0.5) * sy - 0.5</code>, and likewise for X</td>
 </tr>
 <tr>
-<td>Seam match IoU</td>
-<td>0.5</td>
-<td>Intersection/union in shared, already processed pixels</td>
+<td>Equivalent diameter</td>
+<td>Multiply by <code>sqrt(sy * sx)</code></td>
 </tr>
 <tr>
-<td>Skip blank RGB tiles</td>
-<td>Disabled</td>
-<td>Optional histology heuristic, described below</td>
+<td>Major/minor axes, eccentricity, orientation</td>
+<td>Transform overview moments with separate Y/X spacing</td>
+</tr>
+<tr>
+<td>Perimeter</td>
+<td>Scale the pixel estimator for equal spacing; use scaled closed marching-square contours for unequal spacing</td>
+</tr>
+<tr>
+<td>Physical coordinates and shapes</td>
+<td>Apply native NGFF spacing, ordered transforms and origins after overview scaling</td>
+</tr>
+<tr>
+<td>Solidity, extent</td>
+<td>Retain dimensionless overview ratios</td>
 </tr>
 </tbody>
 </table>
-<p>Example in PowerShell:</p>
-<pre><code class="language-powershell">.venv\Scripts\python.exe wrapper.py `
-  --infolder inputfolder\scan.ome.zarr --outfolder outputfolder\scan `
-  --processing-mode tiled --tile-size 2048 --tile-overlap 256 `
-  --max-side 2048 --normalization dtype --device cuda:0 `
-  --prompt-1 &quot;all separate tissue fragments, excluding the empty glass background&quot; `
-  --name-1 tissue --channels-1 1,2,3 `
-  --prompt-2 &quot;DAB staining&quot; --name-2 DAB_staining --channels-2 1,2,3
-</code></pre>
-<p>These are example queries, not validated annotations. The DAB test missed visible
-brown staining with an earlier query; prompt choice must be reviewed. Prompt
-groups remain independent and may overlap. Each timepoint and HCS field has its
-own grid and object identities. Existing input-label keep/remove and staged
-overwrite behavior also apply in tiled mode.</p>
-<h2 id="memory-io-and-contrast">Memory, IO and contrast</h2>
-<p>Source reads and Z reductions use bounded XY regions. Noncanonical axes and Z
-projections are rewritten in blocks; source stores remain untouched. Canonical
-2D sources are copied without changing pixels. Provisional uint32 labels and
-tile ownership live in Zarr on disk, with SQLite object equivalences. Final IDs,
-label pyramids and measurement aggregates are streamed in bounded passes.
-Source chunks larger than 256 MiB are rejected; rechunk those inputs first.</p>
-<p>Percentile limits are computed once per prompt/timepoint from a bounded existing
-overview, or deterministic native sampling when no overview is available. The
-same recorded limits apply to every tile. They can differ from exact full-image
-percentiles. Dtype and metadata scaling retain their normal meaning and original
-measurement intensities. Model memory is controlled by the separate model-view
-limit, decoder batch, tokens and object count, not by source tile size alone. A 4096-pixel source tile viewed
-at 2048 pixels approached the workstation GPU's total capacity during the large
-histology trial; it was stopped and retained for diagnostics. The default is now
-2048-pixel source tiles with a 1024-pixel model view.</p>
-<p><strong>GPU memory between calls</strong> defaults to releasing unused CUDA cache after every
-prediction, including failures. CPU result masks are retained; model weights stay
-loaded. Tile traces distinguish allocated tensor bytes from reserved allocator
-bytes before prediction, after prediction and after cleanup. Reusing the cache
-is an advanced speed option for a dedicated GPU. Releasing cache cannot free
-live model tensors and does not reduce the peak during an individual prediction.</p>
-<p>Allow disk space for a source copy, each prompt's uint32 pyramid and temporary
-uint32 IDs/uint16 ownership arrays plus SQLite files. Failed partial runs retain
-their diagnostics and can consume additional disk space. There is no automatic
-resume of a failed grid. The source image and earlier completed outputs remain
-unchanged if a new run fails.</p>
-<h2 id="seams-ids-and-review">Seams, IDs and review</h2>
-<p>Final windows are anchored to the image boundary, so actual overlap can exceed
-the nominal value. Tiles run in row-major order. Predicted instances match only
-if their overlap IoU reaches the threshold and they share at least eight pixels.
-Only reciprocal one-to-one candidates merge; ambiguous splits/merges stay
-separate and are counted. An iterative disk-backed union map carries identities
-across multiple neighbors and four-tile junctions.</p>
-<p>Within a model tile, highest probability owns a pixel and the first prediction
-wins ties. Between tiles, the context farthest from a tile edge owns each pixel;
-earlier tiles win equal-distance ties. This ownership includes background and is
-not probability blending. Minimum area is applied after seam resolution to
-complete objects. Semantic mode produces one binary class per prompt.</p>
-<p>Tile traces (<code>wevisone_previews/*_tiles.jsonl</code>) retain bounds, model-view sizes,
-responses, boxes, timings and skip reasons. The run report retains seam counts,
-normalization limits and the active tile on failure. Invalid or truncated model
-responses fail the run; they are not silently converted into background.</p>
-<p><strong>Local context changes predictions.</strong> A tile without the requested anatomy can
-still produce false positives. Initial human-esophagus trials detected some
-surface epithelium but also mislabeled muscle/background. Zero ambiguous seam
-matches does not establish biological accuracy. A cancer-related prompt is a
-model proposal, not a diagnosis or a validated tumor annotation. Inspect the
-whole overlay and representative native regions before using measurements.</p>
-<p>The optional blank-tile heuristic skips a tile when at most 0.1% of its scaled
-RGB pixels fall outside near-white (all components at least 220) or near-black
-(all at most 15). It is recorded per tile and can miss faint tissue. It is not
-a general-purpose tissue detector and is disabled by default.</p>
-<h2 id="streamed-measurements-and-viewer">Streamed measurements and viewer</h2>
-<p>Tiled CSV rows contain exact pixel counts, bounding boxes, centroids, coordinate
-moments, covariance-based axes/eccentricity/orientation, equivalent diameters and
-per-channel valid counts, min/max/mean/total. Ordered calibration transforms,
-anisotropic spacing and origins are preserved. Intensities use original pixels
-or the selected Z projection, including channels excluded from the model view.</p>
-<p>Perimeter counts exposed pixel edges, including holes and image boundaries. Each
-horizontal edge uses X spacing and each vertical edge uses Y spacing. This differs
-from the whole-image estimator and is explicitly marked <code>streamed_pixel_edges</code>.
-Solidity is blank; no giant convex-hull mask is allocated. <code>measurement_method</code>
-records these distinctions. Missing calibration leaves physical columns blank.</p>
-<p>The GUI opens existing overviews before reading large images/labels and reports
-native pixels per display pixel. Hover coordinates map to native pixels. Visible
-instance counts can exclude objects too small for the overview; 1:1 shows display
-pixels and does not load native detail on zoom. Stored labels remain native-sized.</p>
-<h2 id="earlier-organoid-experiment">Earlier organoid experiment</h2>
-<p>The original in-memory research prototype remains in <code>tools/experimental_tiling.py</code>
-and keeps its own 16-megapixel guard. On one native 1408 × 1040 organoid image,
-87 independent microSAM consensus instances were used for comparison:</p>
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th>Tile/overlap</th>
-<th>Tiles</th>
-<th>Foreground Dice</th>
-<th>Instance F1 at IoU &gt;= 0.5</th>
-<th>Predicted instances</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Earlier whole image</td>
-<td>View side 1024</td>
-<td>1</td>
-<td>0.881</td>
-<td>0.906</td>
-<td>83</td>
-</tr>
-<tr>
-<td>Prototype</td>
-<td>512/128</td>
-<td>12</td>
-<td>0.876</td>
-<td>0.888</td>
-<td>91</td>
-</tr>
-<tr>
-<td>Prototype</td>
-<td>768/192</td>
-<td>6</td>
-<td>0.917</td>
-<td>0.939</td>
-<td>92</td>
-</tr>
-<tr>
-<td>Prototype</td>
-<td>1024/256</td>
-<td>4</td>
-<td>0.911</td>
-<td>0.926</td>
-<td>88</td>
-</tr>
-</tbody>
-</table>
-<p>These results do not establish a universal tile size or accuracy on histological
-scans. The 2048/256 default is a large-scan starting point, not an accuracy optimum.</p>
-<p>Sources: <a href="https://github.com/Tencent/WeVisOne-VL">official WeVisOne-VL implementation</a>,
-<a href="https://zenodo.org/records/14036957">independent microSAM organoid data</a>.</p></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.2.0.dev0 · Public gallery from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>
+<p><code>measurement_method</code>, <code>measurement_height_px</code>, <code>measurement_width_px</code>, <code>measurement_scale_y/x</code>, <code>measurement_area_px</code> and effective measurement pixel spacings document the basis. Pixel counts and areas can be fractional after scaling. Integrated intensity is an <strong>estimated native-pixel sum</strong>, not an exact sum of original native pixels. Extremes may differ from native extrema because of pyramid averaging. No physical units are invented when calibration is absent. <code>min_area</code> is specified in native pixels and converted to the overview area before filtering.</p>
+<p>The original 2D image pixels are preserved in the output. The overview does not replace the native source. For volumes the output image is the documented Z projection; the input volume remains untouched. Staged overwrite and input-label keep/remove apply as before.</p>
+<h2 id="gpu-and-local-workflow">GPU and local workflow</h2>
+<p>The 4B model remains loaded between prompts; unused CUDA cache is released after each call by default. Exact query-chunked global attention bounds temporary workspace in both backbones, while retaining all keys for every query. BF16 kernel rounding can change probabilities slightly. Mask decoding avoids constructing unused vocabulary logits for every image token, while retaining the complete hidden states needed for masks. Actual peak memory depends on view dimensions, aspect ratio and generated object count. See the deployment validation report for measured hardware requirements; a 4096-square view is larger than a 4096 × 1910 example and must not be assumed to have the same peak.</p>
+<p><code>config-overview.yaml</code> is the separate development BIOMERO descriptor. Use a locally built, source-pinned overview container. Published v0.1.0 retains its original behavior and must keep its matching tagged descriptor. Historical tile results and failed predictions remain available locally; obsolete tile inference code and controls have been removed.</p>
+<p>Successful execution does not validate anatomical or tumor accuracy. Review every prompt overlay against the image; no diagnostic claim is made.</p></article></main><footer class="footer"><div class="shell footer-row"><span>Cellular Imaging · Amsterdam UMC</span><span>WeVisOne-VL-4B · Version 0.2.0.dev0 · Public gallery from 25 October 2026</span><a href="https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl/blob/main/NOTICE.md">Sources & licenses</a></div></footer></body></html>

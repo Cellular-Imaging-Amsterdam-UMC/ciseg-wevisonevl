@@ -191,7 +191,7 @@ def export_site(destination,inference):
 
 
 def build_guides(destination):
-    for stem,title in [('workflow','Workflow & usage'),('deployment','Docker, BIOMERO & GPU requirements'),('tiling','Large images & object fusion'),('prompt-study','Prompt comparison & selection'),('imaging-modes','Whole structures and their parts'),('research','Validation & limitations')]:
+    for stem,title in [('workflow','Workflow & usage'),('deployment','Docker, BIOMERO & GPU requirements'),('tiling','Large images & scaled measurements'),('prompt-study','Prompt comparison & selection'),('imaging-modes','Whole structures and their parts'),('research','Validation & limitations')]:
         source=destination/(stem+'.md')
         markdown_text=source.read_text(encoding='utf-8')
         if markdown_text.startswith('# '):markdown_text=markdown_text.split('\n',1)[1]

@@ -1,10 +1,14 @@
 citations:
-- name: CISegWeVisOneVL tiled
+- name: CISegWeVisOneVL overview
   doi: https://github.com/Cellular-Imaging-Amsterdam-UMC/ciseg-wevisonevl
   license: MIT
-  description: Tiled CISegWeVisOneVL development workflow for large OME-Zarr scans,
-    with bounded storage and measurements. The dev container is a local build target,
-    not a published release.
+  description: CISegWeVisOneVL uses WeVisOne-VL-4B to segment OME-Zarr images with
+    up to four text prompts. 3D images are automatically projected to 2D per timepoint
+    using Max (default) or Mean. Supports time series and HCS screens and writes one
+    CSV with basic shape and per-channel intensity measurements. Whole-field pyramid
+    overview inference (maximum side 4096) replaces tile-by-tile segmentation; labels
+    are smoothly restored to native dimensions and CSV measurements are scaled from
+    the overview.
 - name: WeVisOne-VL
   doi: https://github.com/Tencent/WeVisOne-VL
   license: Apache-2.0
@@ -14,7 +18,7 @@ docker_image:
   name: w_cisegwevisonevl
   tag: dev
   platform: linux/amd64
-algorithm_folder_name: CISegWeVisOneVL_Tiled
+algorithm_folder_name: CISegWeVisOneVL_Overview
 exec_function:
   name: generate_cli_command
   cli_command: python wrapper.py
@@ -75,11 +79,11 @@ outputs:
 - name: measurements_csv_out
   type: measurement
   label: Basic label measurements CSV
-  description: One measurements.csv for the complete run, covering every input, HCS
-    field, timepoint and prompt. Calibrated images include lengths and positions in
-    micrometers and area in square micrometers, alongside pixel references. Includes
-    min/max/mean/total intensity for every channel; measured on the projected image
-    for 3D inputs.
+  description: One measurements.csv across all fields and timepoints. Shapes are measured
+    on the working overview and transformed to native pixel coordinates and calibrated
+    physical units. Area, valid pixel counts and total intensity scale by Y*X. Mean/min/max
+    intensities are overview values. These are estimates, not native-resolution remeasurements;
+    scale and method are recorded.
   cli_tag: None
   default: ''
   optional: false
@@ -93,13 +97,29 @@ outputs:
   mode: beginner
 display_only: []
 parameters:
+- name: auto_resolution
+  type: dropdown
+  label: Overview resolution
+  description: Choose a conservative profile using the actual assigned GPU/MIG capacity
+    and current free memory. 24 GB starts at 3072; 47 GB starts at 4096, within the
+    configured maximum. Configured limit tries the maximum directly. Both modes retry
+    a smaller overview after CUDA out-of-memory and record actual resolution and scaling.
+  options:
+  - label: Automatic GPU profile (recommended)
+    value: 1
+  - label: Use configured limit with memory fallback
+    value: 0
+  default: 1
+  cli_tag: --auto-resolution
+  cli_order: 46
+  optional: true
+  section_id: advanced
+  mode: advanced
 - name: release_gpu_cache
   type: dropdown
   label: GPU memory between calls
   description: Release unused GPU cache after each model call, including failures.
-    Model weights stay loaded. Reusing the cache can be faster on a dedicated GPU
-    but keeps more memory reserved. Per-tile traces record allocated and reserved
-    bytes before and after cleanup.
+    Model weights stay loaded; per-prompt reports record cleanup.
   options:
   - label: Release unused cache (shared GPU)
     value: 1
@@ -108,80 +128,6 @@ parameters:
   default: 1
   cli_tag: --release-gpu-cache
   cli_order: 45
-  optional: true
-  section_id: advanced
-  mode: advanced
-- name: processing_mode
-  type: dropdown
-  label: Image processing
-  description: Whole image downsamples one field and is limited to 16 megapixels.
-    Tile by tile reads native tiles, stitches objects across overlap and streams labels,
-    pyramids and measurements to disk. Inspect seams and tile traces; predictions
-    depend on local context.
-  options:
-  - label: Whole image
-    value: whole
-  - label: Tile by tile (large scans)
-    value: tiled
-  default: tiled
-  cli_tag: --processing-mode
-  cli_order: 40
-  optional: true
-  section_id: advanced
-  mode: advanced
-- name: tile_size
-  type: integer
-  label: Source tile side (native pixels)
-  description: Model view size is controlled separately by Maximum model input side.
-  default: 2048
-  minimum: 256
-  maximum: 4096
-  cli_tag: --tile-size
-  cli_order: 41
-  optional: true
-  section_id: advanced
-  mode: advanced
-- name: tile_overlap
-  type: integer
-  label: Tile overlap (native pixels)
-  description: Must be less than half the tile side. Last tiles are anchored to the
-    image boundary and can overlap more.
-  default: 256
-  minimum: 0
-  maximum: 2047
-  cli_tag: --tile-overlap
-  cli_order: 42
-  optional: true
-  section_id: advanced
-  mode: advanced
-- name: tile_match_threshold
-  type: float
-  label: Seam object match IoU
-  description: Match reciprocal unambiguous instances in shared tile regions. Ambiguous
-    matches remain separate and are counted for review.
-  default: 0.5
-  minimum: 0.01
-  maximum: 1.0
-  cli_tag: --tile-match-threshold
-  cli_order: 43
-  optional: true
-  section_id: advanced
-  mode: advanced
-- name: skip_blank_tiles
-  type: dropdown
-  label: Skip blank RGB tiles
-  description: Optional histology heuristic. Skip tiles with at most 0.1% pixels outside
-    near-white (all RGB at least 220) or near-black (all RGB at most 15). Can miss
-    faint tissue. Applied after intensity scaling; recorded in tile traces. Disabled
-    by default.
-  options:
-  - label: Disabled
-    value: 0
-  - label: Skip near-white or near-black tiles
-    value: 1
-  default: 0
-  cli_tag: --skip-blank-tiles
-  cli_order: 44
   optional: true
   section_id: advanced
   mode: advanced
@@ -220,7 +166,7 @@ parameters:
   mode: advanced
 - name: prompt_1
   type: string
-  label: 1 — Prompt
+  label: 1 â€” Prompt
   description: English target description. Blank disables this slot.
   default: ''
   cli_tag: --prompt-1
@@ -230,7 +176,7 @@ parameters:
   mode: beginner
 - name: name_1
   type: string
-  label: 1 — Label name
+  label: 1 â€” Label name
   description: Unique output label name.
   default: target1
   cli_tag: --name-1
@@ -240,7 +186,7 @@ parameters:
   mode: beginner
 - name: channels_1
   type: string
-  label: 1 — Channels
+  label: 1 â€” Channels
   description: One RGB model image per target. Enter one channel (1) for grayscale,
     or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel
     inference; other channels are excluded from the model view but retained for measurements.
@@ -252,7 +198,7 @@ parameters:
   mode: beginner
 - name: prompt_2
   type: string
-  label: 2 — Prompt
+  label: 2 â€” Prompt
   description: Blank disables this slot.
   default: ''
   cli_tag: --prompt-2
@@ -262,7 +208,7 @@ parameters:
   mode: beginner
 - name: name_2
   type: string
-  label: 2 — Label name
+  label: 2 â€” Label name
   default: target2
   cli_tag: --name-2
   cli_order: 15
@@ -271,7 +217,7 @@ parameters:
   mode: beginner
 - name: channels_2
   type: string
-  label: 2 — Channels
+  label: 2 â€” Channels
   description: One RGB model image per target. Enter one channel (1) for grayscale,
     or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel
     inference; other channels are excluded from the model view but retained for measurements.
@@ -283,7 +229,7 @@ parameters:
   mode: beginner
 - name: prompt_3
   type: string
-  label: 3 — Prompt
+  label: 3 â€” Prompt
   description: Blank disables this slot.
   default: ''
   cli_tag: --prompt-3
@@ -293,7 +239,7 @@ parameters:
   mode: beginner
 - name: name_3
   type: string
-  label: 3 — Label name
+  label: 3 â€” Label name
   default: target3
   cli_tag: --name-3
   cli_order: 18
@@ -302,7 +248,7 @@ parameters:
   mode: beginner
 - name: channels_3
   type: string
-  label: 3 — Channels
+  label: 3 â€” Channels
   description: One RGB model image per target. Enter one channel (1) for grayscale,
     or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel
     inference; other channels are excluded from the model view but retained for measurements.
@@ -314,7 +260,7 @@ parameters:
   mode: beginner
 - name: prompt_4
   type: string
-  label: 4 — Prompt
+  label: 4 â€” Prompt
   description: Blank disables this slot.
   default: ''
   cli_tag: --prompt-4
@@ -324,7 +270,7 @@ parameters:
   mode: beginner
 - name: name_4
   type: string
-  label: 4 — Label name
+  label: 4 â€” Label name
   default: target4
   cli_tag: --name-4
   cli_order: 21
@@ -333,7 +279,7 @@ parameters:
   mode: beginner
 - name: channels_4
   type: string
-  label: 4 — Channels
+  label: 4 â€” Channels
   description: One RGB model image per target. Enter one channel (1) for grayscale,
     or exactly three channels (1,2,3) mapped to R,G,B in that order. No separate per-channel
     inference; other channels are excluded from the model view but retained for measurements.
@@ -372,7 +318,7 @@ parameters:
     metadata uses each selected channel's saved window.start and window.end; missing
     or invalid windows fail Check input. Only intensity limits are read from metadata;
     your explicit channel mapping is retained. Original source pixels and measurement
-    intensities are unchanged.
+    intensities are sampled from the unscaled pyramid overview.
   options:
   - label: Stretch each selected channel (1-99.8 percentile)
     value: percentile
@@ -415,13 +361,14 @@ parameters:
   mode: advanced
 - name: max_side
   type: integer
-  label: Maximum model input side (pixels)
-  description: Maximum model view side for the whole image or each source tile. Each
-    source tile is downsampled to this size when larger; increasing this value increases
-    GPU use. Masks are mapped back to native coordinates.
-  default: 1024
+  label: Maximum overview side (pixels)
+  description: Resolution ceiling, default 4096. Automatic GPU profiles normally use
+    3072 on 24 GB and 4096 on 47 GB; free memory can lower this. Configured-limit
+    mode permits a side up to 4096. CUDA out-of-memory retries use a smaller whole-field
+    overview. Larger views are not guaranteed to fit or improve masks.
+  default: 4096
   minimum: 128
-  maximum: 2048
+  maximum: 4096
   cli_tag: --max-side
   cli_order: 33
   optional: true

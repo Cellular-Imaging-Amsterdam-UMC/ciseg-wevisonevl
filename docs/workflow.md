@@ -97,15 +97,9 @@ launcher remains available through `launch.cmd`.
   separate-channel inference. For separate channel-specific targets, use
   different prompt slots with their own single-channel inputs.
 - Rendering changes only the model view. Measurements include every source
-  channel and use original 2D pixels or the projection before normalization.
+  channel and use the working pyramid overview before normalization.
 
-Whole-image mode is limited to 16 megapixels per XY plane. The unreleased Python
-development version also offers **Image processing → Tile by tile (large scans)**
-under Advanced, or `--processing-mode tiled`. Defaults are 2048-pixel source
-tiles and 256-pixel overlap. The model view remains independently limited to
-1024 pixels by default, configurable up to 2048. Masks return to native XY
-coordinates. See [large-image controls and measurements](tiling.html).
-The released v0.1.0 container does not include this tiled route.
+The development workflow uses one whole-field pyramid overview per prompt with a default maximum side of 4096 pixels. It chooses the closest level at or above the limit, then area-resizes. Native labels use smooth per-instance distance interpolation; measurements, including integrated intensities, are scaled from the working overview. Tile inference has been removed. See [large-image details](tiling.html). Published v0.1.0 retains its original behavior.
 
 ## Automatic 3D projection
 
@@ -222,8 +216,4 @@ mode to find phase contrast, EM, fluorescence and immunohistochemistry examples.
 EM examples are native 2D sections without Z projections. This is positive
 demonstration selection, not a representative accuracy benchmark.
 
-The [large-image guide](tiling.html) describes disk-backed stitching and streamed
-measurements in the development Python workflow, alongside the earlier organoid
-experiment. The whole-image limit remains. Large scans require explicit tiled
-mode; labels remain independent per prompt, field and timepoint. Per-tile
-anatomical predictions need review even when processing and stitching succeed.
+The [large-image guide](tiling.html) describes whole-field inference and scaled overview measurements. Prompts remain independent per field and timepoint; biological accuracy requires review.
