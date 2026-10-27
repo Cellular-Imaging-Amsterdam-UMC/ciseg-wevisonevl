@@ -1,7 +1,7 @@
 accelerate==1.14.0
 annotated-doc==0.0.5
 anyio==4.15.1
-asciitree==0.4.0
+asciitree==1.0.0
 av==19.0.2
 certifi==2026.10.23
 charset-normalizer==3.5.2
@@ -52,7 +52,7 @@ nvidia-nvshmem-cu12==3.4.5
 nvidia-nvtx-cu12==12.6.77
 packaging==26.3
 pillow==12.2.0
-platformdirs==4.13.5
+platformdirs==4.13.6
 pooch==1.9.0
 psutil==7.2.2
 pycocotools==2.0.11
